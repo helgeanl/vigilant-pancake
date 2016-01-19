@@ -4,19 +4,25 @@ import (
 	. "fmt"
 	"runtime"
 	"time"
+	"sync"
 )
 
 var i = 0
+var mutex = &sync.Mutex{}
 
 func thread_1() {
 	for j := 0; j < 99999; j++ {
+		mutex.Lock()
 		i++
+		mutex.Unlock()
 	}
 }
 
 func thread_2() {
 	for k := 0; k < 99999; k++ {
+		mutex.Lock()
 		i--
+		mutex.Unlock()
 	}
 }
 
