@@ -10,26 +10,33 @@ import (
 var i = 0
 var mutex = &sync.Mutex{}
 
-func thread_1() {
-	for j := 0; j < 99999; j++ {
+func thread_1(a *int) {
+	for j := 0; j < 1000001; j++ {
 		mutex.Lock()
 		i++
 		mutex.Unlock()
+		*a = j
 	}
 }
 
-func thread_2() {
-	for k := 0; k < 99999; k++ {
+func thread_2(a *int) {
+	for k := 0; k < 1000000; k++ {
 		mutex.Lock()
 		i--
 		mutex.Unlock()
+		*a = k
 	}
 }
 
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	go thread_1()
-	go thread_2()
-	time.Sleep(100 * time.Millisecond)
-	Println(i)
+	var a, b = 0, 0
+
+	go thread_1(&a)
+
+	go thread_2(&b)
+
+	time.Sleep(10000 * time.Millisecond)
+	Println("Done, value: ", i)
+	Println("Thread one run: ", a, " times. Thread two run: ", b, " times.")
 }
