@@ -19,6 +19,7 @@ func thread_1(ch chan int) {
 	}
 }
 
+
 func thread_2(ch chan int) {
 	var j = 0
 	for k := 0; k < 10000; k++ {
