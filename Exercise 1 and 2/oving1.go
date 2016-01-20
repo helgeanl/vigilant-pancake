@@ -31,7 +31,8 @@ func thread_2(a *int) {
 func main() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	var a, b = 0, 0
-
+	chan = make(chan int, 1);
+	<- chan
 	go thread_1(&a)
 
 	go thread_2(&b)
