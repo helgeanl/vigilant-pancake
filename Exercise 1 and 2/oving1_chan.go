@@ -11,20 +11,20 @@ import (
 //var mutex = &sync.Mutex{}
 
 func thread_1(ch chan int) {
+	var k = 0
 	for j := 0; j < 10000; j++ {
-		var i = <-ch
-		i++
-		ch <- i
-		//*a = j
+		k = <-ch
+		k++
+		ch <- k
 	}
 }
 
 func thread_2(ch chan int) {
+	var j = 0
 	for k := 0; k < 10000; k++ {
-		var i = <-ch
-		i--
-		ch <- i
-		//*a = k
+		j = <-ch
+		j--
+		ch <- j
 	}
 }
 
@@ -38,7 +38,7 @@ func main() {
 	go thread_1(ch)
 	go thread_2(ch)
 
-	time.Sleep(10000 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond)
 	Println("Done, value: ", <-ch)
 	//Println("Thread one run: ", a, " times. Thread two run: ", b, " times.")
 }
