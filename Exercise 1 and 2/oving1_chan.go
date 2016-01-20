@@ -4,11 +4,8 @@ import (
 	. "fmt"
 	"runtime"
 	"time"
-	//"sync"
 )
 
-
-//var mutex = &sync.Mutex{}
 
 func thread_1(ch chan int) {
 	var k = 0
