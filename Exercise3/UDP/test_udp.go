@@ -3,36 +3,24 @@ package main
 import (
     "fmt"
     "net"
-    "time"
+    //"time"
     "strconv"
 )
 
-func CheckError(err error) {
-    if err  != nil {
-        fmt.Println("Error: " , err)
-    }
+
+var laddr *net.UDPAddr //Local address
+var baddr *net.UDPAddr //Broadcast address
+
+func udp_init()(err error) {
+  //Generating broadcast address
+
+  baddr,err = net.ResolveUDPAddr("udp4", "255.255.255.255:"+strconv.Itoa(30000))
+  //broadcastListenConn, err := net.ListenUDP("udp", baddr)
+
+  fmt.Printf("Generating broadcast address: \t Network(): %s \t String(): %s \n", baddr.Network(), baddr.String())
+  return err
 }
 
-func main() {
-    ServerAddr,err := net.ResolveUDPAddr("udp","127.0.0.1:30000")
-    CheckError(err)
-
-    LocalAddr, err := net.ResolveUDPAddr("udp", "127.0.0.1:0")
-    CheckError(err)
-
-    Conn, err := net.DialUDP("udp", LocalAddr, ServerAddr)
-    CheckError(err)
-
-    defer Conn.Close()
-    i := 0
-    for {
-        msg := strconv.Itoa(i)
-        i++
-        buf := []byte(msg)
-        _,err := Conn.Write(buf)
-        if err != nil {
-            fmt.Println(msg, err)
-        }
-        time.Sleep(time.Second * 1)
-    }
+func main(){
+  udp_init()
 }
