@@ -4,6 +4,7 @@ import (
     "fmt"
     "net"
     "os"
+    "strconv"
 )
 
 /* A Simple function to verify error */
@@ -14,13 +15,28 @@ func CheckError(err error) {
     }
 }
 
+var laddr *net.UDPAddr //Local address
+var baddr *net.UDPAddr //Broadcast address
+
 func main() {
     /* Lets prepare a address at any address at port 10001*/
-    ServerAddr,err := net.ResolveUDPAddr("udp",":30303")
-    CheckError(err)
-    fmt.Printf("Server IP: %d", ServerAddr.IP)
+    //ServerAddr,err := net.ResolveUDPAddr("udp",":30303")
+    //CheckError(err)
+    //fmt.Printf("Server IP: %d", ServerAddr.IP)
+    var err error
+    //Generating broadcast address
+  	baddr, err = net.ResolveUDPAddr("udp4", ":"+strconv.Itoa(30302))
+
+    //Generating localaddress
+  	tempConn, err := net.DialUDP("udp4", nil, baddr)
+  	defer tempConn.Close()
+  	tempAddr := tempConn.LocalAddr()
+  	laddr, err = net.ResolveUDPAddr("udp4", tempAddr.String())
+  	laddr.Port = 30000
+
     /* Now listen at selected port */
-    ServerConn, err := net.ListenUDP("udp4", ServerAddr)
+    //ServerConn, err := net.ListenUDP("udp4", ServerAddr)
+    ServerConn, err := net.ListenUDP("udp4", baddr)
     CheckError(err)
     defer ServerConn.Close()
 
