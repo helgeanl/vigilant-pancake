@@ -1,4 +1,4 @@
-package main 
+package main
 
 
 import (
@@ -28,7 +28,7 @@ for {
 func main (){
 	send_ch := make (chan udp.Udp_message)
 	receive_ch := make (chan udp.Udp_message)
-	err := udp.Udp_init(30000, 20002, 1024, send_ch, receive_ch)	
+	err := udp.Udp_init(30000, 20007, 1024, send_ch, receive_ch)
 	go node(send_ch, receive_ch)
 
 
