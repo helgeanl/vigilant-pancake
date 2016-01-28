@@ -84,7 +84,7 @@ func receive(){
   var buffer;
   var fromWho;
   recvSock = new Socket(udp)
-  for 1 > 0{
+  for {
     buffer = 0;
     // fromWho will be modified by ref here. Or it's a return value. Depends.
     recvSock.receiveFrom(buffer, ref fromWho)

@@ -22,10 +22,12 @@ func main() {
     /* Lets prepare a address at any address at port 10001*/
     //ServerAddr,err := net.ResolveUDPAddr("udp",":30303")
     //CheckError(err)
-    //fmt.Printf("Server IP: %d", ServerAddr.IP)
+
     var err error
     //Generating broadcast address
   	baddr, err = net.ResolveUDPAddr("udp4", ":"+strconv.Itoa(30302))
+    //var ip = ServerAddr.IP
+
 
     //Generating localaddress
   	tempConn, err := net.DialUDP("udp4", nil, baddr)
@@ -33,6 +35,7 @@ func main() {
   	tempAddr := tempConn.LocalAddr()
   	laddr, err = net.ResolveUDPAddr("udp4", tempAddr.String())
   	laddr.Port = 30000
+    fmt.Printf("Server IP: %s\n", laddr.IP )
 
     /* Now listen at selected port */
     //ServerConn, err := net.ListenUDP("udp4", ServerAddr)

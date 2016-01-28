@@ -28,6 +28,7 @@ func main() {
   	tempAddr := tempConn.LocalAddr()
   	laddr, err = net.ResolveUDPAddr("udp4", tempAddr.String())
   	laddr.Port = 30300
+    fmt.Printf("Client IP: %s\n", laddr.IP )
 
     //LocalAddr, err := net.ResolveUDPAddr("udp", "10.20.76.1:0")
     //CheckError(err)
