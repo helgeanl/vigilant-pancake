@@ -1,0 +1,14 @@
+package main
+
+import(
+	.fmt
+	net
+	../tcp
+	time
+)
+
+String raddr="129.241.187.23:"
+func main(){
+	tcp.new_tcp_conn(raddr);
+Println("Connected")
+}
