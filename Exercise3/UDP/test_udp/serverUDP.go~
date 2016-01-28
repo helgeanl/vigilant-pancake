@@ -28,7 +28,7 @@ func main() {
   	baddr, err = net.ResolveUDPAddr("udp4", ":"+strconv.Itoa(30000))
     //var ip = ServerAddr.IP
 
-	
+
     //Generating localaddress
   	tempConn, err := net.DialUDP("udp4", nil, baddr)
   	defer tempConn.Close()
