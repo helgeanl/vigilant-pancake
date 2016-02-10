@@ -10,4 +10,3 @@ int io_read_bit(int channel);
 
 int io_read_analog(int channel);
 void io_write_analog(int channel, int value);
-
