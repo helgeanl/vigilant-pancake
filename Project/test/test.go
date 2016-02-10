@@ -1,5 +1,5 @@
 // Testfile
-package driver
+package test
 
 var aName = 2// private
 
