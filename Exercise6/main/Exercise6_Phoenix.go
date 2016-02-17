@@ -3,20 +3,40 @@
 package main
 import(
   "log"
-	"net"
-	"time"
+	//"net"
+	//"time"
+
+	//"bytes"
+	//"fmt"
+	"os/exec"
+	//"strings"
 )
 
 
 
-void main(){
-  	const iAmAliveInterval = 1
-		const iAmAliveTimeout = 3
-		const storage = "Counter.dat"
+func main(){
+  	//const iAmAliveInterval = 1
+		//const iAmAliveTimeout = 3
+		//const storage = "Counter.dat"
 
-		var counter = 0
+		//var counter = 0
+
+		//cmd := exec.Command("go run mainTest.go")
+
+		//cmd.Stdin = strings.NewReader("some input")
+		//var out bytes.Buffer
+		//cmd.Stdout = &out
+		//err := cmd.Run()
+		//if err != nil {
+		//	log.Fatal(err)
+		//}
+		//fmt.Printf("in all caps: %q\n", out.String())
+
+		cmd := exec.Command(app, arg0, arg1, arg2, arg3)
+    stdout, err := cmd.Output()
 
 
+		/*
 
 
     if !storage.exists {
@@ -47,4 +67,5 @@ void main(){
         counter.writeln;
         Thread.sleep(iAmAliveInterval);
     }
+		*/
 }
