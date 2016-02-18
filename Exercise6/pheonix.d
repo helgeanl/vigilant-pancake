@@ -32,8 +32,9 @@ void main(){
 
     writeln(" --- Primary phase --- ");
 
-    /spawnShell("gnome-terminal -x rdmd " ~ __FILE__);
-    //spawnShell("osascript -e 'tell app "Terminal" to do script "cat phoenix.d"");
+    //spawnShell("gnome-terminal -x rdmd " ~ __FILE__);
+    //spawnShell("osascript -e 'tell app "Terminal" to do script "ls"");
+		spawnShell("osascript -e 'tell application \"Terminal\" to do script \"rdmd ~/Desktop/pheonix.d\"'" );
     // osascript -e 'tell app "Terminal" to do script rdmd'
     counter = std.file.readText(storage).to!(typeof(counter));
 

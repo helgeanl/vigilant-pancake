@@ -2,70 +2,106 @@
 
 package main
 import(
-  "log"
+  //"log"
 	//"net"
-	//"time"
-
+	"time"
+"os"
 	//"bytes"
-	//"fmt"
+	"io/ioutil"
+	"fmt"
 	"os/exec"
+	"runtime"
+	"strconv"
+	 "bufio"
 	//"strings"
 )
 
-
+func checkErr(err error){
+	if err != nil {
+		fmt.Println("An unrecovarable error occured", err.Error())
+		os.Exit(0)
+	}
+}
 
 func main(){
-  	//const iAmAliveInterval = 1
-		//const iAmAliveTimeout = 3
-		//const storage = "Counter.dat"
 
-		//var counter = 0
+	_,filePath,_,_ :=runtime.Caller(0)
+	directory, _ := os.Getwd()
+  	const iAmAliveInterval = 1 * time.Second
+		const iAmAliveTimeout = 3 * time.Second
+		 storageName := "Counter.dat"
+		 fmt.Println("Directory: " + directory )
+		 fmt.Println("Path: " + filePath )
+		var counter = 0
 
-		//cmd := exec.Command("go run mainTest.go")
+  print(string("----- Backup Phase -----\n"))
+	// open output file
+	storage, err := os.Open(storageName)
+	if err != nil {
+		panic(err);
+	}
+	// close fo on exit and check for its returned error
+//	defer func() {
+//		if err := storage.Close(); err != nil {
+//			panic(err)
+//		}
+//	}()
 
-		//cmd.Stdin = strings.NewReader("some input")
-		//var out bytes.Buffer
-		//cmd.Stdout = &out
-		//err := cmd.Run()
-		//if err != nil {
-		//	log.Fatal(err)
+
+		for(true){
+			fmt.Println("...Waiting")
+			fileStat,_ := os.Stat(storageName)
+				if time.Now().After(fileStat.ModTime().Add(iAmAliveTimeout))  {
+					break;
+				}
+				time.Sleep(iAmAliveInterval) // No need to check more often than this
+		}
+
+
+  	print(string("----- Primary Phase -----\n"))
+
+
+		app := "osascript"
+		arg0 := "-e"
+		arg1 := "tell application \"Terminal\" to do script \"go run '"+filePath+"'\""
+		cmd := exec.Command( app,arg0,arg1)
+		//if false {
+			cmd.Start(); // Carefull...
 		//}
-		//fmt.Printf("in all caps: %q\n", out.String())
-
-		cmd := exec.Command(app, arg0, arg1, arg2, arg3)
-    stdout, err := cmd.Output()
-
+		checkErr(err)
 
 		/*
+		// Write
+		w := bufio.NewWriter(f)
+    n4, err := w.WriteString("buffered\n")
 
-
-    if !storage.exists {
-        std.file.write(storage, counter.to!string);
-    }
-
-    writeln(" --- Backup phase --- ");
-
-    while(true){
-        if(Clock.currTime > storage.timeLastModified + iAmAliveTimeout){
-            break;
-        }
-        Thread.sleep(iAmAliveInterval); // No need to check more often than this
-    }
-
-
-
-    writeln(" --- Primary phase --- ");
-
-    //spawnShell("gnome-terminal -x rdmd " ~ __FILE__);
-    spawnShell("osascript -e 'tell app "Terminal" to do script "cat phoenix.d"");
-    // osascript -e 'tell app "Terminal" to do script rdmd'
-    counter = std.file.readText(storage).to!(typeof(counter));
-
-    while(true){
-        counter++;
-        std.file.write(storage, counter.to!string);
-        counter.writeln;
-        Thread.sleep(iAmAliveInterval);
-    }
+		// Read
+		r4 := bufio.NewReader(f)
+    b4, err := r4.Peek(5)
+    check(err)
 		*/
+
+		r4 := bufio.NewReader(storage)
+    b4, _ := r4.Peek(8)
+
+    counter,_ = strconv.Atoi(string(b4))
+		storage.Close()
+		storage,_=os.Create(storageName)
+		defer func() {
+				if err := storage.Close(); err != nil {
+					panic(err)
+				}
+			}()
+    for(true){
+        counter++;
+				counterString := strconv.Itoa(counter)
+        //storage.Write(counter)
+				ioutil.WriteFile(storageName, []byte(counterString), 0644)
+				//w := bufio.NewWriter(storage)
+		  	///_,err := w.WriteString(counterString)
+				//checkErr(err)
+        fmt.Println(counter)
+        time.Sleep(iAmAliveInterval)
+    }
+
 }

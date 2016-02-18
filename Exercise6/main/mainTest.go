@@ -2,35 +2,22 @@
 
 package main
 import(
-  "log"
-	//"net"
-	//"time"
 
-	"bytes"
 	"fmt"
-	"os/exec"
-	"strings"
+
 )
 
 
 
-func test(){
+func main(){
   	//const iAmAliveInterval = 1
 		//const iAmAliveTimeout = 3
 		//const storage = "Counter.dat"
 
 		//var counter = 0
 
-		cmd := exec.Command("tr", "a-z", "A-Z")
-		cmd.Stdin = strings.NewReader("some input")
-		var out bytes.Buffer
-		cmd.Stdout = &out
-		err := cmd.Run()
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Printf("in all caps: %q\n", out.String())
-
+	
+		fmt.Printf("Hello from mainTest!\n")
 
 
 		/*
