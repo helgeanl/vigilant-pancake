@@ -5,14 +5,15 @@ import(
   //"log"
 	//"net"
 	"time"
-"os"
+	"os"
 	//"bytes"
 	"io/ioutil"
 	"fmt"
 	"os/exec"
 	"runtime"
 	"strconv"
-	 "bufio"
+	"bufio"
+	"path/filepath"
 	//"strings"
 )
 
@@ -26,10 +27,10 @@ func checkErr(err error){
 func main(){
 
 	_,filePath,_,_ :=runtime.Caller(0)
-	directory, _ := os.Getwd()
+	directory, _ := filepath.Split(filePath)
   	const iAmAliveInterval = 1 * time.Second
 		const iAmAliveTimeout = 3 * time.Second
-		 storageName := "Counter.dat"
+		 storageName := directory + "/Counter.dat"
 		 fmt.Println("Directory: " + directory )
 		 fmt.Println("Path: " + filePath )
 		var counter = 0
@@ -38,7 +39,9 @@ func main(){
 	// open output file
 	storage, err := os.Open(storageName)
 	if err != nil {
-		panic(err);
+		newFile,_ := os.Create(storageName)
+		newFile.Close()
+		//checkErr(err)
 	}
 	// close fo on exit and check for its returned error
 //	defer func() {
@@ -60,26 +63,14 @@ func main(){
 
   	print(string("----- Primary Phase -----\n"))
 
-
+		// Run a new terminal window with backup
 		app := "osascript"
 		arg0 := "-e"
 		arg1 := "tell application \"Terminal\" to do script \"go run '"+filePath+"'\""
 		cmd := exec.Command( app,arg0,arg1)
-		//if false {
-			cmd.Start(); // Carefull...
-		//}
-		checkErr(err)
 
-		/*
-		// Write
-		w := bufio.NewWriter(f)
-    n4, err := w.WriteString("buffered\n")
+		cmd.Start(); // Carefull...
 
-		// Read
-		r4 := bufio.NewReader(f)
-    b4, err := r4.Peek(5)
-    check(err)
-		*/
 
 		r4 := bufio.NewReader(storage)
     b4, _ := r4.Peek(8)
