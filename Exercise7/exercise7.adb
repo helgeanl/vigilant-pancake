@@ -21,6 +21,8 @@ procedure exercise7 is
             ------------------------------------------
             -- PART 3: Complete the exit protocol here
             ------------------------------------------
+						Should_Commit := True; -- Remove!!!!!!
+						--------
         end Finished;
 
         procedure Signal_Abort is
@@ -40,10 +42,23 @@ procedure exercise7 is
 
     function Unreliable_Slow_Add (x : Integer) return Integer is
     Error_Rate : Constant := 0.15;  -- (between 0 and 1)
+		return_value : Integer := 0;
     begin
         -------------------------------------------
         -- PART 1: Create the transaction work here
         -------------------------------------------
+				-- compare Random(Gen) with Error_Rate and do:
+				if Random(Gen) > Error_Rate then
+						---- The intended behaviour:
+						delay Duration(Random(Gen)*5.0); -- Work takes 4-ish seconds
+						return_value := x + 10;
+						return return_value;
+				else
+						---- The faulty behaviour:
+						delay Duration(Random(Gen)*0.5); -- Work takes up to half a second
+						Put_Line("-- Exception was raised");
+						raise Count_Failed; -- Error raise exception
+				end if;
     end Unreliable_Slow_Add;
 
 
@@ -64,6 +79,7 @@ procedure exercise7 is
             ---------------------------------------
             -- PART 2: Do the transaction work here
             ---------------------------------------
+						Num := Unreliable_Slow_Add (Num);
 
             if Manager.Commit = True then
                 Put_Line ("  Worker" & Integer'Image(Initial) & " comitting" & Integer'Image(Num));
@@ -74,12 +90,18 @@ procedure exercise7 is
                 -------------------------------------------
                 -- PART 2: Roll back to previous value here
                 -------------------------------------------
+								Num := Prev;
             end if;
 
             Prev := Num;
             delay 0.5;
 
         end loop;
+				
+				exception -- Start of exception handlers
+				when Count_Failed =>
+						Manager.Signal_Abort;
+
     end Transaction_Worker;
 
     Manager : aliased Transaction_Manager (3);
