@@ -82,9 +82,9 @@ procedure exercise7 is
 						Num := Unreliable_Slow_Add (Num);
 
             if Manager.Commit = True then
-                Put_Line ("  Worker" & Integer'Image(Initial) & " comitting" & Integer'Image(Num));
+                Put_Line ("-- Worker" & Integer'Image(Initial) & " comitting" & Integer'Image(Num));
             else
-                Put_Line ("  Worker" & Integer'Image(Initial) &
+                Put_Line ("-- Worker" & Integer'Image(Initial) &
                              " reverting from" & Integer'Image(Num) &
                              " to" & Integer'Image(Prev));
                 -------------------------------------------
@@ -97,7 +97,7 @@ procedure exercise7 is
             delay 0.5;
 
         end loop;
-				
+
 				exception -- Start of exception handlers
 				when Count_Failed =>
 						Manager.Signal_Abort;

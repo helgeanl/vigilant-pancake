@@ -19,7 +19,7 @@ import(
 
 func checkErr(err error){
 		if err != nil {
-			fmt.Println("An unrecovarable error occured", err.Error())
+			fmt.Println("An unrecovarable error occured, ....", err.Error())
 			os.Exit(0)
 		}
 }
@@ -44,7 +44,8 @@ func main(){
 
 		for(true){
 			fmt.Println("...Waiting")
-			fileStat,_ := os.Stat(storageName)
+			fileStat,err := os.Stat(storageName)
+			checkErr(err)
 				if time.Now().After(fileStat.ModTime().Add(iAmAliveTimeout))  {
 					break;
 				}

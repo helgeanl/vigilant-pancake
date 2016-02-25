@@ -26,7 +26,7 @@ RV MAX_PROTECTED_ENTRIES=1
 RV MAX_TASKS=1+
 RV MAX_ENTRY_QUEUE_LENGTH=1+
 
-U exercise7%b		exercise7.adb		85fbf1f3 NE OO SU IL
+U exercise7%b		exercise7.adb		7bfa7ab2 NE OO SU IL
 W ada%s			ada.ads			ada.ali
 W ada.calendar.delays%s	a-caldel.adb		a-caldel.ali
 W ada.exceptions%s	a-except.adb		a-except.ali
@@ -67,7 +67,7 @@ D a-tags.ads		20150506105332 dc4d0634 ada.tags%s
 D a-textio.ads		20150506105332 386df5d4 ada.text_io%s
 D a-tiinio.ads		20150506105328 aa04e5d6 ada.text_io.integer_io%s
 D a-unccon.ads		20150506105331 f9eb8f06 ada.unchecked_conversion%s
-D exercise7.adb		20160222214101 02188388 exercise7%b
+D exercise7.adb		20160222224842 fc1908c9 exercise7%b
 D interfac.ads		20150506105327 6033a23f interfaces%s
 D i-c.ads		20150506105326 5421119b interfaces.c%s
 D i-cstrea.ads		20150506105327 e53d8b8e interfaces.c_streams%s
@@ -115,19 +115,19 @@ X 9 a-nuflra.ads
 45R9*Generator<35|63R9> 16|7r23
 47F12*Uniformly_Distributed{float}
 49V13*Random{47F12}<35|71p13> 16|51s36 53s64 58s64
-51U14*Reset<35|100p14> 16|113s5
+51U14*Reset<35|100p14> 16|114s5
 X 13 a-textio.ads
 49K13*Text_IO 471e16 16|1w10 2r10
 263U14*Put_Line 16|59s49 73s9 76s13 85s17 87s17
 X 16 exercise7.adb
-4U11*exercise7 4b11 114l5 114t14
-6X5 Count_Failed 60r55 101r38
-7r5 Gen{9|45R9} 51r43 53r71 58r71 113r11
-9W20 Transaction_Manager 9d41 14E9 17l9 17e28 18b20 38l9 38t28 67r71 106r23
+4U11*exercise7 4b11 115l5 115t14
+6X5 Count_Failed 60r55 102r38
+7r5 Gen{9|45R9} 51r43 53r71 58r71 114r11
+9W20 Transaction_Manager 9d41 14E9 17l9 17e28 18b20 38l9 38t28 67r71 107r23
 9i41 N{positive} 19r68
 10Y15 Finished 19b15 19r51 26l13 26t21
 11V18 Commit{boolean} 33b18 36l13 36t19 84s24
-12U19 Signal_Abort 28b19 31l13 31t25 102s57
+12U19 Signal_Abort 28b19 31l13 31t25 103s57
 14b9 Finished_Gate_Open{boolean} 19r29
 15b9 Aborted{boolean} 30r13
 16b9 Should_Commit{boolean} 24r49 35r20
@@ -135,15 +135,15 @@ X 16 exercise7.adb
 43i35 x{integer} 54r65
 44N5 Error_Rate 51r50
 45i17 return_value{integer} 54m49 55r56
-67T15 Transaction_Worker 67d35 67d54 68b15 104l9 104t27 108r16 109r16 110r16
-67i35 Initial{integer} 69r36 73r44 76r48 85r54 87r54
-69i9 Num{integer} 70r36 82m49 82r77 85r94 88r64 93m65 96r21
+67T15 Transaction_Worker 67d35 67d54 68b15 105l9 105t27 109r16 110r16 111r16
+67i35 Initial{integer} 69r36 73r44 76r48 85r55 87r55
+69i9 Num{integer} 70r36 82m49 82r77 85r95 88r64 93m65 96r21
 70i9 Prev{integer} 89r52 93r72 96m13
 71i9 Round_Num{integer} 76r92 77m13 77r26
-106w5 Manager{9W20} 108m39 108r39 109m39 109r39 110m39 110r39
-108t5 Worker_1{67T15}
-109t5 Worker_2{67T15}
-110t5 Worker_3{67T15}
+107w5 Manager{9W20} 109m39 109r39 110m39 110r39 111m39 111r39
+109t5 Worker_1{67T15}
+110t5 Worker_2{67T15}
+111t5 Worker_3{67T15}
 X 20 system.ads
 67M9*Address
 X 30 s-memory.ads
