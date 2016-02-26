@@ -26,7 +26,7 @@ RV MAX_PROTECTED_ENTRIES=1
 RV MAX_TASKS=1+
 RV MAX_ENTRY_QUEUE_LENGTH=1+
 
-U exercise7%b		exercise7.adb		3785d48f NE OO SU IL
+U exercise7%b		exercise7.adb		ca93923f NE OO SU IL
 W ada%s			ada.ads			ada.ali
 W ada.calendar.delays%s	a-caldel.adb		a-caldel.ali
 W ada.exceptions%s	a-except.adb		a-except.ali
@@ -67,7 +67,7 @@ D a-tags.ads		20150506105332 dc4d0634 ada.tags%s
 D a-textio.ads		20150506105332 386df5d4 ada.text_io%s
 D a-tiinio.ads		20150506105328 aa04e5d6 ada.text_io.integer_io%s
 D a-unccon.ads		20150506105331 f9eb8f06 ada.unchecked_conversion%s
-D exercise7.adb		20160226130611 b066a6f4 exercise7%b
+D exercise7.adb		20160226163307 4d70e044 exercise7%b
 D interfac.ads		20150506105327 6033a23f interfaces%s
 D i-c.ads		20150506105326 5421119b interfaces.c%s
 D i-cstrea.ads		20150506105327 e53d8b8e interfaces.c_streams%s
@@ -114,36 +114,36 @@ X 9 a-nuflra.ads
 41K22*Float_Random 72e30 16|1w53 2r53
 45R9*Generator<35|63R9> 16|7r23
 47F12*Uniformly_Distributed{float}
-49V13*Random{47F12}<35|71p13> 16|68s36 70s64 75s64
-51U14*Reset<35|100p14> 16|138s5
+49V13*Random{47F12}<35|71p13> 16|64s36 66s64 71s64
+51U14*Reset<35|100p14> 16|132s5
 X 13 a-textio.ads
 49K13*Text_IO 471e16 16|1w10 2r10
-263U14*Put_Line 16|76s49 90s9 93s13 105s65 110s17 112s17
+263U14*Put_Line 16|72s49 86s9 89s13 104s17 106s17
 X 16 exercise7.adb
-4U11*exercise7 4b11 139l5 139t14
-6X5 Count_Failed 77r55 103r54
-7r5 Gen{9|45R9} 68r43 70r71 75r71 138r11
-9W20 Transaction_Manager 9d41 14E9 17l9 17e28 18b20 55l9 55t28 84r71 131r23
-9i41 N{positive} 19r68 24r69
-10Y15 Finished 19b15 19r51 24r52 31r52 43l13 43t21 101s57
-11V18 Commit{boolean} 50b18 53l13 53t19 109s24
-12U19 Signal_Abort 45b19 48l13 48t25 104s73
+4U11*exercise7 4b11 133l5 133t14
+6X5 Count_Failed 73r55 99r54
+7r5 Gen{9|45R9} 64r43 66r71 71r71 132r11
+9W20 Transaction_Manager 9d41 14E9 17l9 17e28 18b20 51l9 51t28 80r71 125r23
+9i41 N{positive} 19r68
+10Y15 Finished 19b15 19r51 31r52 39l13 39t21 97s57
+11V18 Commit{boolean} 46b18 49l13 49t19 103s24
+12U19 Signal_Abort 41b19 44l13 44t25 100s73
 14b9 Finished_Gate_Open{boolean} 19r29 25r57 32r57
-15b9 Aborted{boolean} 26r60 33r60 36r57 47r13
-16b9 Should_Commit{boolean} 27r65 34r65 52r20
-60V14 Unreliable_Slow_Add{integer} 60b14 60>35 79l9 79t28 100s56
-60i35 x{integer} 71r65
-61N5 Error_Rate 68r50
-62i17 return_value{integer} 71m49 72r56
-84T15 Transaction_Worker 84d35 84d54 85b15 129l9 129t27 133r16 134r16 135r16
-84i35 Initial{integer} 86r36 90r44 93r48 110r55 112r55
-86i9 Num{integer} 87r36 100m49 100r77 110r95 113r64 118m65 121r21
-87i9 Prev{integer} 114r52 118r72 121m13
-88i9 Round_Num{integer} 93r92 94m13 94r26
-131w5 Manager{9W20} 133m39 133r39 134m39 134r39 135m39 135r39
-133t5 Worker_1{84T15}
-134t5 Worker_2{84T15}
-135t5 Worker_3{84T15}
+15b9 Aborted{boolean} 26r60 33r60 36r57 43r13
+16b9 Should_Commit{boolean} 27r65 34r65 48r20
+56V14 Unreliable_Slow_Add{integer} 56b14 56>35 75l9 75t28 96s56
+56i35 x{integer} 67r65
+57N5 Error_Rate 64r50
+58i17 return_value{integer} 67m49 68r56
+80T15 Transaction_Worker 80d35 80d54 81b15 123l9 123t27 127r16 128r16 129r16
+80i35 Initial{integer} 82r36 86r44 89r48 104r55 106r55
+82i9 Num{integer} 83r36 96m49 96r77 104r95 107r64 112m65 115r21
+83i9 Prev{integer} 108r52 112r72 115m13
+84i9 Round_Num{integer} 89r92 90m13 90r26
+125w5 Manager{9W20} 127m39 127r39 128m39 128r39 129m39 129r39
+127t5 Worker_1{80T15}
+128t5 Worker_2{80T15}
+129t5 Worker_3{80T15}
 X 20 system.ads
 67M9*Address
 X 30 s-memory.ads
