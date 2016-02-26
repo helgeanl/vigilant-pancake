@@ -59,11 +59,12 @@ func main(){
 		//app := "osascript"
 		//arg0 := "-e"
 		//arg1 := "tell app \"Terminal\" to do script \"go run '"+filePath+"'\""
-		
+		//cmd := exec.Command( app,arg0,arg1)
+
 		app := "gnome-terminal"
 		arg0 := "-x"
-		arg1 := "go run "+filePath
-		cmd := exec.Command( app,arg0,arg1)
+		
+		cmd := exec.Command(app, arg0, "go", "run",filePath)
 
 		cmd.Start(); // Carefull...
 
