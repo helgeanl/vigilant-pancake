@@ -21,8 +21,25 @@ procedure exercise7 is
             ------------------------------------------
             -- PART 3: Complete the exit protocol here
             ------------------------------------------
-						Should_Commit := True; -- Remove!!!!!!
-						--------
+						if Finished'Count = N-1 then
+							Finished_Gate_Open := True;
+							if Aborted = False then
+								Should_Commit := True;
+							end if;
+						end if;
+
+						if Finished'Count = 0 then
+							Finished_Gate_Open := False;
+							if Aborted = True then
+								Should_Commit := False;
+							end if;
+							Aborted := False;
+						end if;
+
+
+
+
+
         end Finished;
 
         procedure Signal_Abort is
@@ -57,7 +74,7 @@ procedure exercise7 is
 						---- The faulty behaviour:
 						delay Duration(Random(Gen)*0.5); -- Work takes up to half a second
 						Put_Line("-- Exception was raised");
-						raise Count_Failed; -- Error raise exception
+						raise Count_Failed; -- Error, raise exception
 				end if;
     end Unreliable_Slow_Add;
 
@@ -79,7 +96,14 @@ procedure exercise7 is
             ---------------------------------------
             -- PART 2: Do the transaction work here
             ---------------------------------------
+					begin
 						Num := Unreliable_Slow_Add (Num);
+						Manager.Finished; -- ?????????
+					exception -- Start of exception handlers
+						when Count_Failed =>
+								Manager.Signal_Abort;
+								Put_Line("Something happended");
+					end;
 
             if Manager.Commit = True then
                 Put_Line ("-- Worker" & Integer'Image(Initial) & " comitting" & Integer'Image(Num));
@@ -98,9 +122,8 @@ procedure exercise7 is
 
         end loop;
 
-				exception -- Start of exception handlers
-				when Count_Failed =>
-						Manager.Signal_Abort;
+
+
 
     end Transaction_Worker;
 
