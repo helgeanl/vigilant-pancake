@@ -56,9 +56,13 @@ func main(){
   	print(string("----- Primary Phase -----\n"))
 
 		// Run a new terminal window with backup
-		app := "osascript"
-		arg0 := "-e"
-		arg1 := "tell app \"Terminal\" to do script \"go run '"+filePath+"'\""
+		//app := "osascript"
+		//arg0 := "-e"
+		//arg1 := "tell app \"Terminal\" to do script \"go run '"+filePath+"'\""
+		
+		app := "gnome-terminal"
+		arg0 := "-x"
+		arg1 := "go run "+filePath
 		cmd := exec.Command( app,arg0,arg1)
 
 		cmd.Start(); // Carefull...
