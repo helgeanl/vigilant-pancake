@@ -1,4 +1,4 @@
-package hw
+package hardware
 
 /*
 #cgo LDFLAGS: -lcomedi -lm

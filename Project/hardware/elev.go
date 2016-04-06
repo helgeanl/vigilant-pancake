@@ -4,21 +4,21 @@
 //
 // This file is a golang port of elev.c from the hand out driver
 // (https://github.com/TTK4145/Project)
-package hw
+package hardware
 
 import (
-	def "config"
+	"config"
 	"errors"
 	"log"
 )
 
-var lampChannelMatrix = [def.NumFloors][def.NumButtons]int{
+var lampChannelMatrix = [config.NumFloors][config.NumButtons]int{
 	{LIGHT_UP1, LIGHT_DOWN1, LIGHT_COMMAND1},
 	{LIGHT_UP2, LIGHT_DOWN2, LIGHT_COMMAND2},
 	{LIGHT_UP3, LIGHT_DOWN3, LIGHT_COMMAND3},
 	{LIGHT_UP4, LIGHT_DOWN4, LIGHT_COMMAND4},
 }
-var buttonChannelMatrix = [def.NumFloors][def.NumButtons]int{
+var btnChannelMatrix = [config.NumFloors][config.NumButtons]int{
 	{BUTTON_UP1, BUTTON_DOWN1, BUTTON_COMMAND1},
 	{BUTTON_UP2, BUTTON_DOWN2, BUTTON_COMMAND2},
 	{BUTTON_UP3, BUTTON_DOWN3, BUTTON_COMMAND3},
@@ -34,29 +34,29 @@ func Init() (int, error) {
 	}
 
 	// Zero all floor button lamps
-	for f := 0; f < def.NumFloors; f++ {
+	for f := 0; f < config.NumFloors; f++ {
 		if f != 0 {
-			SetButtonLamp(f, def.BtnDown, false)
+			SetBtnLamp(f, config.BtnDown, false)
 		}
-		if f != def.NumFloors-1 {
-			SetButtonLamp(f, def.BtnUp, false)
+		if f != config.NumFloors-1 {
+			SetBtnLamp(f, config.BtnUp, false)
 		}
-		SetButtonLamp(f, def.BtnInside, false)
+		SetBtnLamp(f, config.BtnInside, false)
 	}
 
 	SetStopLamp(false)
 	SetDoorLamp(false)
 
 	// Move to defined state
-	SetMotorDir(def.DirDown)
+	SetMotorDir(config.DirDown)
 	floor := Floor()
 	for floor == -1 {
 		floor = Floor()
 	}
-	SetMotorDir(def.DirStop)
+	SetMotorDir(config.DirStop)
 	SetFloorLamp(floor)
 
-	log.Println(def.ColG, "Hardware initialised.", def.ColN)
+	log.Println(config.ColG, "Hardware initialised.", config.ColN)
 	return floor, nil
 }
 
@@ -95,7 +95,7 @@ func Floor() int {
 }
 
 func SetFloorLamp(floor int) {
-	if floor < 0 || floor >= def.NumFloors {
+	if floor < 0 || floor >= config.NumFloors {
 		log.Printf("Error: Floor %d out of range!\n", floor)
 		log.Println("No floor indicator will be set.")
 		return
@@ -115,55 +115,55 @@ func SetFloorLamp(floor int) {
 	}
 }
 
-func ReadButton(floor int, button int) bool {
-	if floor < 0 || floor >= def.NumFloors {
+func ReadBtn(floor int, btn int) bool {
+	if floor < 0 || floor >= config.NumFloors {
 		log.Printf("Error: Floor %d out of range!\n", floor)
 		return false
 	}
-	if button < 0 || button >= def.NumButtons {
-		log.Printf("Error: Button %d out of range!\n", button)
+	if btn < 0 || btn >= config.NumButtons {
+		log.Printf("Error: Button %d out of range!\n", btn)
 		return false
 	}
-	if button == def.BtnUp && floor == def.NumFloors-1 {
+	if btn == config.BtnUp && floor == config.NumFloors-1 {
 		log.Println("Button up from top floor does not exist!")
 		return false
 	}
-	if button == def.BtnDown && floor == 0 {
+	if btn == config.BtnDown && floor == 0 {
 		log.Println("Button down from ground floor does not exist!")
 		return false
 	}
 
-	if ioReadBit(buttonChannelMatrix[floor][button]) {
+	if ioReadBit(btnChannelMatrix[floor][btn]) {
 		return true
 	} else {
 		return false
 	}
 }
 
-func SetButtonLamp(floor int, button int, value bool) {
-	if floor < 0 || floor >= def.NumFloors {
+func SetBtnLamp(floor int, btn int, value bool) {
+	if floor < 0 || floor >= config.NumFloors {
 		log.Printf("Error: Floor %d out of range!\n", floor)
 		return
 	}
-	if button == def.BtnUp && floor == def.NumFloors-1 {
+	if btn == config.BtnUp && floor == config.NumFloors-1 {
 		log.Println("Button up from top floor does not exist!")
 		return
 	}
-	if button == def.BtnDown && floor == 0 {
+	if btn == config.BtnDown && floor == 0 {
 		log.Println("Button down from ground floor does not exist!")
 		return
 	}
-	if button != def.BtnUp &&
-		button != def.BtnDown &&
-		button != def.BtnInside {
-		log.Printf("Invalid button %d\n", button)
+	if btn != config.BtnUp &&
+		btn != config.BtnDown &&
+		btn != config.BtnInside {
+		log.Printf("Invalid button %d\n", btn)
 		return
 	}
 
 	if value {
-		ioSetBit(lampChannelMatrix[floor][button])
+		ioSetBit(lampChannelMatrix[floor][btn])
 	} else {
-		ioClearBit(lampChannelMatrix[floor][button])
+		ioClearBit(lampChannelMatrix[floor][btn])
 	}
 }
 
