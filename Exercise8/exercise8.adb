@@ -89,13 +89,12 @@ procedure exercise8 is
 				-- code that is run when the triggering_alternative has triggered
 				--   (forward ER code goes here)
 				Num := Num + 5;
-
 			then abort
 				begin
 					Num := Unreliable_Slow_Add (Num); -- Add Num +10
-
 				exception -- Start of exception handlers
 					when Count_Failed =>
+					    Put_Line("-- Exceptiopn Worker " & Integer'Image(Initial));
 						Manager.Signal_Abort;
 				end;
 			end select;

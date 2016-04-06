@@ -67,7 +67,7 @@ procedure exercise7 is
 		else
 			---- The faulty behaviour:
 			delay Duration(Random(Gen)*0.5); -- Work takes up to half a second
-			Put_Line("-- ** Exception was raised **");
+			Put_Line("-- ** Exception was raised from worker **");
 			raise Count_Failed; -- Error, raise exception
 		end if;
     end Unreliable_Slow_Add;
