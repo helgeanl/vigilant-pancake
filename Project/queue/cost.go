@@ -27,9 +27,9 @@ func CalcCost(currDir, currFloor, prevFloor, targetFloor, targetBtn int) int{
 			totCost += 10
 		}
 	}
-	if 
+	
 	//Add +1 cost for every stop on the way to target
-	//I asume here that currFloor==prevFloor if the elevator is at
+	//I assume here that currFloor==prevFloor if the elevator is at
 	// a floor
 	if targetDir < 0 && dir == config.DirUp{
 		for floor := prevFloor; floor < targetFloor || floor == config.Numfloors; floor++{
