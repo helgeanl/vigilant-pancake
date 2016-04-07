@@ -34,9 +34,12 @@ procedure exercise8 is
 		-- Exercise 8: PART 2: Create the entry
 		------------------------------------------
 		entry Wait_Until_Aborted when Aborted is
+			count_worker : Integer := 0;
 		begin
-			if Wait_Until_Aborted'Count = 0 then -- Reset when last one is finished
+			count_worker = count_worker +1;
+			if count_worker = 3 then -- Reset when last one is finished
 				Aborted := False;
+				count_worker := 0;
 			end if;
 		end Wait_Until_Aborted;
 
