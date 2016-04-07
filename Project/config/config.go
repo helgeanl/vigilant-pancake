@@ -2,11 +2,13 @@ package config
 
 import (
 	"os/exec"
+	"time"
 )
 
 // Global system constants
 const NumButtons = 3
 const NumFloors = 4
+const DoorOpenTime = 3 * time.Second
 
 const (
 	BtnUp int = iota
