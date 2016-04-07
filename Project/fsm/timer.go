@@ -5,11 +5,11 @@ import (
 	"config"
 )
 
-
+//doorTimer makes sure that the door stays open for config.DoorOpenTime
+//seconds.
 func doorTimer(reset <-chan bool, timeout chan<- bool){
 	timer := time.NewTimer(0)
 	timer.Stop()
-
 	for {
 		select{
 		case <-reset:
