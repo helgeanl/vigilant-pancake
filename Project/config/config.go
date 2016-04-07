@@ -20,6 +20,8 @@ const (
 	DirUp
 )
 
+
+
 // Local IP address
 var Laddr string
 
@@ -35,6 +37,12 @@ type Message struct {
 	Button   int
 	Cost     int
 	Addr     string `json:"-"`
+}
+
+type Elevator struct {
+	floor int
+	dirn  int
+	behaviour int
 }
 
 // Network message category constants
