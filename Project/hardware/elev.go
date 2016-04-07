@@ -175,9 +175,6 @@ func SetStopLamp(value bool) {
 	}
 }
 
-func GetObstructionSignal() bool {
-	return ioReadBit(OBSTRUCTION)
-}
 
 func GetStopSignal() bool {
 	return ioReadBit(STOP)
