@@ -19,15 +19,15 @@ type queue struct {
 //make a request inactive
 var inactive = requestStatus{active: false, addr: "", timer: nil}
 
-func (q *queue) hasRequest(floor, btn int) int {
-	return
+func (q *queue) hasRequest(floor, btn int) bool {
+	return q.matrix[floor][btn].active
 }
 
 // requests_above
 func (q *queue) hasRequestAbove(floor int) bool {
 	for f := floor + 1; f < def.NumFloors; f++ {
 		for b := 0; b < def.NumButtons; b++ {
-			if q.hasOrder(f, b) { //q.matrix[f][b]
+			if q.hasRequest(f, b) {
 				return true
 			}
 		}
@@ -36,10 +36,10 @@ func (q *queue) hasRequestAbove(floor int) bool {
 }
 
 // requests_below
-func (q *queue) hasOrdersBelow(floor int) bool {
+func (q *queue) hasRequestsBelow(floor int) bool {
 	for f := 0; f < floor; f++ {
 		for b := 0; b < def.NumButtons; b++ {
-			if q.isOrder(f, b) {
+			if q.hasRequest(f, b) {
 				return true
 			}
 		}
@@ -49,18 +49,18 @@ func (q *queue) hasOrdersBelow(floor int) bool {
 
 func (q *queue) chooseDirection(floor, dir int) int {
 	switch dir {
-	case config.DirUp:
-		if q.hasOrdersAbove(floor){
+	case def.DirUp:
+		if q.hasRequestsAbove(floor){
 			return def.DirUp
-		} else if q.hasOrdersBelow(floor){
+		} else if q.hasRequestsBelow(floor){
 			return def.DirDown
 		} else{
 			return def.DirStop
 		}
 	case def.DirDown, def.DirStop:
-		if q.hasOrdersBelow(floor) {
+		if q.hasRequestsBelow(floor) {
 			return def.DirDown
-		} else if q.hasOrdersAbove(floor) {
+		} else if q.hasRequestsAbove(floor) {
 			return def.DirUp
 		} else {
 			return def.DirStop
@@ -77,14 +77,14 @@ func (q *queue) shouldStop(floor, dir int) bool {
 	switch dir {
 	case def.DirDown:
 		return
-			q.isOrder(floor, def.BtnDown) ||
-			q.isOrder(floor, def.BtnInside) ||
-			!q.isOrdersBelow(floor)
+			q.hasRequest(floor, def.BtnHallDown) ||
+			q.hasRequest(floor, def.BtnCab) ||
+			!q.hasRequestsBelow(floor)
 	case def.DirUp:
 		return
-			q.isOrder(floor, def.BtnUp) ||
-			q.isOrder(floor, def.BtnInside) ||
-			!q.isOrdersAbove(floor)
+			q.hasRequest(floor, def.BtnHallUp) ||
+			q.hasRequest(floor, def.BtnCab) ||
+			!q.hasRequestsAbove(floor)
 	case def.DirStop:
 	default:
 		def.CloseConnectionChan <- true

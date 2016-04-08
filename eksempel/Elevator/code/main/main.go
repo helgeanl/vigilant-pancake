@@ -71,12 +71,14 @@ func eventHandler(ch fsm.Channels) {
 			ch.FloorReached <- floor
 		case message := <-incomingMsg:
 			handleMessage(message)
+
 		case connection := <-deadChan:
 			handleDeadLift(connection.Addr)
 		case order := <-queue.OrderTimeoutChan:
 			log.Println(def.ColR, "Order timeout, I will do it myself!", def.ColN)
 			queue.RemoveRemoteOrdersAt(order.Floor)
 			queue.AddRemoteOrder(order.Floor, order.Button, def.Laddr)
+
 		case dir := <-ch.MotorDir:
 			hw.SetMotorDir(dir)
 		case floor := <-ch.FloorLamp:

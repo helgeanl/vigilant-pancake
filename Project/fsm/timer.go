@@ -2,7 +2,7 @@ package fsm
 
 import (
 	"time"
-	def."definitions"
+	def "definitions"
 )
 
 //doorTimer makes sure that the door stays open for def.DoorOpenTime

@@ -1,6 +1,6 @@
 // FMS for elevator
 // *** some comment
-// events: timeout, floorArrived, newOrder
+// events: timeout, floorArrived, newRequest
 // state: idle, moving, doorOpen
 package fsm
 
@@ -18,14 +18,10 @@ const (
 )
 
 var elevator Elevator
-//var state int
-//var floor int
-//var dir int
 
-/*
 type Channels struct {
 	// Events
-	NewOrder     chan bool
+	NewRequest     chan bool
 	FloorReached chan int
 	doorTimeout  chan bool
 	// Hardware interaction
@@ -35,52 +31,45 @@ type Channels struct {
 	// Door timer
 	doorTimerReset chan bool
 	// Network interaction
-	OutgoingMsg chan config.Message
+	OutgoingMsg chan def.Message
 }
-*/
+
 
 func Init(ch Channels, startFloor int) {
 	elevator.behaviour = idle
 	elevator.dir = def.DirStop
 	elevator.floor = startFloor
-	/*
-	state = idle
-	dir = def.DirStop
-	floor = startFloor
 
 	ch.doorTimeout = make(chan bool)
 	ch.doorTimerReset = make(chan bool)
 
 	go doorTimer(ch.doorTimeout, ch.doorTimerReset)
 	go run(ch)
-*/
 }
 
 func run(ch Channels) {
-	/*
 	for {
 		select {
-		case <-ch.NewOrder:
-			eventNewOrder(ch)
+		case <-ch.NewRequest:
+			onNewRequest(ch)
 		case floor := <-ch.FloorReached:
-			eventFloorReached(ch, floor)
+			onFloorReached(ch, floor)
 		case <-ch.doorTimeout:
-			eventDoorTimeout(ch)
+			onDoorTimeout(ch)
 		}
 	}
-	*/
 }
 
 
-func onNewOrder(ch Channels) {
+func onNewRequest(ch Channels) {
 	// print queue
 	switch elevator.behaviour {
 	case doorOpen:
 		//if at ordered floor, start timer again
 		// else add order to queue
 		if queue.ShouldStop(floor,dir){
-			// start timer, e.g. ch.doorTimerReset <- true
-			// remove order if added before , e.g. queue.RemoveOrder(floor, ch.OutgoingMsg)
+			ch.doorTimerReset <- true
+			queue.RemoveOrder(floor, ch.OutgoingMsg)
 		}
 		// else: add order if not done before
 	case moving:
@@ -121,13 +110,15 @@ func onFloorArrival(ch Channels, newFloor int) {
 		// clear request
 		// Turn off button lights
 		// state = doorOpen
+
+		// semi-pseudokode
 		if queue.ShouldStop(floor, dir){
-			outputDevice.motorDirection(D_Stop);
+			ch.MotorDir <- def.DirStop
             outputDevice.doorLight(1);
             elevator = requests_clearAtCurrentFloor(elevator);
             timer_start(elevator.config.doorOpenDuration_s);
             setAllLights(elevator);
-            elevator.behaviour = EB_DoorOpen;
+            elevator.behaviour = doorOpen;
 		}
 
 	case doorOpen:
@@ -147,6 +138,7 @@ func onDoorTimeout(ch Channels) {
 		// 		state = moving
 		// else: state = idle
 		// turn off doorLamp
+
 		elevator.dir = queue.ChooseDirection(floor,dir);
         //outputDevice.doorLight(0);
         //outputDevice.motorDirection(elevator.dir);
