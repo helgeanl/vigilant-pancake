@@ -36,22 +36,22 @@ func Init() (int, error) {
 	// Zero all floor button lamps
 	for f := 0; f < def.NumFloors; f++ {
 		if f != 0 {
-			SetBtnLamp(f, def.BtnDown, false)
+			SetBtnLamp(f, def.BtnHallDown, false)
 		}
 		if f != def.NumFloors-1 {
-			SetBtnLamp(f, def.BtnUp, false)
+			SetBtnLamp(f, def.BtnHallUp, false)
 		}
-		SetBtnLamp(f, def.BtnInside, false)
+		SetBtnLamp(f, def.BtnCab, false)
 	}
 
 	SetStopLamp(false)
 	SetDoorLamp(false)
 
 	// Move to defined state
-	SetMotorDir(def.DirDown)
-	floor := Floor()
+	SetMotorDir(def.DirHallDown)
+	floor := GetFloor()
 	for floor == -1 {
-		floor = Floor()
+		floor = GetFloor()
 	}
 	SetMotorDir(def.DirStop)
 	SetFloorLamp(floor)
@@ -80,7 +80,7 @@ func SetDoorLamp(value bool) {
 	}
 }
 
-func Floor() int {
+func GetFloor() int {
 	if ioReadBit(SENSOR_FLOOR1) {
 		return 0
 	} else if ioReadBit(SENSOR_FLOOR2) {
@@ -124,11 +124,11 @@ func ReadBtn(floor int, btn int) bool {
 		log.Printf("Error: Button %d out of range!\n", btn)
 		return false
 	}
-	if btn == def.BtnUp && floor == def.NumFloors-1 {
+	if btn == def.BtnHallUp && floor == def.NumFloors-1 {
 		log.Println("Button up from top floor does not exist!")
 		return false
 	}
-	if btn == def.BtnDown && floor == 0 {
+	if btn == def.BtnHallDown && floor == 0 {
 		log.Println("Button down from ground floor does not exist!")
 		return false
 	}
@@ -145,17 +145,17 @@ func SetBtnLamp(floor int, btn int, value bool) {
 		log.Printf("Error: Floor %d out of range!\n", floor)
 		return
 	}
-	if btn == def.BtnUp && floor == def.NumFloors-1 {
+	if btn == def.BtnHallUp && floor == def.NumFloors-1 {
 		log.Println("Button up from top floor does not exist!")
 		return
 	}
-	if btn == def.BtnDown && floor == 0 {
+	if btn == def.BtnHallDown && floor == 0 {
 		log.Println("Button down from ground floor does not exist!")
 		return
 	}
-	if btn != def.BtnUp &&
-		btn != def.BtnDown &&
-		btn != def.BtnInside {
+	if btn != def.BtnHallUp &&
+		btn != def.BtnHallDown &&
+		btn != def.BtnCab {
 		log.Printf("Invalid button %d\n", btn)
 		return
 	}
