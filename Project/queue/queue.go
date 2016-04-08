@@ -6,28 +6,25 @@ import (
 	"time"
 )
 
-type orderStatus struct {
+type requestStatus struct {
 	active bool
 	addr   string       `json:"-"`
 	timer  *timer.Timer `json:"-"`
 }
 
 type queue struct {
-	qMatrix [def.Numfloors][def.NumButtons]ordreStatus
+	qMatrix [def.Numfloors][def.NumButtons]requestStatus
 }
 
-//make an order inactive
-var inactive = ordreStatus{active: false, addr: "", timer: nil}
+//make a request inactive
+var inactive = requestStatus{active: false, addr: "", timer: nil}
 
-func isOrder(floor, btn int) int {
-	if "Den har en bestilling" {
-		return true
-	}
-	return false
+func (q *queue) hasRequest(floor, btn int) int {
+	return
 }
 
 // requests_above
-func (q *queue) hasOrdersAbove(floor int) bool {
+func (q *queue) hasRequestAbove(floor int) bool {
 	for f := floor + 1; f < def.NumFloors; f++ {
 		for b := 0; b < def.NumButtons; b++ {
 			if q.hasOrder(f, b) { //q.matrix[f][b]
