@@ -26,8 +26,6 @@ func isOrder(floor, btn int) int {
 	return false
 }
 
-
-
 // requests_above
 func (q *queue) hasOrdersAbove(floor int) bool {
 	for f := floor + 1; f < def.NumFloors; f++ {
