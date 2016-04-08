@@ -1,7 +1,7 @@
 package queue
 
 import (
-	"config"
+	def "definitions"
 	"fmt"
 	"time"
 )
@@ -13,7 +13,7 @@ type orderStatus struct {
 }
 
 type queue struct {
-	qMatrix [config.Numfloors][config.NumButtons]ordreStatus
+	qMatrix [def.Numfloors][def.NumButtons]ordreStatus
 }
 
 //make an order inactive
@@ -54,23 +54,23 @@ func (q *queue) chooseDirection(floor, dir int) int {
 	switch dir {
 	case config.DirUp:
 		if q.hasOrdersAbove(floor){
-			return config.DirUp
+			return def.DirUp
 		} else if q.hasOrdersBelow(floor){
-			return config.DirDown
+			return def.DirDown
 		} else{
-			return config.DirStop
+			return def.DirStop
 		}
 	case def.DirDown, def.DirStop:
 		if q.hasOrdersBelow(floor) {
-			return config.DirDown
+			return def.DirDown
 		} else if q.hasOrdersAbove(floor) {
-			return config.DirUp
+			return def.DirUp
 		} else {
-			return config.DirStop
+			return def.DirStop
 		}
 	default:
-		config.CloseConnectionChan <- true
-		config.Restart.Run()
+		def.CloseConnectionChan <- true
+		def.Restart.Run()
 		log.Printf("%sChooseDirection(): called with invalid direction %d, returning stop%s\n", def.ColR, dir, def.ColN)
 		return 0
 	}
@@ -78,20 +78,20 @@ func (q *queue) chooseDirection(floor, dir int) int {
 
 func (q *queue) shouldStop(floor, dir int) bool {
 	switch dir {
-	case config.DirDown:
+	case def.DirDown:
 		return
 			q.isOrder(floor, def.BtnDown) ||
 			q.isOrder(floor, def.BtnInside) ||
 			!q.isOrdersBelow(floor)
-	case config.DirUp:
+	case def.DirUp:
 		return
 			q.isOrder(floor, def.BtnUp) ||
 			q.isOrder(floor, def.BtnInside) ||
 			!q.isOrdersAbove(floor)
-	case config.DirStop:
+	case def.DirStop:
 	default:
-		config.CloseConnectionChan <- true
-		config.Restart.Run()
+		def.CloseConnectionChan <- true
+		def.Restart.Run()
 		log.Fatalln(def.ColR, "This direction doesn't exist", def.ColN)
 	}
 	return false

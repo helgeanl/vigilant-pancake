@@ -5,7 +5,7 @@
 package fsm
 
 import (
-	"config"
+	def "definitions"
 	"log"
 	"queue"
 )
@@ -41,7 +41,7 @@ type Channels struct {
 
 func Init(ch Channels, startFloor int) {
 	elevator.behaviour = idle
-	elevator.dir = config.DirStop
+	elevator.dir = def.DirStop
 	elevator.floor = startFloor
 	/*
 	state = idle
@@ -92,7 +92,7 @@ func onNewOrder(ch Channels) {
 		// else start moving towards requested floor
 		// 		state = moving
 		elevator.dir = queue.ChooseDirction(floor,dir)
-		if elevator.dir = config.DirStop {
+		if elevator.dir = def.DirStop {
 			ch.DoorLamp <- true
 			ch.doorTimerStart
 			queue.RemoveOrder(....)
@@ -150,10 +150,10 @@ func onDoorTimeout(ch Channels) {
 		elevator.dir = queue.ChooseDirection(floor,dir);
         //outputDevice.doorLight(0);
         //outputDevice.motorDirection(elevator.dir);
-        if elevator.dirn == D_Stop {
+        if elevator.dir == def.DirStop {
             elevator.behaviour = idle;
         } else {
-            elevator.behaviour = EB_Moving;
+            elevator.behaviour = moving;
         }
 	case moving:
 		// Don´t care
