@@ -44,10 +44,10 @@ func Init(ch Channels, startFloor int) {
 	ch.doorTimerReset = make(chan bool)
 
 	go doorTimer(ch.doorTimeout, ch.doorTimerReset)
-	go run(ch)
+	go monitorEvents(ch)
 }
 
-func run(ch Channels) {
+func monitorEvents(ch Channels) {
 	for {
 		select {
 		case <-ch.NewRequest:
@@ -87,12 +87,12 @@ func onNewRequest(ch Channels) {
 			queue.RemoveOrder(....)
 			elevator.behaviour = doorOpen
 		}else{
-			ch.MotorDir <- dir
+			ch.MotorDir <- elevator.dir
 			elevator.behaviour = moving
 		}
 	default: // Error handling
-		//def.CloseConnectionChan <- true
-		//def.Restart.Run()
+		def.CloseConnectionChan <- true
+		def.Restart(... some error ...)
 		//log.Fatalf(def.ColR, "This state doesn't exist", def.ColN)
 	}
 	// set all lights
@@ -114,13 +114,12 @@ func onFloorArrival(ch Channels, newFloor int) {
 		// semi-pseudokode
 		if queue.ShouldStop(floor, dir){
 			ch.MotorDir <- def.DirStop
-            outputDevice.doorLight(1);
+            ch.DoorLamp <- true
             elevator = requests_clearAtCurrentFloor(elevator);
             timer_start(elevator.config.doorOpenDuration_s);
             setAllLights(elevator);
             elevator.behaviour = doorOpen;
 		}
-
 	case doorOpen:
 		// do nothing
 	case idle:
@@ -140,8 +139,8 @@ func onDoorTimeout(ch Channels) {
 		// turn off doorLamp
 
 		elevator.dir = queue.ChooseDirection(floor,dir);
-        //outputDevice.doorLight(0);
-        //outputDevice.motorDirection(elevator.dir);
+        ch.DoorLamp <- false
+        ch.MotorDir <- elevator.dir
         if elevator.dir == def.DirStop {
             elevator.behaviour = idle;
         } else {

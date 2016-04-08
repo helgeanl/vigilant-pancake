@@ -22,6 +22,19 @@ var inactive = requestStatus{active: false, addr: "", timer: nil}
 func (q *queue) hasRequest(floor, btn int) bool {
 	return q.matrix[floor][btn].active
 }
+/// -------------------
+
+
+
+func Init(newRequestTemp chan bool, outgoingMsg chan def.Message) {
+	newRequest = newRequestTemp
+	go updateLocalQueue()
+	runBackup(outgoingMsg)
+	log.Println(def.ColG, "Queue initialised.", def.ColN)
+}
+
+
+// -------------------
 
 // requests_above
 func (q *queue) hasRequestAbove(floor int) bool {
