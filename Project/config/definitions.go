@@ -1,4 +1,4 @@
-package config
+package definitions
 
 import (
 	"os/exec"
