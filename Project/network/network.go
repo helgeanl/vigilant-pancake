@@ -41,7 +41,7 @@ func aliveSpammer(outgoingMsg chan<- def.Message) {
 }
 
 // forwardOutgoing continuosly checks for messages to be sent on the network
-// by reading the OutgoingMsg channel. Each message read is sent to the udp file
+// by reading the OutgoingMsg channel. Each message read is sent to the udp channel
 // as JSON.
 func forwardOutgoing(outgoingMsg <-chan def.Message, udpSend chan<- udpMessage) {
 	for {

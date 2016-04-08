@@ -24,7 +24,7 @@ const (
 
 
 
-// Local IP address
+// Local IP addresss
 var Laddr string
 
 type Keypress struct {
@@ -50,8 +50,8 @@ type Elevator struct {
 // Network message category constants
 const (
 	Alive int = iota + 1
-	NewOrder
-	CompleteOrder
+	NewRequest
+	CompleteRequest
 	Cost
 )
 
