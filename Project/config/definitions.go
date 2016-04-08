@@ -50,8 +50,8 @@ type Elevator struct {
 // Network message category constants
 const (
 	Alive int = iota + 1
-	NewRequest
-	CompleteRequest
+	NewOrder
+	CompleteOrder
 	Cost
 )
 
