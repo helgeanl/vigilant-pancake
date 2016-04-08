@@ -33,7 +33,7 @@ type Keypress struct {
 	Floor  int
 }
 
-// Generic network message. No other messages are ever sent on the network.
+// Message serves as a 
 type Message struct {
 	Category int
 	Floor    int
@@ -59,10 +59,13 @@ const (
 var SyncLightsChan = make(chan bool)
 var CloseConnectionChan = make(chan bool)
 
-// Start a new terminal when restart.Run()
-var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
-
-// Colours for printing to console
+// Restart program, writes error to log.
+func Restart(err error){
+	start := exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
+	start.Run()
+	log.Fatal(err)
+}
+// Colors for printing to console
 const Col0 = "\x1b[30;1m" // Dark grey
 const ColR = "\x1b[31;1m" // Red
 const ColG = "\x1b[32;1m" // Green
