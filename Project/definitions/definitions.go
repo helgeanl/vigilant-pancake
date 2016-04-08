@@ -9,6 +9,7 @@ import (
 const NumButtons = 3
 const NumFloors = 4
 const DoorOpenTime = 3 * time.Second
+const SpamInterval = 400 * time.Millisecond
 
 const (
 	BtnUp int = iota
