@@ -23,13 +23,10 @@ type request struct {
 }
 
 
-
-
-
 func CollectCosts(message, *numOnline int){
 	requestList := make( map[request][]reply)
 	var timeout = make(chan *request)
-	
+
 	for{
 		select{
 		case message := <-costReply:
@@ -37,6 +34,27 @@ func CollectCosts(message, *numOnline int){
 			newReply := reply{cost: message.Cost, elevator: message.Addr}
 
 			// Check if request is in queue
+			if replyList, exist := requestList[newRequest]; exist {
+				// Check if newReply already is registered.
+				found := false
+				for _, reply := range replyList {
+					if reply == newReply {
+						found = true
+					}
+				}
+				// Add to list if not found
+				if !found {
+					requestList[newRequest] = append(requestList[newRequest], newReply)
+					newRequest.timer.Reset(def.CostReplyTimeoutDuration)
+				}
+			} else {
+				// If order not in queue at all, init order list with it
+				newRequest.timer = time.NewTimer(def.CostReplyTimeoutDuration)
+				requestList[newRequest] = []reply{newReply}
+				go costTimer(&newRequest, timeout)
+			}
+			chooseBestLift(unassigned, numOnline, false)
+
 			// if not, append request to requestList and start timer
 			// choose best elevator
 
