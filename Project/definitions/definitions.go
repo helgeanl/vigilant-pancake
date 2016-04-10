@@ -12,8 +12,8 @@ const DoorOpenTime = 3 * time.Second
 const SpamInterval = 400 * time.Millisecond
 
 const (
-	BtnUp int = iota
-	BtnDown
+	BtnHallUp int = iota
+	BtnHallDown
 	BtnInside
 )
 
@@ -28,7 +28,7 @@ const (
 // Local IP addresss
 var Laddr string
 
-type Keypress struct {
+type BtnPress struct {
 	Button int
 	Floor  int
 }
