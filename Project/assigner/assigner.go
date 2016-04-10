@@ -24,22 +24,51 @@ type request struct {
 
 
 
-bestCost := make(map[request]reply)
+
 
 func CollectCosts(message, *numOnline int){
-	bestCost
+	requestList := make( map[request][]reply)
+	var timeout = make(chan *request)
+	
 	for{
 		select{
 		case message := <-costReply:
-			newReply := request{floor: message.Floor,buton: message.Button}
+			newRequest := request{floor: message.Floor,button: message.Button}
 			newReply := reply{cost: message.Cost, elevator: message.Addr}
-			bestCost[newRequest] = newReply
+
+			// Check if request is in queue
+			// if not, append request to requestList and start timer
+			// choose best elevator
+
 		case <- timeout:
+			choose best elevator
 		}
 	}
 }
 
-
+func chooseBestElevator(requestList map[request][]reply, *numOnline int, timeout bool){
+	var lowestCost int
+	var bestElevator string
+	// Go through list of requests and find the best elevator in each replyList
+	for request,replyList := range requestList{
+		if len(replyList) == *numOnline || timeout{
+			lowestCost = 10000
+			for _,reply := range replyList{
+				if reply.cost < lowestCost{
+					lowestCost = reply.cost
+					bestElevator = reply.Addr
+				}else if reply.cost == lowestCost{
+					if reply.Addr < bestElevator{
+						bestElevator = reply.Addr
+					}
+				}
+			}
+			// add request to queue
+			// stop timer
+			// delete request from requestList
+		}
+	}
+}
 
 
 

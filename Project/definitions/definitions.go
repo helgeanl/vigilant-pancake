@@ -33,7 +33,7 @@ type BtnPress struct {
 	Floor  int
 }
 
-// Message serves as a 
+// Message serves as a
 type Message struct {
 	Category int
 	Floor    int
