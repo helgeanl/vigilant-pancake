@@ -8,7 +8,7 @@ import (
 
 
 func main() {
-	
+
 	//Variables
 	var startFloor int
 	var err error

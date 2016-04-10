@@ -22,6 +22,17 @@ type request struct {
 	timer  *time.Timer
 }
 
+
+
+
+
+
+
+
+
+
+
+
 // Run collects cost values from all lifts for each new order, and attempts
 // to find the best lift for each order, when either all online lifts have
 // replied or after a timeout.
