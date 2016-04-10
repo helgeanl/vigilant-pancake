@@ -14,22 +14,22 @@ func EventHandler(){
 	//Convenient channels
 	var BtnChan = make(chan def.BtnPress, 10)
 
-
 	//Convenient variables/structs
 
 
 	//Threads
 	go eventBtnPressed(BtnChan)
 
-
 	for{
 		select{
+			case BtnPress:= <- BtnChan:
+				//Do something :P
 			case
 		}
 	}
 }
 
-func eventBtnPressed(ch chan){
+func eventBtnPressed(ch chan def.BtnPress){
 	//Check for a button beeing pressed
 	lastBtnPressed := def.BtnPress{
 		Button: -1,
@@ -45,13 +45,12 @@ func eventBtnPressed(ch chan){
 				if hw.ReadBtn(floor, btn){
 					btnPressed.Button = btn
 					btnPressed.Floor = floor
-					//Check if there is an order assigned to button
-					if lastBtnPressed != btnPressed && !qMatrix.Active{
+					if lastBtnPressed != btnPressed{
 						ch <- btnPressed
 					}
+					lastBtnPressed = btnPressed
 				}
 			}
 		}
-		lastBtnPressed = btnPressed
 	}
 }
