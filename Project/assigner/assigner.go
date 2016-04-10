@@ -24,6 +24,24 @@ type request struct {
 
 
 
+bestCost := make(map[request]reply)
+
+func CollectCosts(message, *numOnline int){
+	bestCost
+	for{
+		select{
+		case message := <-costReply:
+			newReply := request{floor: message.Floor,buton: message.Button}
+			newReply := reply{cost: message.Cost, elevator: message.Addr}
+			bestCost[newRequest] = newReply
+		case <- timeout:
+		}
+	}
+}
+
+
+
+
 
 
 
