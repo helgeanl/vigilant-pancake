@@ -5,6 +5,7 @@ import (
 	hw "hardware"
 	"fsm"
 	"network"
+	"time"
 )
 
 
@@ -17,7 +18,7 @@ func EventHandler(){
 	var BtnChan = make(chan def.BtnPress, 10)
 	var IncomingMessageChan =make(chan def.Message, 10)
 	var FloorChan = make(chan int)
-	var DeadElevatorChan = make(chan Byte)
+	var DeadElevatorChan = make(chan int)
 
 	//Convenient variables/structs
 
@@ -29,11 +30,14 @@ func EventHandler(){
 
 	for{
 		select{
-			case BtnPress:= <- BtnChan:
+			case btnPress:= <- BtnChan:
 				//Do something :P
-			case Message := <- IncommingMessageChan:
+			case msg := <- IncommingMessageChan:
 				//Do something
-			case currFloor := <- FloorChan
+			case currFloor := <- FloorChan:
+				//Handle floor
+			case deadElevator := <- DeadElevatorChan:
+				//Handle dead elevator
 		}
 	}
 }
@@ -60,11 +64,23 @@ func eventBtnPressed(ch chan def.BtnPress){
 				}
 			}
 		}
+		time.Millisecond(1)
 	}
 }
 
 func eventCabAtFloor(ch chan int){
-	
+	//initialize with invalid values
+	var floorReached = -2
+	var prevFloor = -3
+	for{
+		if hw.GetFloor != -1{
+			if prevFloor != floorReached{
+				floorReached = hw.GetFloor
+				ch <-floorReached
+			}
+		}
+		time.Millisecond(1)
+	}
 }
 
 func eventIncommingMessage(ch chan def.Message){
@@ -75,6 +91,6 @@ func eventExternRequestTimeout(ch chan ...){
 
 }
 
-func eventDeadElevator(ch chan ){
+func eventDeadElevator(ch chan int){
 
 }
