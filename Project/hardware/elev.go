@@ -1,4 +1,4 @@
-// Package hw defines interactions with the lift hardware at the real time
+// Package hardware defines interactions with the lift hardware at the real time
 // lab at The Department of Engineering Cybernetics at NTNU, Trondheim,
 // Norway.
 //
@@ -167,6 +167,7 @@ func SetBtnLamp(floor int, btn int, value bool) {
 	}
 }
 
+//Stop lamp not needed
 func SetStopLamp(value bool) {
 	if value {
 		ioSetBit(LIGHT_STOP)
