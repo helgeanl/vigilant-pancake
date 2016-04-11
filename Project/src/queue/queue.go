@@ -7,8 +7,9 @@ import (
 )
 
 var queue queue
-
 var RequestTimeoutChan chan def.BtnPress
+//make a request inactive
+const inactive = requestStatus{status: false, addr: "", timer: nil}
 
 type requestStatus struct {
 	status bool
@@ -20,12 +21,10 @@ type queue struct {
 	matrix [def.Numfloors][def.NumButtons]requestStatus
 }
 
-//make a request inactive
-const inactive = requestStatus{status: false, addr: "", timer: nil}
 
-func (q *queue) hasRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status
-}
+
+
+
 /// -------------------
 
 
@@ -38,20 +37,41 @@ func Init(newRequestTemp chan bool, outgoingMsg chan def.Message) {
 	log.Println(def.ColG, "Queue initialised.", def.ColN)
 }
 
-func (q *queue) setRequest(floor, btn int, request requestStatus){
-	q.matrix[floor][btn] = request.status
-	// sync lights
-	// take backup
-	// print
-}
-
 func AddRequestAt(floor int, btn int, addr string){
 	if !queue.hasRequest(floor,btn){
-		queue.setRequest(floor,btn,requestStatus{floor,btn,addr,nil})
+		queue.setRequest(floor,btn,requestStatus{true,addr,nil})
 		queue.startTimer(floor, btn)
 	}
 }
 
+// Go through queue, and resend requests belonging to dead elevator
+func ReassignRequests(addr string, outgoingMsg chan<-def.Message){
+	for floor := 0; floor < def.NumFloors; floor++{
+		for btn := 0; btn < def.NumButtons; btn++{
+			if queue.matrix[floor][btn].addr = addr{
+				outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
+			}
+		}
+	}
+}
+
+func RemoveOrderAt(floor,btn int){
+	queue.setRequest(floor,btn,inactive)
+}
+
+
+
+
+
+// Set status of request, sync request lights, take backup
+func (q *queue) setRequest(floor, btn int, request requestStatus){
+	q.matrix[floor][btn] = request
+	btnLightCh <- def.BtnPress{floor,btn}
+	// take backup
+	// printt
+}
+
+// Start timer for request in queue
 func (q * queue) startTimer(floor, btn int){
 	q.matrix[floor][btn].timer = time.NewTimer(def.RequestTimeoutDuration)
 	<-q.matrix[floor][btn].timer.C
@@ -65,84 +85,6 @@ func (q * queue) stopTimer(floor, btn int){
 	}
 }
 
-// Go through queue, and resend requests belonging to dead elevator
-func ReassignRequest(addr string){
 
-}
-
-func RemoveOrderAt(floor int){
-
-}
 
 // -------------------
-
-// requests_above
-func (q *queue) hasRequestAbove(floor int) bool {
-	for f := floor + 1; f < def.NumFloors; f++ {
-		for b := 0; b < def.NumButtons; b++ {
-			if q.hasRequest(f, b) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-// requests_below
-func (q *queue) hasRequestsBelow(floor int) bool {
-	for f := 0; f < floor; f++ {
-		for b := 0; b < def.NumButtons; b++ {
-			if q.hasRequest(f, b) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func (q *queue) chooseDirection(floor, dir int) int {
-	switch dir {
-	case def.DirUp:
-		if q.hasRequestsAbove(floor){
-			return def.DirUp
-		} else if q.hasRequestsBelow(floor){
-			return def.DirDown
-		} else{
-			return def.DirStop
-		}
-	case def.DirDown, def.DirStop:
-		if q.hasRequestsBelow(floor) {
-			return def.DirDown
-		} else if q.hasRequestsAbove(floor) {
-			return def.DirUp
-		} else {
-			return def.DirStop
-		}
-	default:
-		def.CloseConnectionChan <- true
-		def.Restart.Run()
-		log.Printf("%sChooseDirection(): called with invalid direction %d, returning stop%s\n", def.ColR, dir, def.ColN)
-		return 0
-	}
-}
-
-func (q *queue) shouldStop(floor, dir int) bool {
-	switch dir {
-	case def.DirDown:
-		return
-			q.hasRequest(floor, def.BtnHallDown) ||
-			q.hasRequest(floor, def.BtnCab) ||
-			!q.hasRequestsBelow(floor)
-	case def.DirUp:
-		return
-			q.hasRequest(floor, def.BtnHallUp) ||
-			q.hasRequest(floor, def.BtnCab) ||
-			!q.hasRequestsAbove(floor)
-	case def.DirStop:
-	default:
-		def.CloseConnectionChan <- true
-		def.Restart.Run()
-		log.Fatalln(def.ColR, "This direction doesn't exist", def.ColN)
-	}
-	return false
-}

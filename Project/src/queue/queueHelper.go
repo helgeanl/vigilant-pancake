@@ -7,7 +7,9 @@ import (
 )
 
 
-
+func (q *queue) hasRequest(floor, btn int) bool {
+	return q.matrix[floor][btn].status
+}
 
 // requests_above
 func (q *queue) hasRequestAbove(floor int) bool {
