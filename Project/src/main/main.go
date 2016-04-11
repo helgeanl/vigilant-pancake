@@ -15,10 +15,11 @@ func main() {
 
 	//Structs
 	eventCh := def.EventChan{
-		NewRequest:   make(chan bool),
-		FloorReached: make(chan int),
-		DoorTimeout:  make(chan bool), //Really needed??
-		DeadElevator: make(chan int),
+		NewRequest:     make(chan bool),
+		FloorReached:   make(chan int),
+		DoorTimeout:    make(chan bool), //Really needed??
+		DeadElevator:   make(chan int),
+		RequestTimeout: make(chan BtnPress),
 	}
 	hwCh := def.HardwareChan{
 		MotorDir:       make(chan int),
