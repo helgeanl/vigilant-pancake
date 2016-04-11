@@ -14,7 +14,6 @@ import (
 // are reassigned by sending as new requests on the network.
 func runBackup(outgoingMsg chan<- def.Message) {
 	const filename = "elevator_backup"
-
 	var backup queue
 	backup.loadFromDisk(filename)
 
@@ -24,7 +23,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 			for b := 0; b < def.NumButtons; b++ {
 				if backup.hasRequest(f, b) {
 					if b == def.BtnCab {
-						AddLocalRequest(f, b)
+						AddLocalRequest(f, b) //// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 					} else {
 						outgoingMsg <- def.Message{Category: def.NewRequest, Floor: f, Button: b}
 					}

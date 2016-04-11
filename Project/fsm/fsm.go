@@ -17,7 +17,7 @@ const (
 	doorOpen
 )
 
-var elevator Elevator
+var elevator def.Elevator
 
 type Channels struct {
 	// Events

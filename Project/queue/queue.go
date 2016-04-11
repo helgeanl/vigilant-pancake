@@ -7,32 +7,62 @@ import (
 )
 
 type requestStatus struct {
-	active bool
+	status bool
 	addr   string       `json:"-"`
 	timer  *timer.Timer `json:"-"`
 }
 
 type queue struct {
-	qMatrix [def.Numfloors][def.NumButtons]requestStatus
+	matrix [def.Numfloors][def.NumButtons]requestStatus
 }
 
 //make a request inactive
-var inactive = requestStatus{active: false, addr: "", timer: nil}
+const inactive = requestStatus{status: false, addr: "", timer: nil}
 
 func (q *queue) hasRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].active
+	return q.matrix[floor][btn].status
 }
 /// -------------------
 
-
+var queue queue
 
 func Init(newRequestTemp chan bool, outgoingMsg chan def.Message) {
-	newRequest = newRequestTemp
+	newRequest = newRequestTemp /// ??????
 	go updateLocalQueue()
 	runBackup(outgoingMsg)
 	log.Println(def.ColG, "Queue initialised.", def.ColN)
 }
 
+func (q *queue) setRequest(floor, btn int, request requestStatus){
+	q.matrix[floor][btn] = request.status
+	// sync lights
+	// take backup
+	// print
+}
+
+func AddRequestAt(floor int, btn int, addr string){
+	if !queue.hasRequest(floor,btn){
+		queue.setRequest(floor,btn,requestStatus{floor,btn,addr,nil})
+		// start timer if remote request
+	}
+}
+
+func (q * queue) startTimer(floor, btn int){
+	q.matrix[]
+}
+
+func (q * queue) stopTimer(){
+
+}
+
+// Go through queue, and resend requests belonging to dead elevator
+func ReassignRequest(addr string){
+
+}
+
+func RemoveOrderAt(floor int){
+
+}
 
 // -------------------
 
