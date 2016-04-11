@@ -5,6 +5,7 @@ import (
 	"fsm"
 	hw "hardware"
 	"network"
+	q "queue"
 	"time"
 )
 
@@ -13,14 +14,11 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 	//Make convinient variables
 	//Fix lights
 
-	onlineElevator := make(map[string]time.Timer)
+	onlineElevatorMap := make(map[string]time.Timer)
 
 	//Threads
 	go eventBtnPressed(hwCh.BtnPressed)
 	go eventCabAtFloor(eventCh.FloorReached)
-
-
-
 
 	for {
 		select {
@@ -30,27 +28,30 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			//
 		case currFloor := <-eventCh.FloorReached:
 			//Handle floor
+			//Kjør fsm.onFloorArrival
 		case incomingMsg := <-msgCh.Incoming:
 			//AlivePing
+
+			//MAKE THIS A FUNCTION
+
 			switch incomingMsg.Category {
 			case def.Alive:
 				IP := incomingMsg.Addr
-				if t, ok:=onlineElevator[IP];ok{
+				if t, ok := onlineElevatorMap[IP]; ok {
 					t.Reset()
+				} else {
+					onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, q.ReassignRequest(IP))
 				}
-				else{
-					onlineElevator[IP] = time.AfterFunc(def.ElevTimeoutDuration, eventDeadElevator(IP))
-				}
-
 			case def.NewRequest:
-
+				//Kjør fsm.onNewRequest
 			case def.CompleteRequest:
-
+				q.RemoveOrderAt(incomingMsg.Floor, incomingMsg.Button)
 			case def.Cost:
 				//Send message to Assigner
 			default:
 				//Burde ikke skje...
 			}
+			//MAKE LIGHT CASE
 		}
 		time.Millisecond(10)
 	}
@@ -97,10 +98,6 @@ func eventCabAtFloor(ch chan int) {
 	}
 }
 
-func eventRequestTimeout(ch chan BtnPress){
-
-}
-
-func eventDeadElevator(IP string){
+func eventRequestTimeout(ch chan BtnPress) {
 
 }
