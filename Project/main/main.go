@@ -27,7 +27,8 @@ func main() {
 	if err != nil {
 		def.Restart(err)
 	}
-
+	//"fsm.Channels is now devided into def.HardwareChannels, def.EventChannels"
+	//and def.MessageChannels
 	fsm.Init(ch, startFloor)
 	network.Init()
 

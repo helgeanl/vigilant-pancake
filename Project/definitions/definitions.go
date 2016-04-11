@@ -15,7 +15,7 @@ const CostReplyTimeoutDuration = 10 * time.Second
 const (
 	BtnHallUp int = iota
 	BtnHallDown
-	BtnInside
+	BtnCab
 )
 
 const (
@@ -24,14 +24,12 @@ const (
 	DirUp
 )
 
-
-
 type BtnPress struct {
 	Button int
 	Floor  int
 }
 
-// Message serves as a
+// Message serves as a ...
 type Message struct {
 	Category int
 	Floor    int
@@ -41,9 +39,30 @@ type Message struct {
 }
 
 type Elevator struct {
-	floor int
-	dirn  int
+	floor     int
+	dirn      int
 	behaviour int
+}
+
+type MessageChan struct {
+	// Network interaction
+	Outgoing chan Message
+	Incoming chan Message
+}
+type HardwareChan struct {
+	// Hardware interaction
+	MotorDir   chan int
+	FloorLamp  chan int
+	DoorLamp   chan bool
+	BtnPressed chan BtnPress
+	// Door timer
+	doorTimerReset chan bool
+}
+type EventChan struct {
+	NewRequest   chan bool
+	FloorReached chan int
+	DoorTimeout  chan bool
+	DeadElevator chan int
 }
 
 // Network message category constants
@@ -58,11 +77,12 @@ var SyncLightsChan = make(chan bool)
 var CloseConnectionChan = make(chan bool)
 
 // Restart program, writes error to log.
-func Restart(err error){
+func Restart(err error) {
 	start := exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
 	start.Run()
 	log.Fatal(err)
 }
+
 // Colors for printing to console
 const Col0 = "\x1b[30;1m" // Dark grey
 const ColR = "\x1b[31;1m" // Red

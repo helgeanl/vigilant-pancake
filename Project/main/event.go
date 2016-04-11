@@ -9,40 +9,32 @@ import (
 )
 
 
-func EventHandler(){
+func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan){
 	//Check for all events in loop
 	//Make convinient variables
 	//Fix lights
 	
-	//Convenient channels
-	var BtnChan = make(chan def.BtnPress, 10)
-	var IncomingMessageChan =make(chan def.Message, 10)
-	var FloorChan = make(chan int)
-	var DeadElevatorChan = make(chan int)
-	//var incomingUdpMsgChan =(make chan network.udpMessage)
-
 	//Convenient variables/structs
 
 	//Threads
-	go eventBtnPressed(BtnChan)
-	go eventIncommingMessage(IncommingMessageChan)
-	go eventCabAtFloor(FloorChan)
-	//go network.forwardIncoming(IncomingMessageChan, incomingUdpMsgChan)
+	go eventBtnPressed(hwCh.BtnPressed)
+	go eventCabAtFloor(eventCh.FloorReached)
+	
 
 	for{
 		select{
-			case btnPress:= <- BtnChan:
+			case btnPress:= <- hwCh.BtnPressed:
 				//Do something :P
 				//Check if there is an order here already
 				//
-			case currFloor := <- FloorChan:
+			case currFloor := <- eventCh.FloorReached:
 				//Handle floor
-			case deadElevator := <- DeadElevatorChan:
+			case deadElevator := <- eventCh.DeadElevatorChan:
 				//Handle dead elevator
 				//Check the whole queue for the dead lifts requests
 				//Send them out as new requests
 				//how to stop multiple elevators doing this?
-			case incomingMsg := <- IncomingMessageChan:
+			case incomingMsg := <- msgCh.Incoming:
 				//Handle message
 				//AlivePing
 				if incomingMsg.Category == 1{
@@ -106,10 +98,6 @@ func eventCabAtFloor(ch chan int){
 		}
 		time.Millisecond(1)
 	}
-}
-//This is handled by network.forwardIncoming() really
-func eventIncommingMessage(ch chan def.Message){
-	network.forwardIncoming()
 }
 
 func eventExternRequestTimeout(ch chan ...){
