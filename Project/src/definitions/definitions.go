@@ -13,6 +13,7 @@ const NumElevators = 3
 const DoorOpenTime = 3 * time.Second
 const SpamInterval = 400 * time.Millisecond
 const CostReplyTimeoutDuration = 10 * time.Second
+const RequestTimeoutDuration = 30 * time.Second
 
 const (
 	BtnHallUp int = iota
