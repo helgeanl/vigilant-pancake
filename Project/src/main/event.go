@@ -13,9 +13,14 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 	//Make convinient variables
 	//Fix lights
 
+	onlineElevator := make(map[string]time.Timer)
+
 	//Threads
 	go eventBtnPressed(hwCh.BtnPressed)
 	go eventCabAtFloor(eventCh.FloorReached)
+
+
+
 
 	for {
 		select {
@@ -34,17 +39,20 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			//AlivePing
 			switch incomingMsg.Category {
 			case def.Alive:
-				//Check IP
 				IP := incomingMsg.Addr
+				if t, ok:=onlineElevator[IP];ok{
+					t.Reset()
+				}
+				else{
+					onlineElevator[IP] = time.AfterFunc(d, f)
+				}
 
-				//update alive ping timer
-				//
 			case def.NewRequest:
 
 			case def.CompleteRequest:
 
 			case def.Cost:
-
+				//Send message to Assigner
 			default:
 				//Burde ikke skje...
 			}
@@ -98,10 +106,11 @@ func eventRequestTimeout(ch chan BtnPress) {
 
 }
 
-func eventDeadElevator(ch chan int) {
+func eventDeadElevator(ch chan int, m map[string]time.Timer) {
 	//Check elevator array for dead elevators
 	//every 5 seconds
 	for {
+
 		time.Second(5)
 	}
 }
