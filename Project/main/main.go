@@ -41,8 +41,10 @@ func main() {
 	//and def.MessageChannels
 	fsm.Init(ch, startFloor)
 	network.Init()
+	//Threads
+	go EventHandler(eventCh, msgCh, hwCh)
 
-	for {
+	for { //Or a channel that holds until it gets kill signal
 
 	}
 }
