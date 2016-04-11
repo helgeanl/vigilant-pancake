@@ -19,25 +19,47 @@ func EventHandler(){
 	var IncomingMessageChan =make(chan def.Message, 10)
 	var FloorChan = make(chan int)
 	var DeadElevatorChan = make(chan int)
+	var incomingUdpMsgChan =(make chan network.udpMessage)
 
 	//Convenient variables/structs
-
 
 	//Threads
 	go eventBtnPressed(BtnChan)
 	go eventIncommingMessage(IncommingMessageChan)
 	go eventCabAtFloor(FloorChan)
+	go network.forwardIncoming(IncomingMessageChan, incomingUdpMsgChan)
 
 	for{
 		select{
 			case btnPress:= <- BtnChan:
 				//Do something :P
-			case msg := <- IncommingMessageChan:
-				//Do something
+				//Check if there is an order here already
+				//
 			case currFloor := <- FloorChan:
 				//Handle floor
 			case deadElevator := <- DeadElevatorChan:
 				//Handle dead elevator
+				//Check the whole queue for the dead lifts requests
+				//Send them out as new requests
+				//how to stop multiple elevators doing this?
+			case incomingMsg := <- IncomingMessageChan:
+				//Handle message
+				//AlivePing
+				if incomingMsg.Category == 1{
+
+				}
+				//NewRequest
+				if incomingMsg.Category == 2{
+
+				}
+				//CompleteRequest
+				if incomingMsg.Category == 3{
+
+				}
+				//Cost
+				if incomingMsg.Category == 4 {
+					
+				}
 		}
 	}
 }
@@ -82,9 +104,9 @@ func eventCabAtFloor(ch chan int){
 		time.Millisecond(1)
 	}
 }
-
+//This is handled by network.forwardIncoming() really
 func eventIncommingMessage(ch chan def.Message){
-
+	network.forwardIncoming()
 }
 
 func eventExternRequestTimeout(ch chan ...){
