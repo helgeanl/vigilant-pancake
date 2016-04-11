@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// Local IP addresss
+var Laddr string
+
 func Init(outgoingMsg, incomingMsg chan def.Message) {
 	// Ports randomly chosen to reduce likelihood of port collision.
 	const localListenPort = 37103

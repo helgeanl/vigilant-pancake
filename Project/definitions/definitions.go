@@ -26,9 +26,6 @@ const (
 
 
 
-// Local IP addresss
-var Laddr string
-
 type BtnPress struct {
 	Button int
 	Floor  int
