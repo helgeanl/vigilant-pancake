@@ -1,11 +1,11 @@
 package main
 
 import (
-	hw "hardware"
 	def "definitions"
 	"fsm"
+	hw "hardware"
+	"network"
 )
-
 
 func main() {
 
@@ -15,22 +15,23 @@ func main() {
 
 	//Structs
 	ch := fsm.Channels{
-		NewRequest:		make(chan bool),
-		FloorReached:	make(chan int),
-		MotorDir: 		make(chan int),
-		FloorLamp:		make(chan int),
-		DoorLamp:		make(chan bool),
-		OutgoingMag:	make(chan def.Message, 10),
+		NewRequest:   make(chan bool),
+		FloorReached: make(chan int),
+		MotorDir:     make(chan int),
+		FloorLamp:    make(chan int),
+		DoorLamp:     make(chan bool),
+		OutgoingMsg:  make(chan def.Message, 10),
 	}
 
 	startFloor, err := hw.Init()
-	if err!= nil{
+	if err != nil {
 		def.Restart(err)
 	}
 
 	fsm.Init(ch, startFloor)
+	network.Init()
 
-	for{
+	for {
 
 	}
 }

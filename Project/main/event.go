@@ -19,7 +19,7 @@ func EventHandler(){
 	var IncomingMessageChan =make(chan def.Message, 10)
 	var FloorChan = make(chan int)
 	var DeadElevatorChan = make(chan int)
-	var incomingUdpMsgChan =(make chan network.udpMessage)
+	//var incomingUdpMsgChan =(make chan network.udpMessage)
 
 	//Convenient variables/structs
 
@@ -27,7 +27,7 @@ func EventHandler(){
 	go eventBtnPressed(BtnChan)
 	go eventIncommingMessage(IncommingMessageChan)
 	go eventCabAtFloor(FloorChan)
-	go network.forwardIncoming(IncomingMessageChan, incomingUdpMsgChan)
+	//go network.forwardIncoming(IncomingMessageChan, incomingUdpMsgChan)
 
 	for{
 		select{
@@ -46,6 +46,8 @@ func EventHandler(){
 				//Handle message
 				//AlivePing
 				if incomingMsg.Category == 1{
+					//Check IP
+					//update alive ping timer
 
 				}
 				//NewRequest
@@ -61,6 +63,7 @@ func EventHandler(){
 					
 				}
 		}
+		time.Millisecond(10)
 	}
 }
 
@@ -114,5 +117,6 @@ func eventExternRequestTimeout(ch chan ...){
 }
 
 func eventDeadElevator(ch chan int){
-
+	//Check elevator array for dead elevators
+	//every 5 seconds
 }
