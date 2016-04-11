@@ -6,75 +6,8 @@ import (
 	"time"
 )
 
-var queue queue
-
-var RequestTimeoutChan chan def.BtnPress
-
-type requestStatus struct {
-	status bool
-	addr   string       `json:"-"`
-	timer  *timer.Timer `json:"-"`
-}
-
-type queue struct {
-	matrix [def.Numfloors][def.NumButtons]requestStatus
-}
-
-//make a request inactive
-const inactive = requestStatus{status: false, addr: "", timer: nil}
-
-func (q *queue) hasRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status
-}
-/// -------------------
 
 
-
-
-func Init(newRequestTemp chan bool, outgoingMsg chan def.Message) {
-	newRequest = newRequestTemp /// ??????
-	go updateLocalQueue()
-	runBackup(outgoingMsg)
-	log.Println(def.ColG, "Queue initialised.", def.ColN)
-}
-
-func (q *queue) setRequest(floor, btn int, request requestStatus){
-	q.matrix[floor][btn] = request.status
-	// sync lights
-	// take backup
-	// print
-}
-
-func AddRequestAt(floor int, btn int, addr string){
-	if !queue.hasRequest(floor,btn){
-		queue.setRequest(floor,btn,requestStatus{floor,btn,addr,nil})
-		queue.startTimer(floor, btn)
-	}
-}
-
-func (q * queue) startTimer(floor, btn int){
-	q.matrix[floor][btn].timer = time.NewTimer(def.RequestTimeoutDuration)
-	<-q.matrix[floor][btn].timer.C
-	// Wait until timeout
-	RequestTimeoutChan <- def.Btnpress{floor, btn}
-}
-
-func (q * queue) stopTimer(floor, btn int){
-	if q.matrix[floor][btn].timer != nil{
-		q.matrix[floor][btn].timer.Stop()
-	}
-}
-
-// Go through queue, and resend requests belonging to dead elevator
-func ReassignRequest(addr string){
-
-}
-
-func RemoveOrderAt(floor int){
-
-}
-
-// -------------------
 
 // requests_above
 func (q *queue) hasRequestAbove(floor int) bool {
