@@ -30,11 +30,6 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			//
 		case currFloor := <-eventCh.FloorReached:
 			//Handle floor
-		case deadElevator := <-eventCh.DeadElevatorChan:
-			//Handle dead elevator
-			//Check the whole queue for the dead lifts requests
-			//Send them out as new requests
-			//how to stop multiple elevators doing this?
 		case incomingMsg := <-msgCh.Incoming:
 			//AlivePing
 			switch incomingMsg.Category {
@@ -44,7 +39,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 					t.Reset()
 				}
 				else{
-					onlineElevator[IP] = time.AfterFunc(d, f)
+					onlineElevator[IP] = time.AfterFunc(def.ElevTimeoutDuration, eventDeadElevator(IP))
 				}
 
 			case def.NewRequest:
@@ -102,15 +97,10 @@ func eventCabAtFloor(ch chan int) {
 	}
 }
 
-func eventRequestTimeout(ch chan BtnPress) {
+func eventRequestTimeout(ch chan BtnPress){
 
 }
 
-func eventDeadElevator(ch chan int, m map[string]time.Timer) {
-	//Check elevator array for dead elevators
-	//every 5 seconds
-	for {
+func eventDeadElevator(IP string){
 
-		time.Second(5)
-	}
 }
