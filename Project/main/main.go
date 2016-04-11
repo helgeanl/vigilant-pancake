@@ -14,15 +14,25 @@ func main() {
 	var err error
 
 	//Structs
-	ch := fsm.Channels{
+	eventCh := def.EventChan{
 		NewRequest:   make(chan bool),
 		FloorReached: make(chan int),
-		MotorDir:     make(chan int),
-		FloorLamp:    make(chan int),
-		DoorLamp:     make(chan bool),
-		OutgoingMsg:  make(chan def.Message, 10),
+		DoorTimeout:  make(chan bool), //Really needed??
+		DeadElevator: make(chan int),
+	}
+	hwCh := def.HardwareChan{
+		MotorDir:       make(chan int),
+		FloorLamp:      make(chan int),
+		DoorLamp:       make(chan bool),
+		BtnPressed:     make(chan BtnPress),
+		doorTimerReset: make(chan bool),
+	}
+	msgCh := def.MessageChan{
+		Outgoing: make(chan Message),
+		Incoming: make(chan Message),
 	}
 
+	//initialization
 	startFloor, err := hw.Init()
 	if err != nil {
 		def.Restart(err)

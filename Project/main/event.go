@@ -13,8 +13,6 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 	//Check for all events in loop
 	//Make convinient variables
 	//Fix lights
-	
-	//Convenient variables/structs
 
 	//Threads
 	go eventBtnPressed(hwCh.BtnPressed)
@@ -25,7 +23,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		select{
 			case btnPress:= <- hwCh.BtnPressed:
 				//Do something :P
-				//Check if there is an order here already
+				//Check if there is an order here already?
 				//
 			case currFloor := <- eventCh.FloorReached:
 				//Handle floor
@@ -36,11 +34,12 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 				//how to stop multiple elevators doing this?
 			case incomingMsg := <- msgCh.Incoming:
 				//Handle message
+				//MAKE SWITCH
 				//AlivePing
 				if incomingMsg.Category == 1{
 					//Check IP
 					//update alive ping timer
-
+					//
 				}
 				//NewRequest
 				if incomingMsg.Category == 2{
@@ -90,9 +89,9 @@ func eventCabAtFloor(ch chan int){
 	var floorReached = -2
 	var prevFloor = -3
 	for{
-		if hw.GetFloor != -1{
+		if hw.GetFloor() != -1{
 			if prevFloor != floorReached{
-				floorReached = hw.GetFloor
+				floorReached = hw.GetFloor()
 				ch <-floorReached
 			}
 		}
@@ -107,4 +106,7 @@ func eventExternRequestTimeout(ch chan ...){
 func eventDeadElevator(ch chan int){
 	//Check elevator array for dead elevators
 	//every 5 seconds
+	for{
+		time.Second(5)
+	}
 }

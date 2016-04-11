@@ -166,17 +166,3 @@ func SetBtnLamp(floor int, btn int, value bool) {
 		ioClearBit(lampChannelMatrix[floor][btn])
 	}
 }
-
-//Stop lamp not needed
-func SetStopLamp(value bool) {
-	if value {
-		ioSetBit(LIGHT_STOP)
-	} else {
-		ioClearBit(LIGHT_STOP)
-	}
-}
-
-
-func GetStopSignal() bool {
-	return ioReadBit(STOP)
-}

@@ -8,6 +8,7 @@ import (
 // Global system constants
 const NumButtons = 3
 const NumFloors = 4
+const NumElevators = 3
 const DoorOpenTime = 3 * time.Second
 const SpamInterval = 400 * time.Millisecond
 const CostReplyTimeoutDuration = 10 * time.Second
