@@ -26,6 +26,36 @@ func (q *queue) hasRequest(floor, btn int) bool {
 
 var queue queue
 
+# Setting PATH for Python 3.3
+# The orginal version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/3.3/bin:${PATH}"
+export PATH
+
+export XUGGLE_HOME="/usr/local/xuggler"
+
+export TRACKER_HOME="/usr/local/tracker"
+
+#export PS1="\[\033[36m\]\u\[\033[m\]\h:\[\033[33;1m\]\w\$ "
+#export PS1='\[\e[1;32m\][\u@\h \W]\$\[\e[0m\]'
+#export PS1="\[\033[36m\]\u\[\033[m\]:\[\033[m\]\$"
+export PS1="\[\033[36m\]\u\[\033[m\]@\[\033[32m\]\h:\[\033[33;1m\]\w\[\033[m\]\$ "
+#export PS1="\[\033[1;32m\]\u@\h\[\033[0m\]:\[\033[1;34m\]\w\[\033[0m\]# "
+
+
+export CLICOLOR=1
+export LSCOLORS= GxFxCxDxBxegedabagaced
+alias ls='ls -GFh'
+alias showFiles='defaults write com.apple.finder AppleShowAllFiles YES; killall Finder /System/Library/CoreServices/Finder.app'
+alias hideFiles='defaults write com.apple.finder AppleShowAllFiles NO; killall Finder /System/Library/CoreServices/Finder.app'
+export PATH=/usr/local/gnat/bin:$PATH
+
+# Size of terminal history file
+HISTFILESIZE=100000
+
+# Colors for cat
+alias ccat='pygmentize -g'
+alias ccatl='pygmentize -g -O style=colorful,linenos=1'
+
 func Init(newRequestTemp chan bool, outgoingMsg chan def.Message) {
 	newRequest = newRequestTemp /// ??????
 	go updateLocalQueue()
