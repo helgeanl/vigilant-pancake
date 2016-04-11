@@ -43,7 +43,7 @@ func (q *queue) setRequest(floor, btn int, request requestStatus){
 func AddRequestAt(floor int, btn int, addr string){
 	if !queue.hasRequest(floor,btn){
 		queue.setRequest(floor,btn,requestStatus{floor,btn,addr,nil})
-		// start timer if remote request
+		queue.startTimer(floor, btn)
 	}
 }
 
