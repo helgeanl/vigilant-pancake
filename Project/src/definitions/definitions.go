@@ -1,6 +1,7 @@
-package config
+package definitions
 
 import (
+	"log"
 	"os/exec"
 	"time"
 )

@@ -1,7 +1,7 @@
 package network
 
 import (
-	def "config"
+	def "definitions"
 	"fmt"
 	"net"
 	"strconv"
