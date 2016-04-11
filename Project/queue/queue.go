@@ -48,11 +48,16 @@ func AddRequestAt(floor int, btn int, addr string){
 }
 
 func (q * queue) startTimer(floor, btn int){
-	q.matrix[]
+	q.matrix[floor][btn].timer = time.NewTimer(def.RequestTimeoutDuration)
+	<-q.matrix[floor][btn].timer.C
+	// Wait until timeout
+	RequestTimeoutChan <- def.Btnpress{floor, btn}
 }
 
-func (q * queue) stopTimer(){
-
+func (q * queue) stopTimer(floor, btn int){
+	if q.matrix[floor][btn].timer != nil{
+		q.matrix[floor][btn].timer.Stop()
+	}
 }
 
 // Go through queue, and resend requests belonging to dead elevator
