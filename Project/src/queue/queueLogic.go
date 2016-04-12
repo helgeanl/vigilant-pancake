@@ -7,12 +7,6 @@ import (
 )
 
 
-func HasRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status
-}
-func (q *queue) hasLocalRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == localIP
-}
 
 
 func (q *queue) ChooseDirection(floor, dir int) int {
@@ -64,11 +58,19 @@ func (q *queue) ShouldStop(floor, dir int) bool {
 	return false
 }
 
+func HasRequest(floor,btn int)bool{
+	return queue.hasRequest(floor,btn)
+}
+func (q *queue) hasRequest(floor, btn int) bool {
+	return q.matrix[floor][btn].status
+}
+func (q *queue) hasLocalRequest(floor, btn int) bool {
+	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == localIP
+}
 
-// requests_above
 func (q *queue) hasRequestAbove(floor int) bool {
 	for f := floor + 1; f < def.NumFloors; f++ {
-		for b := 0; b < def.NumButtons; b++ {
+		for b:= 0; b < def.NumButtons; b++ {
 			if q.hasLocalRequest(f, b) {
 				return true
 			}
@@ -77,7 +79,6 @@ func (q *queue) hasRequestAbove(floor int) bool {
 	return false
 }
 
-// requests_below
 func (q *queue) hasRequestsBelow(floor int) bool {
 	for f := 0; f < floor; f++ {
 		for b := 0; b < def.NumButtons; b++ {

@@ -22,7 +22,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 		for btn := 0; btn < def.NumButtons; btn++ {
 			if backup.hasRequest(floor, btn) {
 				if btn == def.BtnCab {
-					AddRequestAt(floor, btn, nil)
+					AddRequest(floor, btn, nil)
 				} else {
 					outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 				}

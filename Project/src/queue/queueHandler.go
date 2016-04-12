@@ -9,13 +9,10 @@ import (
 var localIP string
 var queue queue
 var RequestTimeoutChan = make(chan def.BtnPress)
-var costReply = make(chan def.Message )
-var takeBackup chan bool
-var newRequest chan bool
+var NewRequest = make(chan bool)
+var CostReply = make(chan def.Message )
+var takeBackup = make(chan bool)
 
-
-//make a request inactive !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-const inactive = requestStatus{status: false, addr: "", timer: nil}
 
 type requestStatus struct {
 	status bool
@@ -34,11 +31,10 @@ func Init(addr string, outgoingMsg chan def.Message) {
 
 }
 
-
 func AddRequest(floor int, btn int, addr string){
-	if !HasRequest(floor,btn){
+	if !queue.hasRequest(floor,btn){
 		if addr = localIP{
-			newRequest <- true
+			NewRequest <- true
 		}
 		queue.setRequest(floor,btn,requestStatus{true,addr,nil})
 		queue.startTimer(floor, btn)
@@ -46,15 +42,15 @@ func AddRequest(floor int, btn int, addr string){
 }
 
 func RemoveRequest(floor,btn int){
-	queue.setRequest(floor,btn,inactive)
+	queue.setRequest(floor,btn,requestStatus{status: false, addr: "", timer: nil})
 }
 
 // Go through queue, and resend requests belonging to dead elevator
-func ReassignAllRequestsFrom(addr string, outgoingMsg chan<-def.Message){
+func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan def.Message){
 	for floor := 0; floor < def.NumFloors; floor++{
 		for btn := 0; btn < def.NumButtons; btn++{
 			if queue.matrix[floor][btn].addr = addr{
-				outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
+				ReassignRequest(floor,btn, outgoingMsgCh)
 			}
 		}
 	}
@@ -67,9 +63,8 @@ func ReassignRequest(floor,btn int, outgoingMsg chan<-def.Message){
 // Set status of request, sync request lights, take backup
 func (q *queue) setRequest(floor, btn int, request requestStatus){
 	q.matrix[floor][btn] = request
-	//btnLightCh <- def.BtnPress{floor,btn}
 	takeBackup <- true
-	// printt
+	printQueue()
 }
 
 // Start timer for request in queue
@@ -84,4 +79,31 @@ func (q * queue) stopTimer(floor, btn int){
 	if q.matrix[floor][btn].timer != nil{
 		q.matrix[floor][btn].timer.Stop()
 	}
+}
+
+func printQueue() {
+	fmt.Printf(def.ColC)
+	fmt.Println("****** Queue ****** ")
+	for f := def.NumFloors - 1; f >= 0; f-- {
+		s := strconv.Itoa(f-1)
+
+		if queue.hasRequest(f, def.BtnHallUp) {
+			s += " (↑ " + queue.matrix[f][def.BtnHallUp].addr[12:15] + " ) "
+		} else {
+			fmt.Printf("(     )")
+		}
+		if queue.hasRequest(f, def.BtnHallDown) {
+			s += " (↓ " + queue.matrix[f][def.BtnHallDown].addr[12:15] + " ) "
+		} else {
+			fmt.Printf("(     )")
+		}
+		if queue.hasRequest(f, def.BtnCab) {
+			s += " (  x  )"
+		} else {
+			s1 += " (     )"
+		}
+		fmt.Printf("%s", s)
+		fmt.Println()
+	}
+	fmt.Printf(def.ColN)
 }
