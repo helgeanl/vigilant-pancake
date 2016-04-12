@@ -1,4 +1,4 @@
-// FMS for elevator
+// FMS for Elevator
 // *** some comment
 // events: timeout, floorArrived, newRequest
 // state: idle, moving, doorOpen
@@ -10,14 +10,14 @@ import (
 	"queue"
 )
 
-// Enumeration of elevator behaviour
+// Enumeration of Elevator behaviour
 const (
 	idle int = iota
 	moving
 	doorOpen
 )
 
-var elevator def.Elevator
+var Elevator def.Elevator
 
 type Channels struct {
 	// Events
@@ -36,9 +36,9 @@ type Channels struct {
 
 
 func Init(ch Channels, startFloor int) {
-	elevator.behaviour = idle
-	elevator.dir = def.DirStop
-	elevator.floor = startFloor
+	Elevator.behaviour = idle
+	Elevator.dir = def.DirStop
+	Elevator.floor = startFloor
 
 	ch.doorTimeout = make(chan bool)
 	ch.doorTimerReset = make(chan bool)
@@ -63,7 +63,7 @@ func monitorEvents(ch Channels) {
 
 func onNewRequest(ch Channels) {
 	// print queue
-	switch elevator.behaviour {
+	switch Elevator.behaviour {
 	case doorOpen:
 		//if at ordered floor, start timer again
 		// else add order to queue
@@ -80,15 +80,15 @@ func onNewRequest(ch Channels) {
 		//		open door,start timer, state = doorOpen
 		// else start moving towards requested floor
 		// 		state = moving
-		elevator.dir = queue.ChooseDirction(floor,dir)
-		if elevator.dir = def.DirStop {
+		Elevator.dir = queue.ChooseDirction(floor,dir)
+		if Elevator.dir = def.DirStop {
 			ch.DoorLamp <- true
 			ch.doorTimerStart
 			queue.RemoveOrder(....)
-			elevator.behaviour = doorOpen
+			Elevator.behaviour = doorOpen
 		}else{
-			ch.MotorDir <- elevator.dir
-			elevator.behaviour = moving
+			ch.MotorDir <- Elevator.dir
+			Elevator.behaviour = moving
 		}
 	default: // Error handling
 		def.CloseConnectionChan <- true
@@ -99,10 +99,10 @@ func onNewRequest(ch Channels) {
 }
 
 func onFloorArrival(ch Channels, newFloor int) {
-	elevator.floor = newFloor
-	ch.FloorLamp <- elevator.floor
+	Elevator.floor = newFloor
+	ch.FloorLamp <- Elevator.floor
 
-	switch elevator.behaviour {
+	switch Elevator.behaviour {
 	case moving:
 		// if floor is in queue
 		// then stop MOTOR,
@@ -115,10 +115,10 @@ func onFloorArrival(ch Channels, newFloor int) {
 		if queue.ShouldStop(floor, dir){
 			ch.MotorDir <- def.DirStop
             ch.DoorLamp <- true
-            elevator = requests_clearAtCurrentFloor(elevator);
-            timer_start(elevator.config.doorOpenDuration_s);
-            setAllLights(elevator);
-            elevator.behaviour = doorOpen;
+            Elevator = requests_clearAtCurrentFloor(Elevator);
+            timer_start(Elevator.config.doorOpenDuration_s);
+            setAllLights(Elevator);
+            Elevator.behaviour = doorOpen;
 		}
 	case doorOpen:
 		// do nothing
@@ -138,13 +138,13 @@ func onDoorTimeout(ch Channels) {
 		// else: state = idle
 		// turn off doorLamp
 
-		elevator.dir = queue.ChooseDirection(floor,dir);
+		Elevator.dir = queue.ChooseDirection(floor,dir);
         ch.DoorLamp <- false
-        ch.MotorDir <- elevator.dir
-        if elevator.dir == def.DirStop {
-            elevator.behaviour = idle;
+        ch.MotorDir <- Elevator.dir
+        if Elevator.dir == def.DirStop {
+            Elevator.behaviour = idle;
         } else {
-            elevator.behaviour = moving;
+            Elevator.behaviour = moving;
         }
 	case moving:
 		// Don´t care
