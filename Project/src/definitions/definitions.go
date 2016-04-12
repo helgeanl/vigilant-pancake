@@ -75,7 +75,6 @@ type EventChan struct {
 	DeadElevator   chan int
 	RequestTimeout chan BtnPress
 }
-
 // Network message category constants
 const (
 	Alive int = iota + 1
@@ -84,7 +83,7 @@ const (
 	Cost
 )
 
-var SyncLightsChan = make(chan bool)
+//var SyncLightsChan = make(chan bool)
 var CloseConnectionChan = make(chan bool)
 
 // Restart program, writes error to log.

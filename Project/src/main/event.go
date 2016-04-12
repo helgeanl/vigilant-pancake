@@ -12,7 +12,6 @@ import (
 func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan) {
 	//Check for all events in loop
 	//Make convinient variables
-	//Fix lights
 
 	onlineElevatorMap := make(map[string]time.Timer)
 
@@ -24,21 +23,29 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		select {
 		case btnPress := <-hwCh.BtnPressed:
 			//Do something :P
-			//Check if there is an order here already?
-			//
+			if !q.HasRequest(btnPress.Floor,btnPress.Button){
+				outgoingMsg<-{def.NewRequest,btnPress.Floor,btnPress.Button}
+			}
 		case currFloor := <-eventCh.FloorReached:
-			//Handle floor
-			//Kjør fsm.onFloorArrival
+			//fsm.onFloorArrival
 		case incomingMsg := <-msgCh.Incoming:
-			handeMessage(incomingMsg)
-		case btnLightUpdate := <-hwCh.btnLightChan	
+			handleMessage(incomingMsg, msgCh.outgoingMsg)
+		case btnLightUpdate := <-hwCh.btnLightChan:
 			hw.SetBtnLamp(btnLightUpdate)
+		case requestTimeout := <-q.RequestTimeoutChan:
+			q.ReassignRequest()
+		case motorDir := <-hwCh.MotorDir:
+			hw.SetMotorDir(motorDir)
+		case floorLamp := <-hwCh.FloorLamp:
+			hw.SetFloorLamp(floorLamp)
+		case doorLamp := <-DoorLamp:
+			hw.SetDoorLamp(doorLamp)
 		}
 		time.Millisecond(10)
 	}
 }
 
-func eventBtnPressed(ch chan def.BtnPress) {
+func eventBtnPressed(ch chan<- def.BtnPress) {
 	lastBtnPressed := def.BtnPress{
 		Button: -1,
 		Floor:  -1,
@@ -78,26 +85,23 @@ func eventCabAtFloor(ch chan int) {
 	}
 }
 
-func eventRequestTimeout(ch chan BtnPress) {
-
-}
-
-func handeMessage(incomingMsg def.Message){
+func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 	switch incomingMsg.Category {
 		case def.Alive:
 			IP := incomingMsg.Addr
-			if t, ok := onlineElevatorMap[IP]; ok {
+			if t, exists := onlineElevatorMap[IP]; exists {
 				t.Reset()
 			} else {
 				onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, q.ReassignRequest(IP))
 			}
 		case def.NewRequest:
-			//Kjør fsm.onNewRequest
+			cost := q.CalcCost(fsm.Elevator.dirn, hw.GetFloor(),fsm.Elevator.floor,incomingMsg.Floor, incomingMsg.Button)
+			outgoingMsg<-{Category: def.Cost, Cost: cost}
 		case def.CompleteRequest:
 			q.RemoveOrderAt(incomingMsg.Floor, incomingMsg.Button)
 		case def.Cost:
-			//Send message to Assigner
+			q.costReply<-incomingMsg 
 		default:
-			//Burde ikke skje...
+			//Do nothing, invalid msg
 	}
 }

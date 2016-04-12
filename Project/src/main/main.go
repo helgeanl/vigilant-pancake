@@ -5,6 +5,7 @@ import (
 	"fsm"
 	hw "hardware"
 	"network"
+	q "queue"
 )
 
 func main() {
@@ -42,7 +43,8 @@ func main() {
 	//"fsm.Channels is now devided into def.HardwareChannels, def.EventChannels"
 	//and def.MessageChannels
 	fsm.Init(ch, startFloor)
-	network.Init()
+	localIP := network.Init(msgCh.Outgoing, msgCh.Incoming)
+	q.Init(localIP,msgCh.Outgoing)
 	//Threads
 	go EventHandler(eventCh, msgCh, hwCh)
 

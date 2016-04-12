@@ -34,7 +34,7 @@ type Channels struct {
 	OutgoingMsg chan def.Message
 }
 
-
+//TAKE IN NESSECARY CHANNELS
 func Init(ch Channels, startFloor int) {
 	Elevator.behaviour = idle
 	Elevator.dir = def.DirStop
