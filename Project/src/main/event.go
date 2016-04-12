@@ -38,10 +38,10 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			hw.SetMotorDir(motorDir)
 		case floorLamp := <-hwCh.FloorLamp:
 			hw.SetFloorLamp(floorLamp)
-		case doorLamp := <-DoorLamp:
+		case doorLamp := <-hwCh.DoorLamp:
 			hw.SetDoorLamp(doorLamp)
 		}
-		time.Millisecond(10)
+		time.Millisecond(1)
 	}
 }
 
