@@ -41,7 +41,7 @@ func AddRequest(floor int, btn int, addr string){
 	}
 }
 
-func RemoveRequest(floor,btn int){
+func RemoveRequest(floor, btn int){
 	queue.setRequest(floor,btn,requestStatus{status: false, addr: "", timer: nil})
 }
 
