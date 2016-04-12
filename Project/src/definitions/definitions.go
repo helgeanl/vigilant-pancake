@@ -1,7 +1,6 @@
 package definitions
 
 import (
-	"log"
 	"os/exec"
 	"time"
 )
@@ -43,13 +42,13 @@ type Message struct {
 
 type Elevator struct {
 	floor     int
-	dir      int
+	dir       int
 	behaviour int
 }
 
-type LightUpdate struct{
-	Floor int
-	Button int
+type LightUpdate struct {
+	Floor    int
+	Button   int
 	UpdateTo bool
 }
 
@@ -60,21 +59,22 @@ type MessageChan struct {
 }
 type HardwareChan struct {
 	// Hardware interaction
-	MotorDir   		chan int
-	FloorLamp	  	chan int
-	DoorLamp  	 	chan bool
-	BtnPressed		chan BtnPress
-	BtnLightChan 	chan BtnPress
+	MotorDir     chan int
+	FloorLamp    chan int
+	DoorLamp     chan bool
+	BtnPressed   chan BtnPress
+	BtnLightChan chan BtnPress
 	// Door timer
-	doorTimerReset 	chan bool
+	doorTimerReset chan bool
 }
 type EventChan struct {
-	NewRequest     chan bool//?????????????????????????????????????????????
+	NewRequest     chan bool //?????????????????????????????????????????????
 	FloorReached   chan int
 	DoorTimeout    chan bool
 	DeadElevator   chan int
 	RequestTimeout chan BtnPress
 }
+
 // Network message category constants
 const (
 	Alive int = iota + 1
@@ -86,6 +86,7 @@ const (
 //var SyncLightsChan = make(chan bool)
 var CloseConnectionChan = make(chan bool)
 var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
+
 // Restart program
 //func Restart(err error) {
 //	start := exec.Command("gnome-terminal", "-x", "sh", "-c", "main")

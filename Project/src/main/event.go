@@ -22,7 +22,6 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 	for {
 		select {
 		case btnPress := <-hwCh.BtnPressed:
-			//Do something :P
 			if !q.HasRequest(btnPress.Floor,btnPress.Button){
 				outgoingMsg<-{def.NewRequest,btnPress.Floor,btnPress.Button}
 			}
@@ -51,8 +50,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			onFloorArrival(hwCh, currfloor)
 		
 		case <-eventCh.doorTimeout:
-			//fsm.onDoorTimeout()  
-
+			fsm.onDoorTimeout(hwCh)  
 			)
 		}
 	}
