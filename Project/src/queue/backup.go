@@ -17,16 +17,14 @@ func runBackup(outgoingMsg chan<- def.Message) {
 	var backup queue
 	backup.loadFromDisk(filename)
 
-	// Resend all orders found on loaded backup file:
-	if !backup.isEmpty() {
-		for f := 0; f < def.NumFloors; f++ {
-			for b := 0; b < def.NumButtons; b++ {
-				if backup.hasRequest(f, b) {
-					if b == def.BtnCab {
-						AddLocalRequest(f, b) //// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-					} else {
-						outgoingMsg <- def.Message{Category: def.NewRequest, Floor: f, Button: b}
-					}
+	// Resend all hall requests found in backup, and add cab requests to queue:
+	for floor := 0; floor < def.NumFloors; floor++ {
+		for btn := 0; btn < def.NumButtons; btn++ {
+			if backup.hasRequest(floor, btn) {
+				if btn == def.BtnCab {
+					AddRequestAt(floor, btn, nil)
+				} else {
+					outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 				}
 			}
 		}
@@ -34,7 +32,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 	go func() {
 		for {
 			<-takeBackup
-			if err := local.saveToDisk(filename); err != nil {
+			if err := queue.saveToDisk(filename); err != nil {
 				log.Println(def.ColR, err, def.ColN)
 			}
 		}

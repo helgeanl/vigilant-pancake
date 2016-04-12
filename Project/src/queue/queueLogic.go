@@ -8,7 +8,7 @@ import (
 
 
 func (q *queue) hasRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status
+	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == nil
 }
 
 // requests_above
@@ -55,6 +55,7 @@ func (q *queue) chooseDirection(floor, dir int) int {
 		}
 	default:
 		def.CloseConnectionChan <- true
+		//// !!!!!!!!!!!!!!!
 		def.Restart.Run()
 		log.Printf("%sChooseDirection(): called with invalid direction %d, returning stop%s\n", def.ColR, dir, def.ColN)
 		return 0
@@ -76,6 +77,7 @@ func (q *queue) shouldStop(floor, dir int) bool {
 	case def.DirStop:
 	default:
 		def.CloseConnectionChan <- true
+		//// !!!!!!!!!!!!!!!
 		def.Restart.Run()
 		log.Fatalln(def.ColR, "This direction doesn't exist", def.ColN)
 	}
