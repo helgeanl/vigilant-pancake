@@ -7,35 +7,15 @@ import (
 )
 
 
-func (q *queue) hasRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == nil
+func HasRequest(floor, btn int) bool {
+	return q.matrix[floor][btn].status
+}
+func (q *queue) hasLocalRequest(floor, btn int) bool {
+	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == localIP
 }
 
-// requests_above
-func (q *queue) hasRequestAbove(floor int) bool {
-	for f := floor + 1; f < def.NumFloors; f++ {
-		for b := 0; b < def.NumButtons; b++ {
-			if q.hasRequest(f, b) {
-				return true
-			}
-		}
-	}
-	return false
-}
 
-// requests_below
-func (q *queue) hasRequestsBelow(floor int) bool {
-	for f := 0; f < floor; f++ {
-		for b := 0; b < def.NumButtons; b++ {
-			if q.hasRequest(f, b) {
-				return true
-			}
-		}
-	}
-	return false
-}
-
-func (q *queue) chooseDirection(floor, dir int) int {
+func (q *queue) ChooseDirection(floor, dir int) int {
 	switch dir {
 	case def.DirUp:
 		if q.hasRequestsAbove(floor){
@@ -62,17 +42,17 @@ func (q *queue) chooseDirection(floor, dir int) int {
 	}
 }
 
-func (q *queue) shouldStop(floor, dir int) bool {
+func (q *queue) ShouldStop(floor, dir int) bool {
 	switch dir {
 	case def.DirDown:
 		return
-			q.hasRequest(floor, def.BtnHallDown) ||
-			q.hasRequest(floor, def.BtnCab) ||
+			q.hasLocalRequest(floor, def.BtnHallDown) ||
+			q.hasLocalRequest(floor, def.BtnCab) ||
 			!q.hasRequestsBelow(floor)
 	case def.DirUp:
 		return
-			q.hasRequest(floor, def.BtnHallUp) ||
-			q.hasRequest(floor, def.BtnCab) ||
+			q.hasLocalRequest(floor, def.BtnHallUp) ||
+			q.hasLocalRequest(floor, def.BtnCab) ||
 			!q.hasRequestsAbove(floor)
 	case def.DirStop:
 	default:
@@ -80,6 +60,31 @@ func (q *queue) shouldStop(floor, dir int) bool {
 		//// !!!!!!!!!!!!!!!
 		def.Restart.Run()
 		log.Fatalln(def.ColR, "This direction doesn't exist", def.ColN)
+	}
+	return false
+}
+
+
+// requests_above
+func (q *queue) hasRequestAbove(floor int) bool {
+	for f := floor + 1; f < def.NumFloors; f++ {
+		for b := 0; b < def.NumButtons; b++ {
+			if q.hasLocalRequest(f, b) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// requests_below
+func (q *queue) hasRequestsBelow(floor int) bool {
+	for f := 0; f < floor; f++ {
+		for b := 0; b < def.NumButtons; b++ {
+			if q.hasLocalRequest(f, b) {
+				return true
+			}
+		}
 	}
 	return false
 }
