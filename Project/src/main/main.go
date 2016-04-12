@@ -27,8 +27,8 @@ func main() {
 		FloorLamp:      make(chan int),
 		DoorLamp:       make(chan bool),
 		BtnPressed:     make(chan BtnPress),
-		BtnLightChan: 	make(chan LightUpdate),
-		doorTimerReset: make(chan bool),
+		BtnLightChan:   make(chan LightUpdate),
+		DoorTimerReset: make(chan bool),
 	}
 	msgCh := def.MessageChan{
 		Outgoing: make(chan Message),

@@ -47,10 +47,10 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			fsm.OnNewRequest(msgCh.Outgoing, hwCh)
 		
 		case currFloor := <-eventCh.FloorReached:
-			onFloorArrival(hwCh, currfloor)
+			fsm.OnFloorArrival(hwCh,msgCh.Outgoing, currfloor)
 		
-		case <-eventCh.doorTimeout:
-			fsm.onDoorTimeout(hwCh)  
+		case <-eventCh.DoorTimeout:
+			fsm.OnDoorTimeout(hwCh)  
 			)
 		}
 	}

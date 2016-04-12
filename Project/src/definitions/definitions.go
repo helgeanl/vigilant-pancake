@@ -44,12 +44,6 @@ type Message struct {
 	Addr     string `json:"-"`
 }
 
-type Elevator struct {
-	floor     int
-	dir       int
-	behaviour int
-}
-
 type LightUpdate struct {
 	Floor    int
 	Button   int
@@ -69,7 +63,7 @@ type HardwareChan struct {
 	BtnPressed   chan BtnPress
 	BtnLightChan chan BtnPress
 	// Door timer
-	doorTimerReset chan bool
+	DoorTimerReset chan bool
 }
 type EventChan struct {
 	NewRequest     chan bool //?????????????????????????????????????????????
@@ -86,20 +80,6 @@ const (
 	CompleteRequest
 	Cost
 )
-
-<<<<<<< HEAD
-//var SyncLightsChan = make(chan bool)
-var CloseConnectionChan = make(chan bool)
-var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
-
-// Restart program
-//func Restart(err error) {
-//	start := exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
-//	start.Run()
-//	log.Fatal(err)
-//}
-=======
->>>>>>> 5700680c2f59252e77d41e279b8ad7dd9f50daf3
 
 // Colors for printing to console
 const Col0 = "\x1b[30;1m" // Dark grey

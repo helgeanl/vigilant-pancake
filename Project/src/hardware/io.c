@@ -8,7 +8,7 @@ static comedi_t *it_g = NULL;
 
 
 int io_init(void) {
-
+    int i =0;
     it_g = comedi_open("/dev/comedi0");
 
     if (it_g == NULL) {
@@ -16,7 +16,7 @@ int io_init(void) {
     }
 
     int status = 0;
-    for (int i = 0; i < 8; i++) {
+    for (i = 0; i < 8; i++) {
         status |= comedi_dio_config(it_g, PORT_1_SUBDEVICE, i + PORT_1_CHANNEL_OFFSET, PORT_1_DIRECTION);
         status |= comedi_dio_config(it_g, PORT_2_SUBDEVICE, i + PORT_2_CHANNEL_OFFSET, PORT_2_DIRECTION);
         status |= comedi_dio_config(it_g, PORT_3_SUBDEVICE, i + PORT_3_CHANNEL_OFFSET, PORT_3_DIRECTION);

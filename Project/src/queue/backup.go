@@ -14,7 +14,7 @@ import (
 // are reassigned by sending as new requests on the network.
 func runBackup(outgoingMsg chan<- def.Message) {
 	const filename = "elevator_backup"
-	var backup queue
+	var backup queueType
 	backup.loadFromDisk(filename)
 
 	// Resend all hall requests found in backup, and add cab requests to queue:
@@ -22,7 +22,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 		for btn := 0; btn < def.NumButtons; btn++ {
 			if backup.hasRequest(floor, btn) {
 				if btn == def.BtnCab {
-					AddRequest(floor, btn, nil)
+					AddRequest(floor, btn, "")
 				} else {
 					outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 				}
@@ -40,7 +40,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 }
 
 // saveToDisk saves a queue to disk.
-func (q *queue) saveToDisk(filename string) error {
+func (q *queueType) saveToDisk(filename string) error {
 
 	data, err := json.Marshal(&q)
 	if err != nil {
@@ -56,7 +56,7 @@ func (q *queue) saveToDisk(filename string) error {
 
 // loadFromDisk checks if a file of the given name is available on disk, and
 // saves its contents to a queue if the file is present.
-func (q *queue) loadFromDisk(filename string) error {
+func (q *queueType) loadFromDisk(filename string) error {
 	if _, err := os.Stat(filename); err == nil {
 		log.Println(def.ColG, "Backup file found, processing...", def.ColN)
 

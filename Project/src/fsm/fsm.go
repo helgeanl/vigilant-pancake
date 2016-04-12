@@ -17,7 +17,11 @@ const (
 	doorOpen
 )
 
-var Elevator def.Elevator
+var Elevator struct {
+	floor     int
+	dir       int
+	behaviour int
+}
 
 type Channels struct {
 	// Events
@@ -41,26 +45,24 @@ func Init(eventCh def.EventChan, hwCh def.HardwareChan, msgCh def.MessageChan, s
 	Elevator.dir = def.DirStop
 	Elevator.floor = startFloor
 
-	go doorTimer(hwCh.doorTimerReset, eventCh.DoorTimeout)
+	go doorTimer(hwCh.DoorTimerReset, eventCh.DoorTimeout)
 }
 
-func onNewRequest(OutgoingMsg chan def.Message, hwCh def.HardwareChan) {
-	floor = Elevator.floor
-	dir = Elevator.dir
+func OnNewRequest(OutgoingMsg chan def.Message, hwCh def.HardwareChan) {
 	switch Elevator.behaviour {
 	case doorOpen:
-		if queue.ShouldStop(floor, dir) {
-			hwCh.doorTimerReset <- true
-			queue.RemoveLocalRequestsAt(floor, OutgoingMsg)
+		if queue.ShouldStop(Elevator.floor, Elevator.dir) {
+			hwCh.DoorTimerReset <- true
+			queue.RemoveLocalRequestsAt(Elevator.floor, OutgoingMsg)
 		}
 	case moving:
 		//Do nothing
 	case idle:
-		Elevator.dir = queue.ChooseDirction(floor, dir)
+		Elevator.dir = queue.ChooseDirection(Elevator.floor, Elevator.dir)
 		if Elevator.dir == def.DirStop {
 			hwCh.DoorLamp <- true
-			hwCh.doorTimerReset <- true
-			queue.RemoveLocalRequestsAt(floor, OutgoingMsg)
+			hwCh.DoorTimerReset <- true
+			queue.RemoveLocalRequestsAt(Elevator.floor, OutgoingMsg)
 			Elevator.behaviour = doorOpen
 		} else {
 			hwCh.MotorDir <- Elevator.dir
@@ -74,17 +76,17 @@ func onNewRequest(OutgoingMsg chan def.Message, hwCh def.HardwareChan) {
 	// set all lights
 }
 
-func onFloorArrival(hwCh def.HardwareChan, newFloor int) {
+func OnFloorArrival(hwCh def.HardwareChan, OutgoingMsg chan def.Message, newFloor int) {
 	Elevator.floor = newFloor
-	ch.FloorLamp <- Elevator.floor
+	hwCh.FloorLamp <- Elevator.floor
 
 	switch Elevator.behaviour {
 	case moving:
-		if queue.ShouldStop(Newfloor, Elevator.dir) {
-			ch.MotorDir <- def.DirStop
-			ch.DoorLamp <- true
-			hwCh.doorTimerReset <- true
-			queue.RemoveLocalRequestsAt(floor, OutgoingMsg)
+		if queue.ShouldStop(newFloor, Elevator.dir) {
+			hwCh.MotorDir <- def.DirStop
+			hwCh.DoorLamp <- true
+			hwCh.DoorTimerReset <- true
+			queue.RemoveLocalRequestsAt(Elevator.floor, OutgoingMsg)
 			//setAllLights(Elevator);
 			Elevator.behaviour = doorOpen
 		}
@@ -96,8 +98,8 @@ func onFloorArrival(hwCh def.HardwareChan, newFloor int) {
 	}
 }
 
-func onDoorTimeout(hwCh def.HardwareChan) {
-	switch state {
+func OnDoorTimeout(hwCh def.HardwareChan) {
+	switch Elevator.behaviour {
 	case doorOpen:
 		Elevator.dir = queue.ChooseDirection(Elevator.floor, Elevator.dir)
 		hwCh.DoorLamp <- false
