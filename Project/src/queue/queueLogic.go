@@ -6,20 +6,20 @@ import (
 	"time"
 )
 
-func (q *queue) ChooseDirection(floor, dir int) int {
+func ChooseDirection(floor, dir int) int {
 	switch dir {
 	case def.DirUp:
-		if q.hasRequestsAbove(floor){
+		if queue.hasRequestsAbove(floor){
 			return def.DirUp
-		} else if q.hasRequestsBelow(floor){
+		} else if queue.hasRequestsBelow(floor){
 			return def.DirDown
 		} else{
 			return def.DirStop
 		}
 	case def.DirDown, def.DirStop:
-		if q.hasRequestsBelow(floor) {
+		if queue.hasRequestsBelow(floor) {
 			return def.DirDown
-		} else if q.hasRequestsAbove(floor) {
+		} else if queue.hasRequestsAbove(floor) {
 			return def.DirUp
 		} else {
 			return def.DirStop
@@ -32,18 +32,18 @@ func (q *queue) ChooseDirection(floor, dir int) int {
 	}
 }
 
-func (q *queue) ShouldStop(floor, dir int) bool {
+func ShouldStop(floor, dir int) bool {
 	switch dir {
 	case def.DirDown:
 		return
-			q.hasLocalRequest(floor, def.BtnHallDown) ||
-			q.hasLocalRequest(floor, def.BtnCab) ||
-			!q.hasRequestsBelow(floor)
+			queue.hasLocalRequest(floor, def.BtnHallDown) ||
+			queue.hasLocalRequest(floor, def.BtnCab) ||
+			!queue.hasRequestsBelow(floor)
 	case def.DirUp:
 		return
-			q.hasLocalRequest(floor, def.BtnHallUp) ||
-			q.hasLocalRequest(floor, def.BtnCab) ||
-			!q.hasRequestsAbove(floor)
+			queue.hasLocalRequest(floor, def.BtnHallUp) ||
+			queue.hasLocalRequest(floor, def.BtnCab) ||
+			!queue.hasRequestsAbove(floor)
 	case def.DirStop:
 	default:
 		def.CloseConnectionChan <- true

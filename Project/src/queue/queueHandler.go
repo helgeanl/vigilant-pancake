@@ -45,10 +45,13 @@ func RemoveRequest(floor,btn int){
 	queue.setRequest(floor,btn,requestStatus{status: false, addr: "", timer: nil})
 }
 
-func RemoveLocalRequestsAt(floor){
+func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan def.Message){
 	for btn :=0; btn < def.NumButtons; btn++{
 		if queue[floor][btn].addr == localIP{
 			queue.setRequest(floor,btn,requestStatus{status: false, addr: "", timer: nil})
+			if btn != def.BtnCab{
+				outgoingMsg <- def.Message{Category: def.CompleteRequest, Floor: floor, Button: btn}
+			}
 		}
 	}
 }

@@ -77,6 +77,9 @@ func chooseBestElevator(requestList map[request][]reply, *numOnline int, timeout
 					}
 				}
 			}
+			queue.AddRequest(request.floor, request.button, bestElevator)
+			request.timer.Stop()
+			delete(unassigned, request)
 			// add request to queue
 			// stop timer
 			// delete request from requestList
