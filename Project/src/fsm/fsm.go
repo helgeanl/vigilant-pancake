@@ -35,34 +35,24 @@ type Channels struct {
 }
 
 //TAKE IN NESSECARY CHANNELS
-func Init(ch Channels, startFloor int) {
+//
+func Init(eventCh def.EventChan,hwCh def.HardwareChan,msgCh def.MessageChan, startFloor int) {
 	Elevator.behaviour = idle
 	Elevator.dir = def.DirStop
 	Elevator.floor = startFloor
 
-	ch.doorTimeout = make(chan bool)
-	ch.doorTimerReset = make(chan bool)
-
-	go doorTimer(ch.doorTimeout, ch.doorTimerReset)
-	go monitorEvents(ch)
-}
-
-func monitorEvents(ch Channels) {
-	for {
-		select {
-		case <-ch.NewRequest:
-			onNewRequest(ch)
-		case floor := <-ch.FloorReached:
-			onFloorReached(ch, floor)
-		case <-ch.doorTimeout:
-			onDoorTimeout(ch)
-		}
-	}
+	go doorTimer(eventCh.DoorTimeout, hwCh.doorTimerReset)
 }
 
 
-func onNewRequest(ch Channels) {
+
+func onNewRequest() {
 	// print queue
+	floor = Elevator.floor
+	dir = Elevator.dir
+
+
+	queue.printQueue()
 	switch Elevator.behaviour {
 	case doorOpen:
 		//if at ordered floor, start timer again
@@ -70,6 +60,8 @@ func onNewRequest(ch Channels) {
 		if queue.ShouldStop(floor,dir){
 			ch.doorTimerReset <- true
 			queue.RemoveOrder(floor, ch.OutgoingMsg)
+		}esle{
+			queue.AddRequest()
 		}
 		// else: add order if not done before
 	case moving:

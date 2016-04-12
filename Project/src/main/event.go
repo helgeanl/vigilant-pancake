@@ -26,24 +26,33 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			if !q.HasRequest(btnPress.Floor,btnPress.Button){
 				outgoingMsg<-{def.NewRequest,btnPress.Floor,btnPress.Button}
 			}
+		
 		case incomingMsg := <-msgCh.Incoming:
 			go handleMessage(incomingMsg, msgCh.outgoingMsg)//Possibly ok just to run function
+		
 		case btnLightUpdate := <-hwCh.btnLightChan:
 			hw.SetBtnLamp(btnLightUpdate)
+
 		case requestTimeout := <-q.RequestTimeoutChan:
-			q.ReassignRequest()
+			q.ReassignRequest(requestTimeout.floor,requestTimeout.Button)
+		
 		case motorDir := <-hwCh.MotorDir:
 			hw.SetMotorDir(motorDir)
+		
 		case floorLamp := <-hwCh.FloorLamp:
 			hw.SetFloorLamp(floorLamp)
+		
 		case doorLamp := <-hwCh.DoorLamp:
 			hw.SetDoorLamp(doorLamp)
+		
 		case <-q.NewRequest:
 			//fsm.OnNewRequest()
+		
 		case currFloor := <-eventCh.FloorReached:
 			//onFloorArrival(ch, floor)
+		
 		case <-eventCh.doorTimeout:
-			//fsm.omDoorTimeout(ch)
+			//fsm.onDoorTimeout(ch)
 		}
 	}
 }
@@ -95,7 +104,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 			if t, exists := onlineElevatorMap[IP]; exists {
 				t.Reset()
 			} else {
-				onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, q.ReassignRequest(IP))
+				onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, q.ReassignAllRequestsFrom(IP, outgoingMsg))
 			}
 		case def.NewRequest:
 			cost := q.CalcCost(fsm.Elevator.dirn, hw.GetFloor(),fsm.Elevator.floor,incomingMsg.Floor, incomingMsg.Button)
