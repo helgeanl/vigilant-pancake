@@ -44,15 +44,16 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		
 		case doorLamp := <-hwCh.DoorLamp:
 			hw.SetDoorLamp(doorLamp)
-		
 		case <-q.NewRequest:
-			//fsm.OnNewRequest()
+			fsm.OnNewRequest(msgCh.Outgoing, hwCh)
 		
 		case currFloor := <-eventCh.FloorReached:
-			//onFloorArrival(ch, floor)
+			onFloorArrival(hwCh, currfloor)
 		
 		case <-eventCh.doorTimeout:
-			//fsm.onDoorTimeout(ch)
+			//fsm.onDoorTimeout()  
+
+			)
 		}
 	}
 }
@@ -110,7 +111,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 			cost := q.CalcCost(fsm.Elevator.dirn, hw.GetFloor(),fsm.Elevator.floor,incomingMsg.Floor, incomingMsg.Button)
 			outgoingMsg<-{Category: def.Cost, Cost: cost}
 		case def.CompleteRequest:
-			q.RemoveOrderAt(incomingMsg.Floor, incomingMsg.Button)
+			q.RemoveRequest(incomingMsg.Floor, incomingMsg.Button)
 		case def.Cost:
 			q.costReply<-incomingMsg 
 		default:
