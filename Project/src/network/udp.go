@@ -21,11 +21,11 @@ type udpMessage struct {
 	length int //length of received data, in #bytes // N/A for sending
 }
 
-func udpInit(localListenPort, broadcastListenPort, message_size int, send_ch, receive_ch chan udpMessage) (string,err error) {
+func udpInit(localListenPort, broadcastListenPort, message_size int, send_ch, receive_ch chan udpMessage) (err error) {
 	//Generating broadcast address
 	baddr, err = net.ResolveUDPAddr("udp4", "255.255.255.255:"+strconv.Itoa(broadcastListenPort))
 	if err != nil {
-		return laddr.String(),err
+		return err
 	}
 
 	//Generating localaddress
@@ -34,18 +34,18 @@ func udpInit(localListenPort, broadcastListenPort, message_size int, send_ch, re
 	tempAddr := tempConn.LocalAddr()
 	laddr, err := net.ResolveUDPAddr("udp4", tempAddr.String())
 	laddr.Port = localListenPort
-
+	def.LocalIP = laddr.String()
 	//Creating local listening connections
 	localListenConn, err := net.ListenUDP("udp4", laddr)
 	if err != nil {
-		return laddr.String(),err
+		return err
 	}
 
 	//Creating listener on broadcast connection
 	broadcastListenConn, err := net.ListenUDP("udp", baddr)
 	if err != nil {
 		localListenConn.Close()
-		return laddr.String(),err
+		return err
 	}
 
 	go udp_receive_server(localListenConn, broadcastListenConn, message_size, receive_ch)
@@ -54,7 +54,7 @@ func udpInit(localListenPort, broadcastListenPort, message_size int, send_ch, re
 
 	//	fmt.Printf("Generating local address: \t Network(): %s \t String(): %s \n", laddr.Network(), laddr.String())
 	//	fmt.Printf("Generating broadcast address: \t Network(): %s \t String(): %s \n", baddr.Network(), baddr.String())
-	return laddr.String(),err
+	return err
 }
 
 func udp_transmit_server(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {

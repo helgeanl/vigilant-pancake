@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+var LocalIP string
+var CloseConnectionChan = make(chan bool)
+var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
+
 // Global system constants
 const NumButtons = 3
 const NumFloors = 4
@@ -83,15 +87,6 @@ const (
 	Cost
 )
 
-//var SyncLightsChan = make(chan bool)
-var CloseConnectionChan = make(chan bool)
-var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
-// Restart program
-//func Restart(err error) {
-//	start := exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
-//	start.Run()
-//	log.Fatal(err)
-//}
 
 // Colors for printing to console
 const Col0 = "\x1b[30;1m" // Dark grey

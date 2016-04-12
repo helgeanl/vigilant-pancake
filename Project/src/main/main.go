@@ -43,8 +43,8 @@ func main() {
 	//"fsm.Channels is now devided into def.HardwareChannels, def.EventChannels"
 	//and def.MessageChannels
 	fsm.Init(eventCh, hwCh, msgCh, startFloor)
-	localIP := network.Init(msgCh.Outgoing, msgCh.Incoming)
-	q.Init(localIP,msgCh.Outgoing)
+	network.Init(msgCh.Outgoing, msgCh.Incoming)
+	q.Init(msgCh.Outgoing)
 	//Threads
 	go EventHandler(eventCh, msgCh, hwCh)
 

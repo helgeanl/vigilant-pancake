@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var localIP string
+
 var queue queue
 var RequestTimeoutChan = make(chan def.BtnPress)
 var NewRequest = make(chan bool)
@@ -24,8 +24,7 @@ type queue struct {
 	matrix [def.Numfloors][def.NumButtons]requestStatus
 }
 
-func Init(addr string, outgoingMsg chan def.Message) {
-	localIP = addr
+func Init(outgoingMsg chan def.Message) {
 	runBackup(outgoingMsg)
 	log.Println(def.ColG, "Queue initialised.", def.ColN)
 
@@ -33,7 +32,7 @@ func Init(addr string, outgoingMsg chan def.Message) {
 
 func AddRequest(floor int, btn int, addr string){
 	if !queue.hasRequest(floor,btn){
-		if addr = localIP{
+		if addr = def.LocalIP{
 			NewRequest <- true
 		}
 		queue.setRequest(floor,btn,requestStatus{true,addr,nil})
@@ -47,7 +46,7 @@ func RemoveRequest(floor, btn int){
 
 func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan def.Message){
 	for btn :=0; btn < def.NumButtons; btn++{
-		if queue[floor][btn].addr == localIP{
+		if queue[floor][btn].addr == def.LocalIP{
 			queue.setRequest(floor,btn,requestStatus{status: false, addr: "", timer: nil})
 			if btn != def.BtnCab{
 				outgoingMsg <- def.Message{Category: def.CompleteRequest, Floor: floor, Button: btn}

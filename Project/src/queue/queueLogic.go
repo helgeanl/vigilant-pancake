@@ -60,7 +60,7 @@ func (q *queue) hasRequest(floor, btn int) bool {
 	return q.matrix[floor][btn].status
 }
 func (q *queue) hasLocalRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == localIP
+	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == def.LocalIP
 }
 
 func (q *queue) hasRequestAbove(floor int) bool {
