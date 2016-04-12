@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func Init(outgoingMsg, incomingMsg chan def.Message)string {
+func Init(outgoingMsg, incomingMsg chan def.Message) {
 	// Ports randomly chosen to reduce likelihood of port collision.
 	const localListenPort = 37103
 	const broadcastListenPort = 37104
@@ -17,7 +17,7 @@ func Init(outgoingMsg, incomingMsg chan def.Message)string {
 
 	var udpSend = make(chan udpMessage)
 	var udpReceive = make(chan udpMessage, 10)
-	localIP,err := udpInit(localListenPort, broadcastListenPort, messageSize, udpSend, udpReceive)
+	err := udpInit(localListenPort, broadcastListenPort, messageSize, udpSend, udpReceive)
 	if err != nil {
 		fmt.Print("UdpInit() error: %v \n", err)
 	}
@@ -27,7 +27,6 @@ func Init(outgoingMsg, incomingMsg chan def.Message)string {
 	go forwardIncoming(incomingMsg, udpReceive)
 
 	log.Println(def.ColG, "Network initialised.", def.ColN)
-	return localIP
 }
 
 // aliveSpammer periodically sends messages on the network to notify all
