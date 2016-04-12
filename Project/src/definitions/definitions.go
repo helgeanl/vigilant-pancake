@@ -47,6 +47,12 @@ type Elevator struct {
 	behaviour int
 }
 
+type LightUpdate struct{
+	Floor int
+	Button int 
+	UpdateTo bool
+}
+
 type MessageChan struct {
 	// Network interaction
 	Outgoing chan Message
@@ -54,13 +60,13 @@ type MessageChan struct {
 }
 type HardwareChan struct {
 	// Hardware interaction
-	MotorDir   chan int
-	FloorLamp  chan int
-	DoorLamp   chan bool
-	BtnPressed chan BtnPress
-
+	MotorDir   		chan int
+	FloorLamp	  	chan int
+	DoorLamp  	 	chan bool
+	BtnPressed		chan BtnPress
+	BtnLightChan 	chan BtnPress
 	// Door timer
-	doorTimerReset chan bool
+	doorTimerReset 	chan bool
 }
 type EventChan struct {
 	NewRequest     chan bool

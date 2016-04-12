@@ -140,7 +140,10 @@ func ReadBtn(floor int, btn int) bool {
 	}
 }
 
-func SetBtnLamp(floor int, btn int, value bool) {
+func SetBtnLamp(LightUpdate def.LightUpdate) {
+	floor := LightUpdate.Floor
+	btn := LightUpdate.Button
+	value := LightUpdate.UpdateTo
 	if floor < 0 || floor >= def.NumFloors {
 		log.Printf("Error: Floor %d out of range!\n", floor)
 		return

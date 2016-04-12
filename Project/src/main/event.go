@@ -30,35 +30,15 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			//Handle floor
 			//Kjør fsm.onFloorArrival
 		case incomingMsg := <-msgCh.Incoming:
-			//AlivePing
-
-			//MAKE THIS A FUNCTION
-
-			switch incomingMsg.Category {
-			case def.Alive:
-				IP := incomingMsg.Addr
-				if t, ok := onlineElevatorMap[IP]; ok {
-					t.Reset()
-				} else {
-					onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, q.ReassignRequest(IP))
-				}
-			case def.NewRequest:
-				//Kjør fsm.onNewRequest
-			case def.CompleteRequest:
-				q.RemoveOrderAt(incomingMsg.Floor, incomingMsg.Button)
-			case def.Cost:
-				//Send message to Assigner
-			default:
-				//Burde ikke skje...
-			}
-			//MAKE LIGHT CASE
+			handeMessage(incomingMsg)
+		case btnLightUpdate := <-hwCh.btnLightChan	
+			hw.SetBtnLamp(btnLightUpdate)
 		}
 		time.Millisecond(10)
 	}
 }
 
 func eventBtnPressed(ch chan def.BtnPress) {
-	//Check for a button beeing pressed
 	lastBtnPressed := def.BtnPress{
 		Button: -1,
 		Floor:  -1,
@@ -100,4 +80,24 @@ func eventCabAtFloor(ch chan int) {
 
 func eventRequestTimeout(ch chan BtnPress) {
 
+}
+
+func handeMessage(incomingMsg def.Message){
+	switch incomingMsg.Category {
+		case def.Alive:
+			IP := incomingMsg.Addr
+			if t, ok := onlineElevatorMap[IP]; ok {
+				t.Reset()
+			} else {
+				onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, q.ReassignRequest(IP))
+			}
+		case def.NewRequest:
+			//Kjør fsm.onNewRequest
+		case def.CompleteRequest:
+			q.RemoveOrderAt(incomingMsg.Floor, incomingMsg.Button)
+		case def.Cost:
+			//Send message to Assigner
+		default:
+			//Burde ikke skje...
+	}
 }
