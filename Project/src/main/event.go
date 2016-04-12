@@ -26,10 +26,8 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			if !q.HasRequest(btnPress.Floor,btnPress.Button){
 				outgoingMsg<-{def.NewRequest,btnPress.Floor,btnPress.Button}
 			}
-		case currFloor := <-eventCh.FloorReached:
-			//fsm.onFloorArrival
 		case incomingMsg := <-msgCh.Incoming:
-			handleMessage(incomingMsg, msgCh.outgoingMsg)
+			go handleMessage(incomingMsg, msgCh.outgoingMsg)//Possibly ok just to run function
 		case btnLightUpdate := <-hwCh.btnLightChan:
 			hw.SetBtnLamp(btnLightUpdate)
 		case requestTimeout := <-q.RequestTimeoutChan:
@@ -40,8 +38,13 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			hw.SetFloorLamp(floorLamp)
 		case doorLamp := <-hwCh.DoorLamp:
 			hw.SetDoorLamp(doorLamp)
+		case <-q.NewRequest:
+			//fsm.OnNewRequest()
+		case currFloor := <-eventCh.FloorReached:
+			//onFloorArrival(ch, floor)
+		case <-eventCh.doorTimeout:
+			//fsm.omDoorTimeout(ch)
 		}
-		time.Millisecond(1)
 	}
 }
 
