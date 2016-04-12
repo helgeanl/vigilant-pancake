@@ -43,13 +43,13 @@ type Message struct {
 
 type Elevator struct {
 	floor     int
-	dirn      int
+	dir      int
 	behaviour int
 }
 
 type LightUpdate struct{
 	Floor int
-	Button int 
+	Button int
 	UpdateTo bool
 }
 
@@ -85,13 +85,13 @@ const (
 
 //var SyncLightsChan = make(chan bool)
 var CloseConnectionChan = make(chan bool)
-
-// Restart program, writes error to log.
-func Restart(err error) {
-	start := exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
-	start.Run()
-	log.Fatal(err)
-}
+var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
+// Restart program
+//func Restart(err error) {
+//	start := exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
+//	start.Run()
+//	log.Fatal(err)
+//}
 
 // Colors for printing to console
 const Col0 = "\x1b[30;1m" // Dark grey

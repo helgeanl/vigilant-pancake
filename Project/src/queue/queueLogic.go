@@ -6,9 +6,6 @@ import (
 	"time"
 )
 
-
-
-
 func (q *queue) ChooseDirection(floor, dir int) int {
 	switch dir {
 	case def.DirUp:
@@ -29,7 +26,6 @@ func (q *queue) ChooseDirection(floor, dir int) int {
 		}
 	default:
 		def.CloseConnectionChan <- true
-		//// !!!!!!!!!!!!!!!
 		def.Restart.Run()
 		log.Printf("%sChooseDirection(): called with invalid direction %d, returning stop%s\n", def.ColR, dir, def.ColN)
 		return 0
@@ -51,7 +47,6 @@ func (q *queue) ShouldStop(floor, dir int) bool {
 	case def.DirStop:
 	default:
 		def.CloseConnectionChan <- true
-		//// !!!!!!!!!!!!!!!
 		def.Restart.Run()
 		log.Fatalln(def.ColR, "This direction doesn't exist", def.ColN)
 	}
