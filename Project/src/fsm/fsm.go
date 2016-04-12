@@ -60,10 +60,8 @@ func onNewRequest() {
 		if queue.ShouldStop(floor,dir){
 			ch.doorTimerReset <- true
 			queue.RemoveOrder(floor, ch.OutgoingMsg)
-		}esle{
-			queue.AddRequest()
+			// send complete
 		}
-		// else: add order if not done before
 	case moving:
 		// add request to queue if not done elsewhere
 	case idle:
@@ -76,7 +74,7 @@ func onNewRequest() {
 		if Elevator.dir = def.DirStop {
 			ch.DoorLamp <- true
 			ch.doorTimerStart
-			queue.RemoveOrder(....)
+			queue.RemoveOrder(floor, ch.OutgoingMsg)
 			Elevator.behaviour = doorOpen
 		}else{
 			ch.MotorDir <- Elevator.dir
