@@ -54,10 +54,6 @@ func CollectCosts(message, *numOnline int){
 				go costTimer(&newRequest, timeout)
 			}
 			chooseBestLift(unassigned, numOnline, false)
-
-			// if not, append request to requestList and start timer
-			// choose best elevator
-
 		case <- timeout:
 			choose best elevator
 		}

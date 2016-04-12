@@ -45,6 +45,14 @@ func RemoveRequest(floor,btn int){
 	queue.setRequest(floor,btn,requestStatus{status: false, addr: "", timer: nil})
 }
 
+func RemoveLocalRequestsAt(floor){
+	for btn :=0; btn < def.NumButtons; btn++{
+		if queue[floor][btn].addr == localIP{
+			queue.setRequest(floor,btn,requestStatus{status: false, addr: "", timer: nil})
+		}
+	}
+}
+
 // Go through queue, and resend requests belonging to dead elevator
 func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan def.Message){
 	for floor := 0; floor < def.NumFloors; floor++{
