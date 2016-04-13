@@ -33,7 +33,7 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 		case message := <-costReply:
 			newRequest := request{floor: message.Floor,button: message.Button}
 			newReply := reply{cost: message.Cost, elevator: message.Addr}
-
+			log.Println(def.ColR, "NewRequest på", newRequest,def.ColN)
 			// Check if request is in queue
 			if replyList, exist := requestMap[newRequest]; exist {
 				// Check if newReply already is registered.
@@ -82,7 +82,7 @@ func chooseBestElevator(requestMap map[request][]reply, numOnline int, timeout b
 					}
 				}
 			}
-			log.Println(def.ColB,"Will now add order to Floor:",request.floor," Button", request.button," To Elevator:",bestElevator, def.ColN )
+			log.Println(def.ColB,"Will now add order to Floor:",request.floor," Button",request.button," To Elevator:",bestElevator, def.ColN )
 			queue.AddRequest(request.floor, request.button, bestElevator)
 			request.timer.Stop()
 			delete(requestMap, request)
