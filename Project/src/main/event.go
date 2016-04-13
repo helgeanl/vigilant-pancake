@@ -55,6 +55,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case doorLamp := <-hwCh.DoorLamp:
 			log.Println(def.ColW,"Event: Set door lamp to: ",doorLamp,def.ColN)
 			hw.SetDoorLamp(doorLamp)
+
 		case <-q.NewRequest:
 			log.Println(def.ColW,"Event: New Request",def.ColN)
 			fsm.OnNewRequest(msgCh.Outgoing, hwCh)
@@ -63,6 +64,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			log.Println(def.ColW,"Event: New floor",def.ColN)
 			fsm.OnFloorArrival(hwCh,msgCh.Outgoing, currFloor)
 			log.Println(def.ColR,"Something",def.ColN)
+		
 		case <-eventCh.DoorTimeout:
 			log.Println(def.ColW,"Event: Door timeout",def.ColN)
 			fsm.OnDoorTimeout(hwCh)

@@ -41,18 +41,19 @@ func AddRequest(floor int, btn int, addr string) {
 		if addr == def.LocalIP {
 			log.Println(def.ColW,"Request is local",def.ColN)
 			NewRequest <- true
-		}
-		log.Println(def.ColW,"Request is not local",def.ColN)
+		}else{log.Println(def.ColW,"Request is not local",def.ColN)}
 	//}
 }
 
 func RemoveRequest(floor, btn int) {
+	queue.stopTimer(floor,btn)
 	queue.setRequest(floor, btn, requestStatus{status: false, addr: "", timer: nil})
 }
 
 func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 	for btn := 0; btn < def.NumButtons; btn++ {
 		if queue.matrix[floor][btn].addr == def.LocalIP {
+			queue.stopTimer(floor,btn)
 			queue.setRequest(floor, btn, requestStatus{status: false, addr: "", timer: nil})
 			if btn != def.BtnCab {
 				outgoingMsgCh <- def.Message{Category: def.CompleteRequest, Floor: floor, Button: btn}
@@ -65,7 +66,7 @@ func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 	for floor := 0; floor < def.NumFloors; floor++ {
 		for btn := 0; btn < def.NumButtons; btn++ {
-			if queue.matrix[floor][btn].addr == addr {
+			if queue.matrix[floor][btn].addr == addr {/////////////////////////////////Maybe we need to stop the timer??
 				ReassignRequest(floor, btn, outgoingMsgCh)
 			}
 		}
@@ -77,7 +78,7 @@ func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
 }
 
 // Set status of request, sync request lights, take backup
-func (q *queueType) setRequest(floor, btn int, request requestStatus) {
+func (q *queueType) setRequest(floor, btn int, request requestStatus) {////////////////////////////////////////////////////////////////////////////////////////////////////////
 	q.matrix[floor][btn] = request
 	takeBackup <- true
 	printQueue()
@@ -96,6 +97,7 @@ func (q *queueType) startTimer(floor, btn int) {
 func (q *queueType) stopTimer(floor, btn int) {
 	if q.matrix[floor][btn].timer != nil {
 		q.matrix[floor][btn].timer.Stop()
+		log.Println(def.ColR,"Timer on Floor: ",floor," Button: ",btn, "stopped.")
 	}
 }
 
