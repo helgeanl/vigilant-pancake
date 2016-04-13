@@ -83,7 +83,7 @@ func chooseBestElevator(requestMap map[request][]reply, numOnline int, timeout b
 				}
 			}
 			log.Println(def.ColB,"Will now add order to Floor:",request.floor," Button", request.button," To Elevator:",bestElevator, def.ColN )
-			queue.AddRequest(requestMap.floor, requestMap.button, bestElevator)
+			queue.AddRequest(request.floor, request.button, bestElevator)
 			request.timer.Stop()
 			delete(requestMap, request)
 		}
