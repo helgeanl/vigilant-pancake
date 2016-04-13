@@ -31,8 +31,8 @@ const (
 )
 
 type BtnPress struct {
-	Button int
 	Floor  int
+	Button int
 }
 
 // Message serves as a ...

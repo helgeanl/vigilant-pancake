@@ -49,7 +49,7 @@ func Init(eventCh def.EventChan, hwCh def.HardwareChan, msgCh def.MessageChan, s
 	log.Println(def.ColG, "FSM initialized.", def.ColN)
 }
 
-func OnNewRequest(OutgoingMsg chan def.Message, hwCh def.HardwareChan) {
+func OnNewRequest(OutgoingMsg chan<- def.Message, hwCh def.HardwareChan) {
 	switch Elevator.Behaviour {
 	case doorOpen:
 		if queue.ShouldStop(Elevator.Floor, Elevator.Dir) {
@@ -77,7 +77,7 @@ func OnNewRequest(OutgoingMsg chan def.Message, hwCh def.HardwareChan) {
 	// set all lights
 }
 
-func OnFloorArrival(hwCh def.HardwareChan, OutgoingMsg chan def.Message, newFloor int) {
+func OnFloorArrival(hwCh def.HardwareChan, OutgoingMsg chan<- def.Message, newFloor int) {
 	Elevator.Floor = newFloor
 	hwCh.FloorLamp <- Elevator.Floor
 	log.Println("Elevator behaviour: ",Elevator.Behaviour,def.ColW)

@@ -25,58 +25,60 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 	for {
 		select {
 		case btnPress := <-hwCh.BtnPressed:
-			log.Println("Event: Button pressed",def.ColW)
+			log.Println(def.ColW,"Event: Button pressed",def.ColN)
 			if !q.HasRequest(btnPress.Floor,btnPress.Button){
-				msgCh.Outgoing<-def.Message{Category:def.NewRequest,Floor:btnPress.Floor,Button:btnPress.Button}
+				if btnPress.Button == def.BtnCab{
+					q.AddRequest(btnPress.Floor,btnPress.Button,def.LocalIP)
+				}else{
+					msgCh.Outgoing<-def.Message{Category:def.NewRequest,Floor:btnPress.Floor,Button:btnPress.Button}
+				}
 			}
 		case incomingMsg := <-msgCh.Incoming:
-			log.Println("Event: New message incomming",def.ColW)
 			handleMessage(incomingMsg, msgCh.Outgoing)
 		
 		case btnLightUpdate := <-hwCh.BtnLightChan:
-			log.Println("Event: Update light",def.ColW)
+			log.Println(def.ColW,"Event: Update light",def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
 
 		case requestTimeout := <-q.RequestTimeoutChan:
-			log.Println("Event: Request is timeout",def.ColW)
+			log.Println(def.ColW,"Event: Request is timeout",def.ColN)
 			q.ReassignRequest(requestTimeout.Floor,requestTimeout.Button, msgCh.Outgoing)
 		
 		case motorDir := <-hwCh.MotorDir:
-			log.Println("Event: Set motor direction",def.ColW)
+			log.Println(def.ColW,"Event: Set motor direction",def.ColN)
 			hw.SetMotorDir(motorDir)
 		
 		case floorLamp := <-hwCh.FloorLamp:
-			log.Println("Event: Set floor lamp",def.ColW)
+			log.Println(def.ColW,"Event: Set floor lamp",def.ColN)
 			hw.SetFloorLamp(floorLamp)
 		
 		case doorLamp := <-hwCh.DoorLamp:
-			log.Println("Event: Set door lamp",def.ColW)
+			log.Println(def.ColW,"Event: Set door lamp to: ",doorLamp,def.ColN)
 			hw.SetDoorLamp(doorLamp)
 		case <-q.NewRequest:
-			log.Println("Event: New Request",def.ColW)
+			log.Println(def.ColW,"Event: New Request",def.ColN)
 			fsm.OnNewRequest(msgCh.Outgoing, hwCh)
 		
 		case currFloor := <-eventCh.FloorReached:
-			log.Println("Event: New floor",def.ColW)
+			log.Println(def.ColW,"Event: New floor",def.ColN)
 			fsm.OnFloorArrival(hwCh,msgCh.Outgoing, currFloor)
-		
+			log.Println(def.ColR,"Something",def.ColN)
 		case <-eventCh.DoorTimeout:
-			log.Println("Event: Door timeout",def.ColW)
+			log.Println(def.ColW,"Event: Door timeout",def.ColN)
 			fsm.OnDoorTimeout(hwCh)
-		default:
 		}
-		time.Sleep(time.Millisecond)
+		time.Sleep(10*time.Millisecond)
 	}
 }
 
 func eventBtnPressed(ch chan<- def.BtnPress) {
 	lastBtnPressed := def.BtnPress{
-		Button: -1,
 		Floor:  -1,
+		Button: -1,
 	}
 	btnPressed := def.BtnPress{
-		Button: -2,
 		Floor:  -2,
+		Button: -2,
 	}
 	for {
 		for floor := 0; floor < def.NumFloors; floor++ {
@@ -86,10 +88,11 @@ func eventBtnPressed(ch chan<- def.BtnPress) {
 				}else if floor == def.NumFloors-1 && btn == def.BtnHallUp{
 					//invalid
 				}else if hw.ReadBtn(floor, btn){	
-					btnPressed.Floor =floor
-					btnPressed.Button =btn
+					btnPressed.Floor = floor
+					btnPressed.Button = btn
 					if lastBtnPressed != btnPressed {
 						ch <- btnPressed
+						log.Println(def.ColR,"Button pressed: ",btnPressed,def.ColN)
 					}
 					lastBtnPressed = btnPressed
 				}
@@ -99,26 +102,28 @@ func eventBtnPressed(ch chan<- def.BtnPress) {
 	}
 }
 
-func eventCabAtFloor(ch chan int) {
+func eventCabAtFloor(ch chan<- int) {
 	//initialize with invalid values
 	var FloorReached = -2
 	var prevFloor = -3
 	for {
 		if hw.GetFloor() != -1 {
+			FloorReached = hw.GetFloor()
 			if prevFloor != FloorReached {
-				FloorReached = hw.GetFloor()
 				ch <- FloorReached
+				log.Println(def.ColB,"New floor",def.ColN)
+				prevFloor=FloorReached
 			}
 		}
 		time.Sleep(100*time.Millisecond)
 	}
 }
 
-func handleMessage(incomingMsg def.Message, outgoingMsg chan def.Message){
+func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 	switch incomingMsg.Category {
 		case def.Alive:
 			IP := incomingMsg.Addr
-
+			log.Println(def.ColC,"Alive: ",IP,def.ColN)
 			if t, exists := onlineElevatorMap[IP]; exists {
 				t.Reset(def.ElevTimeoutDuration)
 			} else {
@@ -131,11 +136,14 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan def.Message){
 				assigner.NumOnlineCh <- len(onlineElevatorMap)
 			}
 		case def.NewRequest:
+			log.Println(def.ColC,"New request incomming",def.ColN)
 			cost := q.CalcCost(fsm.Elevator.Dir, hw.GetFloor(),fsm.Elevator.Floor,incomingMsg.Floor, incomingMsg.Button)
 			outgoingMsg<-def.Message{Category: def.Cost, Cost: cost}
 		case def.CompleteRequest:
+			log.Println(def.ColC,"Request is completed",def.ColN)
 			q.RemoveRequest(incomingMsg.Floor, incomingMsg.Button)
 		case def.Cost:
+			log.Println(def.ColC,"Cost reply",def.ColN)
 			q.CostReply<-incomingMsg 
 		default:
 			//Do nothing, invalid msg

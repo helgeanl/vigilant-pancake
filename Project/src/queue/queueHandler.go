@@ -19,10 +19,10 @@ type queueType struct {
 }
 
 var queue queueType
-var RequestTimeoutChan = make(chan def.BtnPress)
-var NewRequest = make(chan bool)
-var CostReply = make(chan def.Message)
-var takeBackup = make(chan bool)
+var RequestTimeoutChan = make(chan def.BtnPress,10)
+var NewRequest = make(chan bool,10)
+var CostReply = make(chan def.Message,10)
+var takeBackup = make(chan bool,10)
 
 
 func Init(outgoingMsg chan def.Message) {
@@ -32,20 +32,25 @@ func Init(outgoingMsg chan def.Message) {
 }
 
 func AddRequest(floor int, btn int, addr string) {
-	if !queue.hasRequest(floor, btn) {
+
+	//if !queue.hasRequest(floor, btn) {
+		
+		queue.setRequest(floor, btn, requestStatus{true, addr, nil})
+
+		go queue.startTimer(floor, btn)
 		if addr == def.LocalIP {
+			log.Println(def.ColW,"Request is local",def.ColN)
 			NewRequest <- true
 		}
-		queue.setRequest(floor, btn, requestStatus{true, addr, nil})
-		queue.startTimer(floor, btn)
-	}
+		log.Println(def.ColW,"Request is not local",def.ColN)
+	//}
 }
 
 func RemoveRequest(floor, btn int) {
 	queue.setRequest(floor, btn, requestStatus{status: false, addr: "", timer: nil})
 }
 
-func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan def.Message) {
+func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 	for btn := 0; btn < def.NumButtons; btn++ {
 		if queue.matrix[floor][btn].addr == def.LocalIP {
 			queue.setRequest(floor, btn, requestStatus{status: false, addr: "", timer: nil})
@@ -57,7 +62,7 @@ func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan def.Message) {
 }
 
 // Go through queue, and resend requests belonging to dead elevator
-func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan def.Message) {
+func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 	for floor := 0; floor < def.NumFloors; floor++ {
 		for btn := 0; btn < def.NumButtons; btn++ {
 			if queue.matrix[floor][btn].addr == addr {
@@ -80,10 +85,12 @@ func (q *queueType) setRequest(floor, btn int, request requestStatus) {
 
 // Start timer for request in queue
 func (q *queueType) startTimer(floor, btn int) {
+	log.Println(def.ColW,"Start request timer",def.ColN)
 	q.matrix[floor][btn].timer = time.NewTimer(def.RequestTimeoutDuration)
 	<-q.matrix[floor][btn].timer.C
 	// Wait until timeout
 	RequestTimeoutChan <- def.BtnPress{floor, btn}
+	log.Println(def.ColW,"Request timer is done!",def.ColN)
 }
 
 func (q *queueType) stopTimer(floor, btn int) {
@@ -93,10 +100,10 @@ func (q *queueType) stopTimer(floor, btn int) {
 }
 
 func printQueue() {
-	fmt.Printf(def.ColC)
+	fmt.Printf(def.ColB)
 	fmt.Println("****** Queue ****** ")
 	for f := def.NumFloors - 1; f >= 0; f-- {
-		s := strconv.Itoa(f - 1)
+		s := strconv.Itoa(f+1)
 
 		if queue.hasRequest(f, def.BtnHallUp) {
 			s += " (↑ " + queue.matrix[f][def.BtnHallUp].addr[12:15] + " ) "
