@@ -74,6 +74,7 @@ func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 }
 
 func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
+	RemoveRequest(floor,btn)
 	outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 }
 
