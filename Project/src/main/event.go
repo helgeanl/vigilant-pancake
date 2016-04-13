@@ -131,6 +131,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 					q.ReassignAllRequestsFrom(IP, outgoingMsg)
 					delete(onlineElevatorMap,IP)
 					assigner.NumOnlineCh <- len(onlineElevatorMap)
+					log.Println(def.ColR,"Elevator is dead: ",IP," | Number online: ",len(onlineElevatorMap),def.ColN)
 				}
 				onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, f)
 				assigner.NumOnlineCh <- len(onlineElevatorMap)
