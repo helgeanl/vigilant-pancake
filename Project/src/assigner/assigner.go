@@ -22,10 +22,12 @@ type request struct {
 	timer  *time.Timer
 }
 
-func CollectCosts(message, *numOnline int){
-	requestList := make( map[request][]reply)
-	var timeout = make(chan *request)
+var NumOnlineCh = make(chan int)
 
+func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
+	requestMap := make( map[request][]reply)
+	var timeout = make(chan *request)
+	var numOnline int = 1
 	for{
 		select{
 		case message := <-costReply:
@@ -33,7 +35,7 @@ func CollectCosts(message, *numOnline int){
 			newReply := reply{cost: message.Cost, elevator: message.Addr}
 
 			// Check if request is in queue
-			if replyList, exist := requestList[newRequest]; exist {
+			if replyList, exist := requestMap[newRequest]; exist {
 				// Check if newReply already is registered.
 				found := false
 				for _, reply := range replyList {
@@ -43,41 +45,44 @@ func CollectCosts(message, *numOnline int){
 				}
 				// Add to list if not found
 				if !found {
-					requestList[newRequest] = append(requestList[newRequest], newReply)
+					requestMap[newRequest] = append(requestMap[newRequest], newReply)
 					newRequest.timer.Reset(def.CostReplyTimeoutDuration)
 				}
 			} else {
 				// If order not in queue at all, init order list with it
 				newRequest.timer = time.NewTimer(def.CostReplyTimeoutDuration)
-				requestList[newRequest] = []reply{newReply}
+				requestMap[newRequest] = []reply{newReply}
 				go costTimer(&newRequest, timeout)
 			}
-			chooseBestLift(unassigned, numOnline, false)
+			chooseBestElevator(requestMap,numOnline,false)
+		case numOnlineUpdate := <- numOnlineCh:
+			numOnline = numOnlineUpdate
 		case <- timeout:
-			choose best elevator
+			log.Println(def.ColR,"Not all costs received in time!",def.ColN)
+			chooseBestElevator(requestMap,numOnline,true)
 		}
 	}
 }
 
-func chooseBestElevator(requestList map[request][]reply, *numOnline int, timeout bool){
-	var bestElevatorAddr string
+func chooseBestElevator(requestMap map[request][]reply, numOnline int, timeout bool){
+	var bestElevator string
 	// Go through list of requests and find the best elevator in each replyList
-	for request,replyList := range requestList{
-		if len(replyList) == *numOnline || timeout{
+	for request,replyList := range requestMap{
+		if len(replyList) == numOnline || timeout{
 			lowestCost := 10000
 			for _,reply := range replyList{
 				if reply.cost < lowestCost{
 					lowestCost = reply.cost
-					bestElevatorAddr = reply.Addr
+					bestElevator = reply.elevator
 				}else if reply.cost == lowestCost{
-					if reply.Addr < bestElevator{
-						bestElevatorAddr = reply.Addr
+					if reply.elevator < bestElevator{
+						bestElevator = reply.elevator
 					}
 				}
 			}
-			queue.AddRequest(request.floor, request.button, bestElevatorAddr)
+			queue.AddRequest(request.floor, request.button, bestElevator)
 			request.timer.Stop()
-			delete(unassigned, request)
+			delete(requestMap, request)
 		}
 	}
 }

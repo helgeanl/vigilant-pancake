@@ -55,7 +55,7 @@ func Init() (int, error) {
 	SetMotorDir(def.DirStop)
 	SetFloorLamp(floor)
 
-	log.Println(def.ColG, "Hardware initialised.", def.ColN)
+	log.Println(def.ColG, "Hardware initialized.", def.ColN)
 	return floor, nil
 }
 

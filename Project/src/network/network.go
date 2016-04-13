@@ -26,7 +26,7 @@ func Init(outgoingMsg, incomingMsg chan def.Message) {
 	go forwardOutgoing(outgoingMsg, udpSend)
 	go forwardIncoming(incomingMsg, udpReceive)
 
-	log.Println(def.ColG, "Network initialised.", def.ColN)
+	log.Println(def.ColG, "Network initialized - IP: ", def.LocalIP,def.ColN)
 }
 
 // aliveSpammer periodically sends messages on the network to notify all

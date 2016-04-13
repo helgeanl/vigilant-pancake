@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"log"
 )
 
 type requestStatus struct {
@@ -23,9 +24,10 @@ var NewRequest = make(chan bool)
 var CostReply = make(chan def.Message)
 var takeBackup = make(chan bool)
 
+
 func Init(outgoingMsg chan def.Message) {
 	runBackup(outgoingMsg)
-	fmt.Println(def.ColG, "Queue initialised.", def.ColN)
+	log.Println(def.ColG, "Queue initialized.", def.ColN)
 
 }
 

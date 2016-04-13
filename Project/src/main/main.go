@@ -6,40 +6,39 @@ import (
 	hw "hardware"
 	"network"
 	q "queue"
+	"assigner"
+	"log"
 )
 
 func main() {
-
-	//Variables
-	var startFloor int
-	var err error
-
 	//Structs
 	eventCh := def.EventChan{
 		NewRequest:     make(chan bool),
 		FloorReached:   make(chan int),
 		DoorTimeout:    make(chan bool), //Really needed??
 		DeadElevator:   make(chan int),
-		RequestTimeout: make(chan BtnPress),
+		RequestTimeout: make(chan def.BtnPress),
 	}
 	hwCh := def.HardwareChan{
 		MotorDir:       make(chan int),
 		FloorLamp:      make(chan int),
 		DoorLamp:       make(chan bool),
-		BtnPressed:     make(chan BtnPress),
-		BtnLightChan:   make(chan LightUpdate),
+		BtnPressed:     make(chan def.BtnPress),
+		BtnLightChan:   make(chan def.LightUpdate),
 		DoorTimerReset: make(chan bool),
 	}
 	msgCh := def.MessageChan{
-		Outgoing: make(chan Message),
-		Incoming: make(chan Message),
+		Outgoing: make(chan def.Message),
+		Incoming: make(chan def.Message),
 	}
 
 	//initialization
 	startFloor, err := hw.Init()
 	if err != nil {
-		def.Restart(err)
+		def.Restart.Run()
+		log.Fatalf(def.ColR, "Error in HW", def.ColN)
 	}
+
 	//"fsm.Channels is now devided into def.HardwareChannels, def.EventChannels"
 	//and def.MessageChannels
 	fsm.Init(eventCh, hwCh, msgCh, startFloor)
@@ -47,7 +46,7 @@ func main() {
 	q.Init(msgCh.Outgoing)
 	//Threads
 	go EventHandler(eventCh, msgCh, hwCh)
-
+	go assigner.CollectCosts(q.CostReply, assigner.NumOnlineCh)
 	for { //Or a channel that holds until it gets kill signal
 
 	}
