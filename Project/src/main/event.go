@@ -31,7 +31,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 					q.AddRequest(btnPress.Floor,btnPress.Button,def.LocalIP)
 				}else{
 					msgCh.Outgoing<-def.Message{Category:def.NewRequest,Floor:btnPress.Floor,Button:btnPress.Button, Cost:0}
-					log.Printl(def.ColM,"Sent new request on the network")
+					log.Println(def.ColM,"Sent new request on the network")
 				}
 			}
 		case incomingMsg := <-msgCh.Incoming:
