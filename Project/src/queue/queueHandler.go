@@ -74,7 +74,7 @@ func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 }
 
 func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
-	RemoveRequest(floor,btn)
+	RemoveRequest(floor,btn)////////////////////////////////////////
 	outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 }
 
@@ -103,28 +103,29 @@ func (q *queueType) stopTimer(floor, btn int) {
 }
 
 func printQueue() {
-	fmt.Printf(def.ColB)
-	fmt.Println("****** Queue ****** ")
+	fmt.Println(def.ColB)
+	fmt.Println("********************************")
+	fmt.Println("*       Up      Down     Cab   *")
 	for f := def.NumFloors - 1; f >= 0; f-- {
-		s := strconv.Itoa(f+1)
+		s := "* " + strconv.Itoa(f+1)+"  "
 
 		if queue.hasRequest(f, def.BtnHallUp) {
-			s += " (↑ " + queue.matrix[f][def.BtnHallUp].addr[12:15] + " ) "
+			s += "(↑ " + queue.matrix[f][def.BtnHallUp].addr[12:15] + " ) "
 		} else {
-			fmt.Printf("(     )")
+			s += "(      ) "
 		}
 		if queue.hasRequest(f, def.BtnHallDown) {
-			s += " (↓ " + queue.matrix[f][def.BtnHallDown].addr[12:15] + " ) "
+			s += "(↓ " + queue.matrix[f][def.BtnHallDown].addr[12:15] + " ) "
 		} else {
-			fmt.Printf("(     )")
+			s += "(      ) "
 		}
 		if queue.hasRequest(f, def.BtnCab) {
-			s += " (  x  )"
+			s += "(  x  ) *"
 		} else {
-			s += " (     )"
+			s += "(     ) *"
 		}
-		fmt.Printf("%s", s)
-		fmt.Println()
+		fmt.Println(s)
 	}
-	fmt.Printf(def.ColN)
+	fmt.Println("********************************")
+	fmt.Println(def.ColN)
 }

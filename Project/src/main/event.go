@@ -143,7 +143,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 			cost := q.CalcCost(fsm.Elevator.Dir, hw.GetFloor(),fsm.Elevator.Floor,incomingMsg.Floor, incomingMsg.Button)
 			outgoingMsg<-def.Message{Category: def.Cost,Floor:incomingMsg.Floor,Button:incomingMsg.Button, Cost: cost}
 		case def.CompleteRequest:
-			log.Println(def.ColC,"Request is completed",def.ColN)
+			log.Println(def.ColG,"Request is completed",def.ColN)
 			q.RemoveRequest(incomingMsg.Floor, incomingMsg.Button)
 		case def.Cost:
 			log.Println(def.ColC,"Cost reply",def.ColN)
