@@ -68,9 +68,8 @@ func chooseBestElevator(requestMap map[request][]reply, numOnline int, timeout b
 	var bestElevator string
 	// Go through list of requests and find the best elevator in each replyList
 	for request,replyList := range requestMap{
-		log.Println(def.ColB,"Number online: ", numOnline)
 		if len(replyList) == numOnline || timeout{
-			log.Println(def.ColB,"All costs collected, timeout: ", timeout)
+			log.Println(def.ColB,"All costs are collected, or reply timed out: ", timeout)
 			lowestCost := 10000
 			for _,reply := range replyList{
 				if reply.cost < lowestCost{
@@ -82,7 +81,7 @@ func chooseBestElevator(requestMap map[request][]reply, numOnline int, timeout b
 					}
 				}
 			}
-			log.Println(def.ColB,"Will now add order to Floor:",request.floor," Button",request.button," To Elevator:",bestElevator, def.ColN )
+			log.Println(def.ColB,"Will now add request to Floor: ",request.floor,", Button: ",request.button,", to Elevator: ",bestElevator, def.ColN )
 			queue.AddRequest(request.floor, request.button, bestElevator)
 			request.timer.Stop()
 			delete(requestMap, request)

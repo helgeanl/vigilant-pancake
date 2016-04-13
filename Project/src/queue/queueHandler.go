@@ -22,6 +22,7 @@ var queue queueType
 var RequestTimeoutChan = make(chan def.BtnPress,10)
 var NewRequest = make(chan bool,10)
 var CostReply = make(chan def.Message,10)
+var LightUpdate = make(chan def.LightUpdate,10)
 var takeBackup = make(chan bool,10)
 
 
@@ -40,12 +41,14 @@ func AddRequest(floor int, btn int, addr string) {
 		go queue.startTimer(floor, btn)
 		if addr == def.LocalIP {
 			log.Println(def.ColW,"Request is local",def.ColN)
+			LightUpdate <- def.LightUpdate{floor,btn,true}
 			NewRequest <- true
 		}else{log.Println(def.ColW,"Request is not local",def.ColN)}
 	//}
 }
 
 func RemoveRequest(floor, btn int) {
+	LightUpdate <- def.LightUpdate{floor,btn,false}
 	queue.stopTimer(floor,btn)
 	queue.setRequest(floor, btn, requestStatus{status: false, addr: "", timer: nil})
 }
@@ -53,8 +56,7 @@ func RemoveRequest(floor, btn int) {
 func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 	for btn := 0; btn < def.NumButtons; btn++ {
 		if queue.matrix[floor][btn].addr == def.LocalIP {
-			queue.stopTimer(floor,btn)
-			queue.setRequest(floor, btn, requestStatus{status: false, addr: "", timer: nil})
+			RemoveRequest(floor,btn)
 			if btn != def.BtnCab {
 				outgoingMsgCh <- def.Message{Category: def.CompleteRequest, Floor: floor, Button: btn}
 			}
@@ -110,12 +112,12 @@ func printQueue() {
 		s := "* " + strconv.Itoa(f+1)+"  "
 
 		if queue.hasRequest(f, def.BtnHallUp) {
-			s += "(↑ " + queue.matrix[f][def.BtnHallUp].addr[12:15] + " ) "
+			s += "( ." + queue.matrix[f][def.BtnHallUp].addr[12:15] + " ) "
 		} else {
 			s += "(      ) "
 		}
 		if queue.hasRequest(f, def.BtnHallDown) {
-			s += "(↓ " + queue.matrix[f][def.BtnHallDown].addr[12:15] + " ) "
+			s += "( ." + queue.matrix[f][def.BtnHallDown].addr[12:15] + " ) "
 		} else {
 			s += "(      ) "
 		}

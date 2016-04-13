@@ -37,8 +37,8 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case incomingMsg := <-msgCh.Incoming:
 			go handleMessage(incomingMsg, msgCh.Outgoing)
 		
-		case btnLightUpdate := <-hwCh.BtnLightChan:
-			log.Println(def.ColW,"Event: Update light",def.ColN)
+		case btnLightUpdate := <- q.LightUpdate://<-hwCh.BtnLightChan:
+			log.Println(def.ColB,"Event: Update light",def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
 
 		case requestTimeout := <-q.RequestTimeoutChan:
@@ -64,8 +64,6 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case currFloor := <-eventCh.FloorReached:
 			log.Println(def.ColW,"Event: New floor",def.ColN)
 			fsm.OnFloorArrival(hwCh,msgCh.Outgoing, currFloor)
-			log.Println(def.ColR,"Something",def.ColN)
-		
 		case <-eventCh.DoorTimeout:
 			log.Println(def.ColW,"Event: Door timeout",def.ColN)
 			fsm.OnDoorTimeout(hwCh)
@@ -126,7 +124,6 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 	switch incomingMsg.Category {
 		case def.Alive:
 			IP := incomingMsg.Addr
-			log.Println(def.ColC,"Alive: ",IP,def.ColN)
 			if t, exists := onlineElevatorMap[IP]; exists {
 				t.Reset(def.ElevTimeoutDuration)
 			} else {
@@ -137,6 +134,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 				}
 				onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, f)
 				assigner.NumOnlineCh <- len(onlineElevatorMap)
+				log.Println(def.ColG,"New elevator: ",IP," | Number online: ",len(onlineElevatorMap),def.ColN)
 			}
 		case def.NewRequest:
 			log.Println(def.ColC,"New request incomming",def.ColN)

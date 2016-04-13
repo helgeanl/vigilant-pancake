@@ -80,7 +80,6 @@ func OnNewRequest(OutgoingMsg chan<- def.Message, hwCh def.HardwareChan) {
 func OnFloorArrival(hwCh def.HardwareChan, OutgoingMsg chan<- def.Message, newFloor int) {
 	Elevator.Floor = newFloor
 	hwCh.FloorLamp <- Elevator.Floor
-	log.Println("Elevator behaviour: ",Elevator.Behaviour,def.ColW)
 	switch Elevator.Behaviour {
 	case moving:
 		if queue.ShouldStop(newFloor, Elevator.Dir) {
