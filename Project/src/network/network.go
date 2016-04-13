@@ -10,8 +10,8 @@ import (
 
 func Init(outgoingMsg, incomingMsg chan def.Message) {
 	// Ports randomly chosen to reduce likelihood of port collision.
-	const localListenPort = 37103
-	const broadcastListenPort = 37104
+	const localListenPort = 37115
+	const broadcastListenPort = 37116
 
 	const messageSize = 1024
 

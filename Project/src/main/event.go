@@ -128,10 +128,11 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 				t.Reset(def.ElevTimeoutDuration)
 			} else {
 				f := func(){
-					q.ReassignAllRequestsFrom(IP, outgoingMsg)
-					delete(onlineElevatorMap,IP)
+					addr := IP
+					q.ReassignAllRequestsFrom(addr, outgoingMsg)
+					delete(onlineElevatorMap,addr)
 					assigner.NumOnlineCh <- len(onlineElevatorMap)
-					log.Println(def.ColR,"Elevator is dead: ",IP," | Number online: ",len(onlineElevatorMap),def.ColN)
+					log.Println(def.ColR,"Elevator is dead: ",addr," | Number online: ",len(onlineElevatorMap),def.ColN)
 				}
 				onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, f)
 				assigner.NumOnlineCh <- len(onlineElevatorMap)
@@ -148,6 +149,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 			log.Println(def.ColC,"Cost reply",def.ColN)
 			q.CostReply<-incomingMsg 
 		default:
+			log.Println(def.ColR,"Unknown message incomming",def.ColN)
 			//Do nothing, invalid msg
 	}
 }
