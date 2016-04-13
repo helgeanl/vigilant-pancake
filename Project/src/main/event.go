@@ -30,7 +30,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 				if btnPress.Button == def.BtnCab{
 					q.AddRequest(btnPress.Floor,btnPress.Button,def.LocalIP)
 				}else{
-					msgCh.Outgoing<-def.Message{Category:def.NewRequest,Floor:btnPress.Floor,Button:btnPress.Button}
+					msgCh.Outgoing<-def.Message{Category:def.NewRequest,Floor:btnPress.Floor,Button:btnPress.Button, Cost:0}
 				}
 			}
 		case incomingMsg := <-msgCh.Incoming:
