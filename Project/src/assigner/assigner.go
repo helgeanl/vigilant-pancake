@@ -33,7 +33,7 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 		case message := <-costReply:
 			newRequest := request{floor: message.Floor,button: message.Button}
 			newReply := reply{cost: message.Cost, elevator: message.Addr}
-			log.Println(def.ColR, "NewRequest på", newRequest,def.ColN)
+			log.Println(def.ColR, "New Cost incomming from: ", message.Addr, " for cost: ", message.Cost,def.ColN)
 			// Check if request is in queue
 			if replyList, exist := requestMap[newRequest]; exist {
 				// Check if newReply already is registered.
