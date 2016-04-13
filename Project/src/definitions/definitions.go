@@ -61,7 +61,7 @@ type HardwareChan struct {
 	FloorLamp    chan int
 	DoorLamp     chan bool
 	BtnPressed   chan BtnPress
-	BtnLightChan chan BtnPress
+	BtnLightChan chan LightUpdate
 	// Door timer
 	DoorTimerReset chan bool
 }

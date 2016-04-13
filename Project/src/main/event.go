@@ -4,7 +4,6 @@ import (
 	def "definitions"
 	"fsm"
 	hw "hardware"
-	"network"
 	q "queue"
 	"time"
 )
@@ -23,17 +22,16 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		select {
 		case btnPress := <-hwCh.BtnPressed:
 			if !q.HasRequest(btnPress.Floor,btnPress.Button){
-				outgoingMsg<-{def.NewRequest,btnPress.Floor,btnPress.Button}
+				msgCh.Outgoing<-def.Message{Category:def.NewRequest,Floor:btnPress.Floor,Button:btnPress.Button}
 			}
-		
 		case incomingMsg := <-msgCh.Incoming:
-			go handleMessage(incomingMsg, msgCh.outgoingMsg)//Possibly ok just to run function
+			go handleMessage(incomingMsg, msgCh.Outgoing)
 		
-		case btnLightUpdate := <-hwCh.btnLightChan:
+		case btnLightUpdate := <-hwCh.BtnLightChan:
 			hw.SetBtnLamp(btnLightUpdate)
 
 		case requestTimeout := <-q.RequestTimeoutChan:
-			q.ReassignRequest(requestTimeout.floor,requestTimeout.Button)
+			q.ReassignRequest(requestTimeout.Floor,requestTimeout.Button, msgCh.Outgoing)
 		
 		case motorDir := <-hwCh.MotorDir:
 			hw.SetMotorDir(motorDir)
@@ -47,11 +45,10 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			fsm.OnNewRequest(msgCh.Outgoing, hwCh)
 		
 		case currFloor := <-eventCh.FloorReached:
-			fsm.OnFloorArrival(hwCh,msgCh.Outgoing, currfloor)
+			fsm.OnFloorArrival(hwCh,msgCh.Outgoing, currFloor)
 		
 		case <-eventCh.DoorTimeout:
-			fsm.OnDoorTimeout(hwCh)  
-			)
+			fsm.OnDoorTimeout(hwCh)
 		}
 	}
 }
@@ -69,7 +66,8 @@ func eventBtnPressed(ch chan<- def.BtnPress) {
 		for floor := 0; floor < def.NumFloors; floor++ {
 			for btn := 0; btn < def.NumButtons; btn++ {
 				if hw.ReadBtn(floor, btn) {
-					btnPressed{btn, floor}
+					btnPressed.Floor =floor
+					btnPressed.Button =btn
 					if lastBtnPressed != btnPressed {
 						ch <- btnPressed
 					}
@@ -77,7 +75,7 @@ func eventBtnPressed(ch chan<- def.BtnPress) {
 				}
 			}
 		}
-		time.Millisecond(1)
+		time.Sleep(100*time.Millisecond)
 	}
 }
 
@@ -92,7 +90,7 @@ func eventCabAtFloor(ch chan int) {
 				ch <- floorReached
 			}
 		}
-		time.Millisecond(1)
+		time.Sleep(100*time.Millisecond)
 	}
 }
 
@@ -107,7 +105,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message){
 			}
 		case def.NewRequest:
 			cost := q.CalcCost(fsm.Elevator.dirn, hw.GetFloor(),fsm.Elevator.floor,incomingMsg.Floor, incomingMsg.Button)
-			outgoingMsg<-{Category: def.Cost, Cost: cost}
+			outgoingMsg<-def.Message{Category: def.Cost, Cost: cost}
 		case def.CompleteRequest:
 			q.RemoveRequest(incomingMsg.Floor, incomingMsg.Button)
 		case def.Cost:

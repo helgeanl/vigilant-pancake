@@ -32,23 +32,22 @@ func Init() (int, error) {
 	if !ioInit() {
 		return -1, errors.New("Hardware driver: ioInit() failed!")
 	}
-
 	// Zero all floor button lamps
 	for f := 0; f < def.NumFloors; f++ {
 		if f != 0 {
-			SetBtnLamp(f, def.BtnHallDown, false)
+			
+			SetBtnLamp(def.LightUpdate{f,def.BtnHallDown,false})
 		}
 		if f != def.NumFloors-1 {
-			SetBtnLamp(f, def.BtnHallUp, false)
+			SetBtnLamp(def.LightUpdate{f,def.BtnHallUp,false})
 		}
-		SetBtnLamp(f, def.BtnCab, false)
+		SetBtnLamp(def.LightUpdate{f,def.BtnCab,false})
 	}
 
-	SetStopLamp(false)
 	SetDoorLamp(false)
 
 	// Move to defined state
-	SetMotorDir(def.DirHallDown)
+	SetMotorDir(def.DirDown)
 	floor := GetFloor()
 	for floor == -1 {
 		floor = GetFloor()
