@@ -35,10 +35,10 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 			newReply := reply{cost: message.Cost, elevator: message.Addr}
 			log.Println(def.ColR, "New Cost incomming from: ", message.Addr, " for cost: ", message.Cost,def.ColN)
 
-			// Compare requests on content, without timer
-			for oldRequest := range requestMap{
-				if equal(oldRequest, newRequest){
-					newRequest = oldRequest
+			// Compare requests on content, without the timer
+			for existingRequest := range requestMap{
+				if equal(existingRequest, newRequest){
+					newRequest = existingRequest
 				}
 			}
 
