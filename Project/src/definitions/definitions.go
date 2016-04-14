@@ -14,9 +14,9 @@ const NumButtons = 3
 const NumFloors = 4
 const DoorOpenTime = 3 * time.Second
 const SpamInterval = 800 * time.Millisecond
-const CostReplyTimeoutDuration = 3 * time.Second
-const RequestTimeoutDuration = 30 * time.Second
-const ElevTimeoutDuration = 3 * time.Second
+const CostReplyTimeoutDuration = 30 * time.Second
+const RequestTimeoutDuration = 60 * time.Second
+const ElevTimeoutDuration = 30 * time.Second
 
 const (
 	BtnHallUp int = iota
