@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"time"
 )
 
 // runBackup loads queue data from file if file exists once, and saves
@@ -13,17 +14,23 @@ import (
 // its internal requests are added to the local queue, and its external requests
 // are reassigned by sending as new requests on the network.
 func runBackup(outgoingMsg chan<- def.Message) {
-	const filename = "elevator_backup"
+
+	const filename ="elevator_backup.dat"
 	var backup queueType
 	backup.loadFromDisk(filename)
+	// Read last time backup was modified
+	fileStat,err := os.Stat(filename);
+	if  err != nil{
+		log.Println(def.ColR, err, def.ColN)
+	}
 
 	// Resend all hall requests found in backup, and add cab requests to queue:
 	for floor := 0; floor < def.NumFloors; floor++ {
 		for btn := 0; btn < def.NumButtons; btn++ {
 			if backup.hasRequest(floor, btn) {
 				if btn == def.BtnCab {
-					AddRequest(floor, btn, "")
-				} else {
+					AddRequest(floor, btn, def.LocalIP)
+				} else if time.Now().After(fileStat.ModTime().Add(def.RequestTimeoutDuration))  {
 					outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 				}
 			}
@@ -32,6 +39,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 	go func() {
 		for {
 			<-takeBackup
+				log.Println(def.ColG, "Take Backup", def.ColN)
 			if err := queue.saveToDisk(filename); err != nil {
 				log.Println(def.ColR, err, def.ColN)
 			}
@@ -43,6 +51,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 func (q *queueType) saveToDisk(filename string) error {
 
 	data, err := json.Marshal(&q)
+	log.Println(data)
 	if err != nil {
 		log.Println(def.ColR, "json.Marshal() error: Failed to backup.", def.ColN)
 		return err
@@ -68,5 +77,6 @@ func (q *queueType) loadFromDisk(filename string) error {
 			log.Println(def.ColR, "loadFromDisk() error: Failed to Unmarshal.", def.ColN)
 		}
 	}
+	printQueue()
 	return nil
 }
