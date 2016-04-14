@@ -125,10 +125,10 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 		if connection, exist := onlineElevatorMap[IP]; exist {
 			connection.Timer.Reset(def.ElevTimeoutDuration)
 		} else {
-			newConnection := def.UdpConnection{IP, time.NewTimer(def.ElevTimeoutDuration)}
+			newConnection := def.UdpConnection{Addr: IP, Timer: time.NewTimer(def.ElevTimeoutDuration)}
 			onlineElevatorMap[IP] = newConnection
 			assigner.NumOnlineCh <- len(onlineElevatorMap)
-			go connectionTimer(&newConnection,outgoingMsg)
+			go connectionTimer(&newConnection, outgoingMsg)
 			log.Println(def.ColG, "New elevator: ", IP, " | Number online: ", len(onlineElevatorMap), def.ColN)
 		}
 	case def.NewRequest:
