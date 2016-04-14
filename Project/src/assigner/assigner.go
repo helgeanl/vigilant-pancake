@@ -65,13 +65,15 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 	}
 }
 
-func chooseBestElevator(requestMap map[request][]reply, numOnline int, timeout bool){
+func chooseBestElevator(requestMap map[request][]reply, numOnline int, isTimeout bool){
 	var bestElevator string
-	log.Println(def.ColR,"Number online in choosing: ",numOnline,def.ColN)
+
 	// Go through list of requests and find the best elevator in each replyList
 	for request,replyList := range requestMap{
-		if len(replyList) == numOnline || timeout{
-			log.Println(def.ColB,"All costs are collected, or reply timed out: ", timeout)
+		log.Println(def.ColR,"Num online: ",numOnline,def.ColN)
+		log.Println(def.ColR,"Num reply: ",len(replyList),def.ColN)
+		if len(replyList) == numOnline || isTimeout{
+			log.Println(def.ColB,"All costs are collected, or reply timed out: ", isTimeout)
 			lowestCost := 10000
 			for _,reply := range replyList{
 				if reply.cost < lowestCost{
