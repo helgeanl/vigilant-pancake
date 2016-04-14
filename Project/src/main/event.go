@@ -122,18 +122,23 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 	switch incomingMsg.Category {
 	case def.Alive:
 		IP := incomingMsg.Addr
+		if connection, exist := onlineLifts[msg.Addr]; exist {
+			connection.Timer.Reset(aliveTimeout)
+		} else {
+			newConnection := network.UdpConnection{msg.Addr, time.NewTimer(aliveTimeout)}
+			onlineLifts[msg.Addr] = newConnection
+			assigner.NumOnlineCh <- len(onlineElevatorMap)
+			go connectionTimer(&newConnection)
+			log.Println(def.ColG, "New elevator: ", IP, " | Number online: ", len(onlineElevatorMap), def.ColN)
+		}
+
+
 		if t, exists := onlineElevatorMap[IP]; exists {
 			t.Reset(def.ElevTimeoutDuration)
 		} else {
-			f := func() {
-				addr := IP
-				q.ReassignAllRequestsFrom(addr, outgoingMsg)
-				delete(onlineElevatorMap, addr)
-				assigner.NumOnlineCh <- len(onlineElevatorMap)
-				log.Println(def.ColR, "Elevator is dead: ", addr, " | Number online: ", len(onlineElevatorMap), def.ColN)
-			}
 			onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, f)
 			assigner.NumOnlineCh <- len(onlineElevatorMap)
+
 			log.Println(def.ColG, "New elevator: ", IP, " | Number online: ", len(onlineElevatorMap), def.ColN)
 		}
 	case def.NewRequest:
@@ -150,4 +155,16 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 		log.Println(def.ColR, "Unknown message incomming", def.ColN)
 		//Do nothing, invalid msg
 	}
+}
+
+func handleDeadLift(addr string) {
+	log.Println(def.ColR, "Connection to ",def.ColG, addr,def.ColR, " is lost| Number online: ", len(onlineElevatorMap), def.ColN)
+	delete(onlineElevatorMap, addr)
+	assigner.NumOnlineCh <- len(onlineElevatorMap)
+	q.ReassignAllRequestsFrom(addr, outgoingMsg)
+}
+
+func connectionTimer(connection *network.UdpConnection) {
+	<-connection.Timer.C
+	handleDeadLift(*connection.Addr)
 }
