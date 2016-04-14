@@ -16,8 +16,7 @@ func CalcCost(currDir, currFloor, prevFloor, targetFloor, targetBtn int) int {
 	if currFloor == -1 {
 		//Elevator is between floors, +1 cost
 		totCost++
-	}
-	if dir != def.DirStop {
+	} else if dir != def.DirStop {
 		//Elevator is at floor but not IDLE +2 cost
 		totCost += 2
 	}

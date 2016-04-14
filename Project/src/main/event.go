@@ -65,6 +65,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case <-eventCh.DoorTimeout:
 			log.Println(def.ColW, "Event: Door timeout", def.ColN)
 			fsm.OnDoorTimeout(hwCh)
+		case
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
@@ -122,23 +123,13 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 	switch incomingMsg.Category {
 	case def.Alive:
 		IP := incomingMsg.Addr
-		if connection, exist := onlineLifts[msg.Addr]; exist {
-			connection.Timer.Reset(aliveTimeout)
+		if connection, exist := onlineElevatorMap[IP]; exist {
+			connection.Timer.Reset(def.ElevTimeoutDuration)
 		} else {
-			newConnection := network.UdpConnection{msg.Addr, time.NewTimer(aliveTimeout)}
-			onlineLifts[msg.Addr] = newConnection
+			newConnection := network.UdpConnection{IP, time.NewTimer(def.ElevTimeoutDuration)}
+			onlineElevatorMap[IP] = newConnection
 			assigner.NumOnlineCh <- len(onlineElevatorMap)
-			go connectionTimer(&newConnection)
-			log.Println(def.ColG, "New elevator: ", IP, " | Number online: ", len(onlineElevatorMap), def.ColN)
-		}
-
-
-		if t, exists := onlineElevatorMap[IP]; exists {
-			t.Reset(def.ElevTimeoutDuration)
-		} else {
-			onlineElevatorMap[IP] = time.AfterFunc(def.ElevTimeoutDuration, f)
-			assigner.NumOnlineCh <- len(onlineElevatorMap)
-
+			go connectionTimer(&newConnection,outgoingMsg)
 			log.Println(def.ColG, "New elevator: ", IP, " | Number online: ", len(onlineElevatorMap), def.ColN)
 		}
 	case def.NewRequest:
@@ -157,14 +148,14 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 	}
 }
 
-func handleDeadLift(addr string) {
-	log.Println(def.ColR, "Connection to ",def.ColG, addr,def.ColR, " is lost| Number online: ", len(onlineElevatorMap), def.ColN)
+func handleDeadLift(addr string, outgoingMsg chan<- def.Message) {
+	log.Println(def.ColR, "Connection to ", def.ColG, addr, def.ColR, " is lost| Number online: ", len(onlineElevatorMap), def.ColN)
 	delete(onlineElevatorMap, addr)
 	assigner.NumOnlineCh <- len(onlineElevatorMap)
 	q.ReassignAllRequestsFrom(addr, outgoingMsg)
 }
 
-func connectionTimer(connection *network.UdpConnection) {
+func connectionTimer(connection *network.UdpConnection, outgoingMsg chan<- def.Message) {
 	<-connection.Timer.C
-	handleDeadLift(*connection.Addr)
+	handleDeadLift(*connection.Addr, outgoingMsg)
 }
