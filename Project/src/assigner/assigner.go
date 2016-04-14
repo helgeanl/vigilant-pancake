@@ -34,6 +34,13 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 			newRequest := request{floor: message.Floor,button: message.Button}
 			newReply := reply{cost: message.Cost, elevator: message.Addr}
 			log.Println(def.ColR, "New Cost incomming from: ", message.Addr, " for cost: ", message.Cost,def.ColN)
+
+			for oldRequest := range requestMap{
+				if equal(oldRequest, newRequest){
+					newRequest = oldRequest
+				}
+			}
+
 			// Check if request is in queue
 			if replyList, exist := requestMap[newRequest]; exist {
 				// Check if newReply already is registered.
@@ -91,6 +98,10 @@ func chooseBestElevator(requestMap map[request][]reply, numOnline int, isTimeout
 			delete(requestMap, request)
 		}
 	}
+}
+
+func equal(r1,r2 request)bool{
+	return r1.floor == r2.floor && r1.button == r2.button
 }
 
 func costTimer(newRequest *request, timeout chan<- *request) {
