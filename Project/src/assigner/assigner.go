@@ -57,6 +57,7 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 			chooseBestElevator(requestMap,numOnline,false)
 		case numOnlineUpdate := <- numOnlineCh:
 			numOnline = numOnlineUpdate
+				log.Println(def.ColR,"Number online in assignement: ",numOnline,def.ColN)
 		case <- timeout:
 			log.Println(def.ColR,"Not all costs received in time!",def.ColN)
 			chooseBestElevator(requestMap,numOnline,true)
@@ -66,6 +67,7 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 
 func chooseBestElevator(requestMap map[request][]reply, numOnline int, timeout bool){
 	var bestElevator string
+	log.Println(def.ColR,"Number online in choosing: ",numOnline,def.ColN)
 	// Go through list of requests and find the best elevator in each replyList
 	for request,replyList := range requestMap{
 		if len(replyList) == numOnline || timeout{

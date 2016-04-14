@@ -30,8 +30,8 @@ func main() {
 		DoorTimerReset: make(chan bool,10),
 	}
 	msgCh := def.MessageChan{
-		Outgoing: make(chan def.Message),
-		Incoming: make(chan def.Message),
+		Outgoing: make(chan def.Message,10),
+		Incoming: make(chan def.Message,10),
 	}
 
 	//initialization
