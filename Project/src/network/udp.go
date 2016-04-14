@@ -5,13 +5,9 @@ import (
 	"fmt"
 	"net"
 	"strconv"
-	"time"
 )
 
-type UdpConnection struct {
-	Addr  string
-	Timer *time.Timer
-}
+
 
 var baddr *net.UDPAddr //Broadcast address
 

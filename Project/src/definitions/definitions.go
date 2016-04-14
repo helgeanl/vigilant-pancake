@@ -44,6 +44,11 @@ type Message struct {
 	Addr     string `json:"-"`
 }
 
+type UdpConnection struct {
+	Addr  string
+	Timer *time.Timer
+}
+
 type LightUpdate struct {
 	Floor    int
 	Button   int

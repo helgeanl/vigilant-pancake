@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-var onlineElevatorMap = make(map[string]*time.Timer)
+var onlineElevatorMap = make(map[string]def.UdpConnection)
 
 func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan) {
 	//Check for all events in loop
@@ -65,7 +65,6 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case <-eventCh.DoorTimeout:
 			log.Println(def.ColW, "Event: Door timeout", def.ColN)
 			fsm.OnDoorTimeout(hwCh)
-		case
 		}
 		time.Sleep(10 * time.Millisecond)
 	}
@@ -126,7 +125,7 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 		if connection, exist := onlineElevatorMap[IP]; exist {
 			connection.Timer.Reset(def.ElevTimeoutDuration)
 		} else {
-			newConnection := network.UdpConnection{IP, time.NewTimer(def.ElevTimeoutDuration)}
+			newConnection := def.UdpConnection{IP, time.NewTimer(def.ElevTimeoutDuration)}
 			onlineElevatorMap[IP] = newConnection
 			assigner.NumOnlineCh <- len(onlineElevatorMap)
 			go connectionTimer(&newConnection,outgoingMsg)
@@ -148,14 +147,14 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 	}
 }
 
-func handleDeadLift(addr string, outgoingMsg chan<- def.Message) {
-	log.Println(def.ColR, "Connection to ", def.ColG, addr, def.ColR, " is lost| Number online: ", len(onlineElevatorMap), def.ColN)
-	delete(onlineElevatorMap, addr)
+func handleDeadLift(con def.UdpConnection, outgoingMsg chan<- def.Message) {
+	log.Println(def.ColR, "Connection to ", def.ColG, con.Addr, def.ColR, " is lost| Number online: ", len(onlineElevatorMap), def.ColN)
+	delete(onlineElevatorMap, con.Addr)
 	assigner.NumOnlineCh <- len(onlineElevatorMap)
-	q.ReassignAllRequestsFrom(addr, outgoingMsg)
+	q.ReassignAllRequestsFrom(con.Addr, outgoingMsg)
 }
 
-func connectionTimer(connection *network.UdpConnection, outgoingMsg chan<- def.Message) {
+func connectionTimer(connection *def.UdpConnection, outgoingMsg chan<- def.Message) {
 	<-connection.Timer.C
-	handleDeadLift(*connection.Addr, outgoingMsg)
+	handleDeadLift(*connection, outgoingMsg)
 }
