@@ -22,12 +22,12 @@ func main() {
 
 	}
 	hwCh := def.HardwareChan{
-		MotorDir:       make(chan int),
-		FloorLamp:      make(chan int),
-		DoorLamp:       make(chan bool),
+		MotorDir:       make(chan int,10),
+		FloorLamp:      make(chan int, 10),
+		DoorLamp:       make(chan bool,10),
 		BtnPressed:     make(chan def.BtnPress,10),
 		BtnLightChan:   make(chan def.LightUpdate,10),
-		DoorTimerReset: make(chan bool),
+		DoorTimerReset: make(chan bool,10),
 	}
 	msgCh := def.MessageChan{
 		Outgoing: make(chan def.Message,10),
