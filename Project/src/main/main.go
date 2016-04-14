@@ -31,7 +31,7 @@ func main() {
 	}
 	msgCh := def.MessageChan{
 		Outgoing: make(chan def.Message,10),
-		Incoming: make(chan def.Message,10),
+		Incoming: make(chan def.Message,100),
 	}
 
 	//initialization
