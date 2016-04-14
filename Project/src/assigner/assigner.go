@@ -36,7 +36,7 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int){
 			log.Println(def.ColR, "New Cost incomming from: ", message.Addr, " for cost: ", message.Cost,def.ColN)
 
 			for oldRequest := range requestMap{
-				if equal(oldRequest, newRequest){
+				if oldRequest == newRequest{
 					newRequest = oldRequest
 				}
 			}
