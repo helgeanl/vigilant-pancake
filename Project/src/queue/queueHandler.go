@@ -95,8 +95,10 @@ func (q *queueType) startTimer(floor, btn int) {
 	q.matrix[floor][btn].timer = time.NewTimer(def.RequestTimeoutDuration)
 	<-q.matrix[floor][btn].timer.C
 	// Wait until timeout
-	RequestTimeoutChan <- def.BtnPress{floor, btn}
-	log.Println(def.ColW, "Request timer is done!", def.ColN)
+	if !q.matrix[floor][btn].status{
+		RequestTimeoutChan <- def.BtnPress{floor, btn}
+		log.Println(def.ColW, "Request timer is done!", def.ColN)
+	}
 }
 
 func (q *queueType) stopTimer(floor, btn int) {
