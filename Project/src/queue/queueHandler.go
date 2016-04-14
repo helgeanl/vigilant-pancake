@@ -38,9 +38,9 @@ func AddRequest(floor int, btn int, addr string) {
 	queue.setRequest(floor, btn, requestStatus{true, addr, nil})
 
 	go queue.startTimer(floor, btn)
+	LightUpdate <- def.LightUpdate{floor, btn, true}
 	if addr == def.LocalIP {
 		log.Println(def.ColW, "Request is local", def.ColN)
-		LightUpdate <- def.LightUpdate{floor, btn, true}
 		NewRequest <- true
 	} else {
 		log.Println(def.ColW, "Request is not local", def.ColN)
