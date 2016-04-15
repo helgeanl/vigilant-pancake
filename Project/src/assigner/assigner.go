@@ -22,7 +22,6 @@ type request struct {
 	timer  *time.Timer
 }
 
-// NumOnlineCh --
 var NumOnlineCh = make(chan int)
 
 // CollectCosts recive all cost from online elevators
