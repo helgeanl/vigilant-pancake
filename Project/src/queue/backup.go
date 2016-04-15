@@ -19,11 +19,9 @@ func RunBackup(outgoingMsg chan<- def.Message) {
 	var backup QueueType
 	backup.loadFromDisk(filename)
 	printQueue()
+
 	// Read last time backup was modified
-	fileStat, err := os.Stat(filename)
-	if err != nil {
-		log.Println(def.ColR, err, def.ColN)
-	}
+	fileStat, _ := os.Stat(filename)
 
 	// Resend all hall requests found in backup, and add cab requests to queue:
 	for floor := 0; floor < def.NumFloors; floor++ {
@@ -41,44 +39,25 @@ func RunBackup(outgoingMsg chan<- def.Message) {
 		for {
 			<-takeBackup
 			log.Println(def.ColG, "Take Backup", def.ColN)
-			if err := queue.saveToDisk(filename); err != nil {
-				log.Println(def.ColR, err, def.ColN)
-			}
+			queue.saveToDisk(filename)
 		}
 	}()
 }
 
 // saveToDisk saves a QueueType to disk.
-func (q *QueueType) saveToDisk(filename string) error {
-
-	data, err := json.Marshal(&q)
-	//log.Println(string(data))
-	if err != nil {
-		log.Println(def.ColR, "json.Marshal() error: Failed to backup.", def.ColN)
-		return err
-	}
-	if err := ioutil.WriteFile(filename, data, 0644); err != nil {
-		log.Println(def.ColR, "ioutil.WriteFile() error: Failed to backup.", def.ColN)
-		return err
-	}
-	return nil
+func (q *QueueType) saveToDisk(filename string) {
+	data, _ := json.Marshal(&q)
+	ioutil.WriteFile(filename, data, 0644)
 }
 
 // loadFromDisk checks if a file of the given name is available on disk, and
 // saves its contents to a QueueType
-func (q *QueueType) loadFromDisk(filename string) error {
+func (q *QueueType) loadFromDisk(filename string) {
 	if _, err := os.Stat(filename); err == nil {
 		log.Println(def.ColG, "Backup file found, processing...", def.ColN)
-
-		data, err := ioutil.ReadFile(filename)
-		if err != nil {
-			log.Println(def.ColR, "loadFromDisk() error: Failed to read file.", def.ColN)
-		}
-		if err := json.Unmarshal(data, q); err != nil {
-			log.Println(def.ColR, "loadFromDisk() error: Failed to Unmarshal.", def.ColN)
-		}
+		data, _ := ioutil.ReadFile(filename)
+		json.Unmarshal(data, q)
 	}
-	return nil
 }
 
 func printQueue() {

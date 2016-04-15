@@ -20,48 +20,32 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 	for {
 		select {
 		case btnPress := <-hwCh.BtnPressed:
-			log.Println(def.ColW, "Event: Button pressed", def.ColN)
 			if !q.HasRequest(btnPress.Floor, btnPress.Button) {
 				// Add local requests if requested from cab
 				if btnPress.Button == def.BtnCab {
 					q.AddRequest(btnPress.Floor, btnPress.Button, def.LocalIP)
 				} else {
 					msgCh.Outgoing <- def.Message{Category: def.NewRequest, Floor: btnPress.Floor, Button: btnPress.Button, Cost: 0}
-					log.Println(def.ColM, "Sent new request on the network", def.ColN)
 				}
 			}
 		case incomingMsg := <-msgCh.Incoming:
 			go handleMessage(incomingMsg, msgCh.Outgoing)
-
 		case btnLightUpdate := <-q.LightUpdate:
-			log.Println(def.ColW, "Event: Update light", def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
-
 		case requestTimeout := <-q.RequestTimeoutChan:
-			log.Println(def.ColW, "Event: Request is timeout", def.ColN)
 			q.ReassignRequest(requestTimeout.Floor, requestTimeout.Button, msgCh.Outgoing)
-
 		case motorDir := <-hwCh.MotorDir:
-			log.Println(def.ColW, "Event: Set motor direction", def.ColN)
 			hw.SetMotorDir(motorDir)
-
 		case floorLamp := <-hwCh.FloorLamp:
-			log.Println(def.ColW, "Event: Set floor lamp", def.ColN)
 			hw.SetFloorLamp(floorLamp)
-
 		case doorLamp := <-hwCh.DoorLamp:
-			log.Println(def.ColW, "Event: Set door lamp to: ", doorLamp, def.ColN)
 			hw.SetDoorLamp(doorLamp)
-
 		case <-q.NewRequest:
 			log.Println(def.ColW, "Event: New Request", def.ColN)
 			fsm.OnNewRequest(msgCh.Outgoing, hwCh)
-
 		case currFloor := <-eventCh.FloorReached:
-			log.Println(def.ColW, "Event: New floor", def.ColN)
 			fsm.OnFloorArrival(hwCh, msgCh.Outgoing, currFloor)
 		case <-eventCh.DoorTimeout:
-			log.Println(def.ColW, "Event: Door timeout", def.ColN)
 			fsm.OnDoorTimeout(hwCh)
 		}
 		time.Sleep(10 * time.Millisecond)
@@ -69,20 +53,12 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 }
 
 func eventBtnPressed(ch chan<- def.BtnPress) {
-	lastBtnPressed := def.BtnPress{
-		Floor:  -1,
-		Button: -1,
-	}
-	btnPressed := def.BtnPress{
-		Floor:  -2,
-		Button: -2,
-	}
+	lastBtnPressed := def.BtnPress{Floor: -1, Button: -1}
+	btnPressed := def.BtnPress{Floor: -2, Button: -2}
 	for {
 		for floor := 0; floor < def.NumFloors; floor++ {
 			for btn := 0; btn < def.NumButtons; btn++ {
-				if floor == 0 && btn == def.BtnHallDown {
-					//invalid
-				} else if floor == def.NumFloors-1 && btn == def.BtnHallUp {
+				if floor == 0 && btn == def.BtnHallDown || floor == def.NumFloors-1 && btn == def.BtnHallUp {
 					//invalid
 				} else if hw.ReadBtn(floor, btn) {
 					btnPressed.Floor = floor

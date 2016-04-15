@@ -8,7 +8,6 @@ package hardware
 
 import (
 	def "definitions"
-	"errors"
 	"log"
 )
 
@@ -27,24 +26,22 @@ var btnChannelMatrix = [def.NumFloors][def.NumButtons]int{
 
 // Init initialises the lift hardware and moves the lift to a defined state.
 // (Descending until it reaches a floor.)
-func Init() (int, error) {
+func Init() int {
 	// Init hardware
 	if !ioInit() {
-		return -1, errors.New("Hardware driver: ioInit() failed!")
+		return -1
 	}
-	// Zero all floor button lamps
+	// Zero all lamps
+	SetDoorLamp(false)
 	for f := 0; f < def.NumFloors; f++ {
 		if f != 0 {
-
-			SetBtnLamp(def.LightUpdate{f, def.BtnHallDown, false})
+			SetBtnLamp(def.LightUpdate{Floor: f, Button: def.BtnHallDown, UpdateTo: false})
 		}
 		if f != def.NumFloors-1 {
-			SetBtnLamp(def.LightUpdate{f, def.BtnHallUp, false})
+			SetBtnLamp(def.LightUpdate{Floor: f, Button: def.BtnHallUp, UpdateTo: false})
 		}
-		SetBtnLamp(def.LightUpdate{f, def.BtnCab, false})
+		SetBtnLamp(def.LightUpdate{Floor: f, Button: def.BtnCab, UpdateTo: false})
 	}
-
-	SetDoorLamp(false)
 
 	// Move to defined state
 	SetMotorDir(def.DirDown)
@@ -56,7 +53,7 @@ func Init() (int, error) {
 	SetFloorLamp(floor)
 
 	log.Println(def.ColG, "Hardware initialized.", def.ColN)
-	return floor, nil
+	return floor
 }
 
 func SetMotorDir(dirn int) {
@@ -99,14 +96,12 @@ func SetFloorLamp(floor int) {
 		log.Println("No floor indicator will be set.")
 		return
 	}
-
 	// Binary encoding. One light must always be on.
 	if floor&0x02 > 0 {
 		ioSetBit(LIGHT_FLOOR_IND1)
 	} else {
 		ioClearBit(LIGHT_FLOOR_IND1)
 	}
-
 	if floor&0x01 > 0 {
 		ioSetBit(LIGHT_FLOOR_IND2)
 	} else {
@@ -115,56 +110,16 @@ func SetFloorLamp(floor int) {
 }
 
 func ReadBtn(floor int, btn int) bool {
-	if floor < 0 || floor >= def.NumFloors {
-		log.Printf("Error: Floor %d out of range!\n", floor)
-		return false
-	}
-	if btn < 0 || btn >= def.NumButtons {
-		log.Printf("Error: Button %d out of range!\n", btn)
-		return false
-	}
-	if btn == def.BtnHallUp && floor == def.NumFloors-1 {
-		log.Println("Button up from top floor does not exist!")
-		return false
-	}
-	if btn == def.BtnHallDown && floor == 0 {
-		log.Println("Button down from ground floor does not exist!")
-		return false
-	}
-
 	if ioReadBit(btnChannelMatrix[floor][btn]) {
 		return true
-	} else {
-		return false
 	}
+	return false
 }
 
 func SetBtnLamp(LightUpdate def.LightUpdate) {
-	floor := LightUpdate.Floor
-	btn := LightUpdate.Button
-	value := LightUpdate.UpdateTo
-	if floor < 0 || floor >= def.NumFloors {
-		log.Printf("Error: Floor %d out of range!\n", floor)
-		return
-	}
-	if btn == def.BtnHallUp && floor == def.NumFloors-1 {
-		log.Println("Button up from top floor does not exist!")
-		return
-	}
-	if btn == def.BtnHallDown && floor == 0 {
-		log.Println("Button down from ground floor does not exist!")
-		return
-	}
-	if btn != def.BtnHallUp &&
-		btn != def.BtnHallDown &&
-		btn != def.BtnCab {
-		log.Printf("Invalid button %d\n", btn)
-		return
-	}
-
-	if value {
-		ioSetBit(lampChannelMatrix[floor][btn])
+	if LightUpdate.UpdateTo {
+		ioSetBit(lampChannelMatrix[LightUpdate.Floor][LightUpdate.Button])
 	} else {
-		ioClearBit(lampChannelMatrix[floor][btn])
+		ioClearBit(lampChannelMatrix[LightUpdate.Floor][LightUpdate.Button])
 	}
 }

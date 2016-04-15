@@ -1,13 +1,8 @@
 package definitions
 
-import (
-	"os/exec"
-	"time"
-)
+import "time"
 
 var LocalIP string
-
-var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
 
 // Global system constants
 const NumButtons = 3

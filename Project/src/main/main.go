@@ -34,11 +34,7 @@ func main() {
 	}
 
 	//initialization
-	startFloor, err := hw.Init()
-	if err != nil {
-		def.Restart.Run()
-		log.Fatalf(def.ColR, "Error in HW", def.ColN)
-	}
+	startFloor := hw.Init()
 
 	fsm.Init(eventCh, hwCh, msgCh, startFloor)
 	network.Init(msgCh.Outgoing, msgCh.Incoming)
@@ -51,7 +47,6 @@ func main() {
 	go safeKill()
 	hold := make(chan bool)
 	<-hold
-
 }
 
 func safeKill() {

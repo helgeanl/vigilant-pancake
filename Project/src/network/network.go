@@ -61,7 +61,6 @@ func forwardIncoming(incomingMsg chan<- def.Message, udpReceive <-chan udpMessag
 		if err := json.Unmarshal(udpMessage.data[:udpMessage.length], &message); err != nil {
 			log.Println(def.ColR, "json.Unmarshal error: ", def.ColG, err, def.ColN)
 		}
-
 		message.Addr = udpMessage.raddr
 		incomingMsg <- message
 	}
