@@ -2,7 +2,6 @@ package network
 
 import (
 	def "definitions"
-	"fmt"
 	"log"
 	"net"
 	"strconv"
@@ -31,6 +30,7 @@ func udpInit(localListenPort, broadcastListenPort, message_size int, send_ch, re
 	laddr, err := net.ResolveUDPAddr("udp4", tempAddr.String())
 	laddr.Port = localListenPort
 	def.LocalIP = laddr.String()
+
 	//Creating local listening connections
 	localListenConn, err := net.ListenUDP("udp4", laddr)
 	if err != nil {
@@ -53,7 +53,7 @@ func udpInit(localListenPort, broadcastListenPort, message_size int, send_ch, re
 func udpTransmitServer(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("ERROR in udp_transmit_server: ", r, " Closing connection.")
+			log.Println(def.ColR, "ERROR in udp_transmit_server: ", r, " Closing connection.", def.ColN)
 		}
 	}()
 
@@ -71,7 +71,7 @@ func udpTransmitServer(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {
 			n, err = lconn.WriteToUDP(msg.data, raddr)
 		}
 		if err != nil || n < 0 {
-			fmt.Printf("Error: udp_transmit_server: writing\n")
+			log.Println(def.ColR, "Error: udp_transmit_server: writing", def.ColN)
 		}
 	}
 }
@@ -79,8 +79,8 @@ func udpTransmitServer(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {
 func udpReceiveServer(lconn, bconn *net.UDPConn, messageSize int, receiveCh chan<- udpMessage) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("ERROR in udp_receive_server: ", r, "Closing connection.")
-			log.Println("Trying to reconennect")
+			log.Println(def.ColR, "ERROR in udp_receive_server: ", r, "Closing connection.", def.ColN)
+			log.Println(def.ColR, "Trying to reconennect", def.ColN)
 		}
 	}()
 
@@ -103,8 +103,8 @@ func udpReceiveServer(lconn, bconn *net.UDPConn, messageSize int, receiveCh chan
 func udpConnectionReader(conn *net.UDPConn, messageSize int, rcvCh chan<- udpMessage) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Println("ERROR in udp_connection_reader: ", r, "Closing connection.")
-			log.Println("Trying to reconennect")
+			log.Println(def.ColR, "ERROR in udp_connection_reader: ", r, "Closing connection.", def.ColN)
+			log.Println(def.ColR, "Trying to reconennect", def.ColN)
 		}
 	}()
 
@@ -112,8 +112,8 @@ func udpConnectionReader(conn *net.UDPConn, messageSize int, rcvCh chan<- udpMes
 		buf := make([]byte, messageSize)
 		n, raddr, err := conn.ReadFromUDP(buf)
 		if err != nil || n < 0 {
-			log.Println("Error: udp_connection_readerDialUDP: reading")
-			log.Println("Trying to reconennect")
+			log.Println(def.ColR, "Error: udp_connection_readerDialUDP: reading", def.ColN)
+			log.Println(def.ColR, "Trying to reconennect", def.ColN)
 		}
 		rcvCh <- udpMessage{raddr: raddr.String(), data: buf, length: n}
 	}

@@ -48,9 +48,11 @@ func ShouldStop(floor, dir int) bool {
 func HasRequest(floor, btn int) bool {
 	return queue.hasRequest(floor, btn)
 }
+
 func (q *QueueType) hasRequest(floor, btn int) bool {
 	return q.Matrix[floor][btn].Status
 }
+
 func (q *QueueType) hasLocalRequest(floor, btn int) bool {
 	return q.Matrix[floor][btn].Status && q.Matrix[floor][btn].Addr == def.LocalIP
 }

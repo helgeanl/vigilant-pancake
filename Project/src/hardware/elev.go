@@ -35,13 +35,13 @@ func Init() (int, error) {
 	// Zero all floor button lamps
 	for f := 0; f < def.NumFloors; f++ {
 		if f != 0 {
-			
-			SetBtnLamp(def.LightUpdate{f,def.BtnHallDown,false})
+
+			SetBtnLamp(def.LightUpdate{f, def.BtnHallDown, false})
 		}
 		if f != def.NumFloors-1 {
-			SetBtnLamp(def.LightUpdate{f,def.BtnHallUp,false})
+			SetBtnLamp(def.LightUpdate{f, def.BtnHallUp, false})
 		}
-		SetBtnLamp(def.LightUpdate{f,def.BtnCab,false})
+		SetBtnLamp(def.LightUpdate{f, def.BtnCab, false})
 	}
 
 	SetDoorLamp(false)

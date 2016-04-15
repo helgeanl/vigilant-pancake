@@ -67,7 +67,6 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int) {
 			chooseBestElevator(requestMap, numOnline, false)
 		case numOnlineUpdate := <-numOnlineCh:
 			numOnline = numOnlineUpdate
-			log.Println(def.ColR, "Number online in assignement: ", numOnline, def.ColN)
 		case <-timeout:
 			log.Println(def.ColR, "Not all costs received in time!", def.ColN)
 			chooseBestElevator(requestMap, numOnline, true)
@@ -75,15 +74,12 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int) {
 	}
 }
 
+// chooseBestElevator goes through a map of requests and finds the best elevator in each replyList
 func chooseBestElevator(requestMap map[request][]reply, numOnline int, isTimeout bool) {
 	var bestElevator string
 
-	// Go through list of requests and find the best elevator in each replyList
 	for request, replyList := range requestMap {
-		log.Println(def.ColR, "Num online: ", numOnline, def.ColN)
-		log.Println(def.ColR, "Num reply: ", len(replyList), def.ColN)
 		if len(replyList) == numOnline || isTimeout {
-			log.Println(def.ColB, "All costs are collected, or reply timed out: ", isTimeout)
 			lowestCost := 10000
 			for _, reply := range replyList {
 				if reply.cost < lowestCost {
@@ -95,7 +91,6 @@ func chooseBestElevator(requestMap map[request][]reply, numOnline int, isTimeout
 					}
 				}
 			}
-			log.Println(def.ColB, "Will now add request to Floor: ", request.floor, ", Button: ", request.button, ", to Elevator: ", bestElevator, def.ColN)
 			queue.AddRequest(request.floor, request.button, bestElevator)
 			request.timer.Stop()
 			delete(requestMap, request)

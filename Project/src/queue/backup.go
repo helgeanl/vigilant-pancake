@@ -9,15 +9,14 @@ import (
 	"time"
 )
 
-// runBackup loads queue data from file if file exists once, and saves
-// backups whenever its asked to. If it finds a non-empty backed up queue,
-// its internal requests are added to the local queue, and its external requests
-// are reassigned by sending as new requests on the network.
+// runBackup loads backup on init, and saves queue whenever
+// there is anything on the takeBackup channel
 func runBackup(outgoingMsg chan<- def.Message) {
 
 	const filename = "elevator_backup.dat"
 	var backup QueueType
 	backup.loadFromDisk(filename)
+	printQueue()
 	// Read last time backup was modified
 	fileStat, err := os.Stat(filename)
 	if err != nil {
@@ -47,7 +46,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 	}()
 }
 
-// saveToDisk saves a queue to disk.
+// saveToDisk saves a QueueType to disk.
 func (q *QueueType) saveToDisk(filename string) error {
 
 	data, err := json.Marshal(&q)
@@ -64,7 +63,7 @@ func (q *QueueType) saveToDisk(filename string) error {
 }
 
 // loadFromDisk checks if a file of the given name is available on disk, and
-// saves its contents to a queue if the file is present.
+// saves its contents to a QueueType
 func (q *QueueType) loadFromDisk(filename string) error {
 	if _, err := os.Stat(filename); err == nil {
 		log.Println(def.ColG, "Backup file found, processing...", def.ColN)
@@ -77,6 +76,5 @@ func (q *QueueType) loadFromDisk(filename string) error {
 			log.Println(def.ColR, "loadFromDisk() error: Failed to Unmarshal.", def.ColN)
 		}
 	}
-	printQueue()
 	return nil
 }

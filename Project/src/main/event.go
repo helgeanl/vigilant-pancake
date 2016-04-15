@@ -13,10 +13,7 @@ import (
 var onlineElevatorMap = make(map[string]def.UdpConnection)
 
 func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan) {
-	//Check for all events in loop
-	//Make convinient variables
 
-	//Threads
 	go eventBtnPressed(hwCh.BtnPressed)
 	go eventCabAtFloor(eventCh.FloorReached)
 
@@ -25,7 +22,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case btnPress := <-hwCh.BtnPressed:
 			log.Println(def.ColW, "Event: Button pressed", def.ColN)
 			if !q.HasRequest(btnPress.Floor, btnPress.Button) {
-				// Add local requests if requested from cab or udp connection is lost
+				// Add local requests if requested from cab
 				if btnPress.Button == def.BtnCab {
 					q.AddRequest(btnPress.Floor, btnPress.Button, def.LocalIP)
 				} else {
@@ -36,7 +33,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case incomingMsg := <-msgCh.Incoming:
 			go handleMessage(incomingMsg, msgCh.Outgoing)
 
-		case btnLightUpdate := <-q.LightUpdate: //<-hwCh.BtnLightChan:
+		case btnLightUpdate := <-q.LightUpdate:
 			log.Println(def.ColW, "Event: Update light", def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
 

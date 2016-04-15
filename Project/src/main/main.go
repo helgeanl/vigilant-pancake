@@ -7,8 +7,9 @@ import (
 	hw "hardware"
 	"log"
 	"network"
+	"os"
+	"os/signal"
 	q "queue"
-	"time"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 	eventCh := def.EventChan{
 		FloorReached:   make(chan int),
 		DoorTimeout:    make(chan bool),
-		DeadElevator:   make(chan int, 10), // Really needed??
+		DeadElevator:   make(chan int, 10),
 		RequestTimeout: make(chan def.BtnPress, 10),
 	}
 	hwCh := def.HardwareChan{
@@ -39,15 +40,24 @@ func main() {
 		log.Fatalf(def.ColR, "Error in HW", def.ColN)
 	}
 
-	//"fsm.Channels is now devided into def.HardwareChannels, def.EventChannels"
-	//and def.MessageChannels
 	fsm.Init(eventCh, hwCh, msgCh, startFloor)
 	network.Init(msgCh.Outgoing, msgCh.Incoming)
 	q.Init(msgCh.Outgoing)
+
 	//Threads
 	go EventHandler(eventCh, msgCh, hwCh)
 	go assigner.CollectCosts(q.CostReply, assigner.NumOnlineCh)
-	for { //Or a channel that holds until it gets kill signal
-		time.Sleep(time.Hour) // FIX THIS
-	}
+
+	go safeKill()
+	hold := make(chan bool)
+	<-hold
+
+}
+
+func safeKill() {
+	var c = make(chan os.Signal)
+	signal.Notify(c, os.Interrupt)
+	<-c
+	hw.SetMotorDir(def.DirStop)
+	log.Fatal(def.Col0, "User terminated program.", def.ColN)
 }
