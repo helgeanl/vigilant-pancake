@@ -50,6 +50,12 @@ func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 	}
 }
 
+func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
+	RemoveRequest(floor, btn)
+	log.Println(def.ColB, "Reassigning request", def.ColN)
+	outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
+}
+
 // Go through queue, and resend requests belonging to dead elevator
 func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 	for floor := 0; floor < def.NumFloors; floor++ {
@@ -59,12 +65,6 @@ func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 			}
 		}
 	}
-}
-
-func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
-	RemoveRequest(floor, btn)
-	log.Println(def.ColB, "Reassigning request", def.ColN)
-	outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 }
 
 // Set status of request, sync request lights, take backup

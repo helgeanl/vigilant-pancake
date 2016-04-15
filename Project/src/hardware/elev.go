@@ -1,21 +1,14 @@
-// Package hardware defines interactions with the lift hardware at the real time
-// lab at The Department of Engineering Cybernetics at NTNU, Trondheim,
-// Norway.
-//
-// This file is a golang port of elev.c from the hand out driver
-// (https://github.com/TTK4145/Project)
 package hardware
-
-import (
-	def "definitions"
-	"log"
-)
 
 /*
 #cgo LDFLAGS: -lcomedi -lm
 #include "channels.h"
 */
 import "C"
+import (
+	def "definitions"
+	"log"
+)
 
 var lampChannelMatrix = [def.NumFloors][def.NumButtons]int{
 	{C.LIGHT_UP1, C.LIGHT_DOWN1, C.LIGHT_COMMAND1},
@@ -96,11 +89,6 @@ func GetFloor() int {
 }
 
 func SetFloorLamp(floor int) {
-	if floor < 0 || floor >= def.NumFloors {
-		log.Printf("Error: Floor %d out of range!\n", floor)
-		log.Println("No floor indicator will be set.")
-		return
-	}
 	// Binary encoding. One light must always be on.
 	if floor&0x02 > 0 {
 		ioSetBit(C.LIGHT_FLOOR_IND1)

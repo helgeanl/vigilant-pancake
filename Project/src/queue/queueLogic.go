@@ -1,9 +1,6 @@
 package queue
 
-import (
-	def "definitions"
-	"log"
-)
+import def "definitions"
 
 func ChooseDirection(floor, dir int) int {
 	switch dir {
@@ -12,20 +9,15 @@ func ChooseDirection(floor, dir int) int {
 			return def.DirUp
 		} else if queue.hasRequestsBelow(floor) {
 			return def.DirDown
-		} else {
-			return def.DirStop
 		}
 	case def.DirDown, def.DirStop:
 		if queue.hasRequestsBelow(floor) {
 			return def.DirDown
 		} else if queue.hasRequestsAbove(floor) {
 			return def.DirUp
-		} else {
-			return def.DirStop
 		}
-	default:
-		return 0
 	}
+	return def.DirStop
 }
 
 func ShouldStop(floor, dir int) bool {
@@ -38,9 +30,6 @@ func ShouldStop(floor, dir int) bool {
 		return queue.hasLocalRequest(floor, def.BtnHallUp) ||
 			queue.hasLocalRequest(floor, def.BtnCab) ||
 			!queue.hasRequestsAbove(floor)
-	case def.DirStop:
-	default:
-		log.Fatalln(def.ColR, "This direction doesn't exist", def.ColN)
 	}
 	return false
 }
