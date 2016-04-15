@@ -7,8 +7,6 @@ import (
 	"strconv"
 )
 
-
-
 var baddr *net.UDPAddr //Broadcast address
 
 type udpMessage struct {
@@ -75,12 +73,14 @@ func udp_transmit_server(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {
 			raddr, err := net.ResolveUDPAddr("udp", msg.raddr)
 			if err != nil {
 				fmt.Printf("Error: udp_transmit_server: could not resolve raddr\n")
+				def.Restart.Run()
 				panic(err)
 			}
 			n, err = lconn.WriteToUDP(msg.data, raddr)
 		}
 		if err != nil || n < 0 {
 			fmt.Printf("Error: udp_transmit_server: writing\n")
+			def.Restart.Run()
 			panic(err)
 		}
 		//		fmt.Printf("udp_transmit_server: Sent %s to %s \n", msg.Data, msg.Raddr)
@@ -129,6 +129,7 @@ func udp_connection_reader(conn *net.UDPConn, message_size int, rcv_ch chan<- ud
 		//		fmt.Printf("udp_connection_reader: Received %s from %s \n", string(buf), raddr.String())
 		if err != nil || n < 0 {
 			fmt.Printf("Error: udp_connection_reader: reading\n")
+			def.Restart.Run()
 			panic(err)
 		}
 		rcv_ch <- udpMessage{raddr: raddr.String(), data: buf, length: n}

@@ -53,14 +53,14 @@ func ShouldStop(floor, dir int) bool {
 func HasRequest(floor, btn int) bool {
 	return queue.hasRequest(floor, btn)
 }
-func (q *queueType) hasRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status
+func (q *QueueType) hasRequest(floor, btn int) bool {
+	return q.Matrix[floor][btn].Status
 }
-func (q *queueType) hasLocalRequest(floor, btn int) bool {
-	return q.matrix[floor][btn].status && q.matrix[floor][btn].addr == def.LocalIP
+func (q *QueueType) hasLocalRequest(floor, btn int) bool {
+	return q.Matrix[floor][btn].Status && q.Matrix[floor][btn].Addr == def.LocalIP
 }
 
-func (q *queueType) hasRequestsAbove(floor int) bool {
+func (q *QueueType) hasRequestsAbove(floor int) bool {
 	for f := floor + 1; f < def.NumFloors; f++ {
 		for b := 0; b < def.NumButtons; b++ {
 			if q.hasLocalRequest(f, b) {
@@ -71,7 +71,7 @@ func (q *queueType) hasRequestsAbove(floor int) bool {
 	return false
 }
 
-func (q *queueType) hasRequestsBelow(floor int) bool {
+func (q *QueueType) hasRequestsBelow(floor int) bool {
 	for f := 0; f < floor; f++ {
 		for b := 0; b < def.NumButtons; b++ {
 			if q.hasLocalRequest(f, b) {

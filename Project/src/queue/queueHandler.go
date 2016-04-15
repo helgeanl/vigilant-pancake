@@ -8,17 +8,17 @@ import (
 	"time"
 )
 
-type requestStatus struct {
-	status bool
-	addr   string      `json:"-"`
-	timer  *time.Timer `json:"-"`
+type RequestStatus struct {
+	Status bool
+	Addr   string      `json:"-"`
+	Timer  *time.Timer `json:"-"`
 }
 
-type queueType struct {
-	matrix [def.NumFloors][def.NumButtons]requestStatus
+type QueueType struct {
+	Matrix [def.NumFloors][def.NumButtons]RequestStatus
 }
 
-var queue queueType
+var queue QueueType
 var RequestTimeoutChan = make(chan def.BtnPress, 10)
 var NewRequest = make(chan bool, 10)
 var CostReply = make(chan def.Message, 10)
@@ -35,7 +35,7 @@ func AddRequest(floor int, btn int, addr string) {
 
 	//if !queue.hasRequest(floor, btn) {
 
-	queue.setRequest(floor, btn, requestStatus{true, addr, nil})
+	queue.setRequest(floor, btn, RequestStatus{true, addr, nil})
 
 	go queue.startTimer(floor, btn)
 	LightUpdate <- def.LightUpdate{floor, btn, true}
@@ -51,12 +51,12 @@ func AddRequest(floor int, btn int, addr string) {
 func RemoveRequest(floor, btn int) {
 	LightUpdate <- def.LightUpdate{floor, btn, false}
 	queue.stopTimer(floor, btn)
-	queue.setRequest(floor, btn, requestStatus{status: false, addr: "", timer: nil})
+	queue.setRequest(floor, btn, RequestStatus{Status: false, Addr: "", Timer: nil})
 }
 
 func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 	for btn := 0; btn < def.NumButtons; btn++ {
-		if queue.matrix[floor][btn].addr == def.LocalIP {
+		if queue.Matrix[floor][btn].Addr == def.LocalIP {
 			RemoveRequest(floor, btn)
 			if btn != def.BtnCab {
 				outgoingMsgCh <- def.Message{Category: def.CompleteRequest, Floor: floor, Button: btn}
@@ -69,7 +69,7 @@ func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 	for floor := 0; floor < def.NumFloors; floor++ {
 		for btn := 0; btn < def.NumButtons; btn++ {
-			if queue.matrix[floor][btn].addr == addr { /////////////////////////////////Maybe we need to stop the timer??
+			if queue.Matrix[floor][btn].Addr == addr { /////////////////////////////////Maybe we need to stop the timer??
 				ReassignRequest(floor, btn, outgoingMsgCh)
 			}
 		}
@@ -83,27 +83,27 @@ func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
 }
 
 // Set status of request, sync request lights, take backup
-func (q *queueType) setRequest(floor, btn int, request requestStatus) { ////////////////////////////////////////////////////////////////////////////////////////////////////////
-	q.matrix[floor][btn] = request
+func (q *QueueType) setRequest(floor, btn int, request RequestStatus) { ////////////////////////////////////////////////////////////////////////////////////////////////////////
+	q.Matrix[floor][btn] = request
 	takeBackup <- true
 	printQueue()
 }
 
 // Start timer for request in queue
-func (q *queueType) startTimer(floor, btn int) {
+func (q *QueueType) startTimer(floor, btn int) {
 	log.Println(def.ColW, "Start request timer", def.ColN)
-	q.matrix[floor][btn].timer = time.NewTimer(def.RequestTimeoutDuration)
-	<-q.matrix[floor][btn].timer.C
+	q.Matrix[floor][btn].Timer = time.NewTimer(def.RequestTimeoutDuration)
+	<-q.Matrix[floor][btn].Timer.C
 	// Wait until timeout
-	if q.matrix[floor][btn].status{
+	if q.Matrix[floor][btn].Status {
 		RequestTimeoutChan <- def.BtnPress{floor, btn}
 		log.Println(def.ColW, "Request timer is done!", def.ColN)
 	}
 }
 
-func (q *queueType) stopTimer(floor, btn int) {
-	if q.matrix[floor][btn].timer != nil {
-		q.matrix[floor][btn].timer.Stop()
+func (q *QueueType) stopTimer(floor, btn int) {
+	if q.Matrix[floor][btn].Timer != nil {
+		q.Matrix[floor][btn].Timer.Stop()
 		log.Println(def.ColR, "Timer on Floor: ", floor, " Button: ", btn, "stopped.")
 	}
 }
@@ -116,12 +116,12 @@ func printQueue() {
 		s := "* " + strconv.Itoa(f+1) + "  "
 
 		if queue.hasRequest(f, def.BtnHallUp) {
-			s += "( ." + queue.matrix[f][def.BtnHallUp].addr[12:15] + " ) "
+			s += "( ." + queue.Matrix[f][def.BtnHallUp].Addr[12:15] + " ) "
 		} else {
 			s += "(      ) "
 		}
 		if queue.hasRequest(f, def.BtnHallDown) {
-			s += "( ." + queue.matrix[f][def.BtnHallDown].addr[12:15] + " ) "
+			s += "( ." + queue.Matrix[f][def.BtnHallDown].Addr[12:15] + " ) "
 		} else {
 			s += "(      ) "
 		}

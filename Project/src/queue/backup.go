@@ -15,12 +15,12 @@ import (
 // are reassigned by sending as new requests on the network.
 func runBackup(outgoingMsg chan<- def.Message) {
 
-	const filename ="elevator_backup.dat"
-	var backup queueType
+	const filename = "elevator_backup.dat"
+	var backup QueueType
 	backup.loadFromDisk(filename)
 	// Read last time backup was modified
-	fileStat,err := os.Stat(filename);
-	if  err != nil{
+	fileStat, err := os.Stat(filename)
+	if err != nil {
 		log.Println(def.ColR, err, def.ColN)
 	}
 
@@ -30,7 +30,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 			if backup.hasRequest(floor, btn) {
 				if btn == def.BtnCab {
 					AddRequest(floor, btn, def.LocalIP)
-				} else if time.Now().After(fileStat.ModTime().Add(def.RequestTimeoutDuration))  {
+				} else if time.Now().After(fileStat.ModTime().Add(def.RequestTimeoutDuration)) {
 					outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 				}
 			}
@@ -39,7 +39,7 @@ func runBackup(outgoingMsg chan<- def.Message) {
 	go func() {
 		for {
 			<-takeBackup
-				log.Println(def.ColG, "Take Backup", def.ColN)
+			log.Println(def.ColG, "Take Backup", def.ColN)
 			if err := queue.saveToDisk(filename); err != nil {
 				log.Println(def.ColR, err, def.ColN)
 			}
@@ -48,10 +48,10 @@ func runBackup(outgoingMsg chan<- def.Message) {
 }
 
 // saveToDisk saves a queue to disk.
-func (q *queueType) saveToDisk(filename string) error {
+func (q *QueueType) saveToDisk(filename string) error {
 
 	data, err := json.Marshal(&q)
-	log.Println(data)
+	//log.Println(string(data))
 	if err != nil {
 		log.Println(def.ColR, "json.Marshal() error: Failed to backup.", def.ColN)
 		return err
@@ -65,7 +65,7 @@ func (q *queueType) saveToDisk(filename string) error {
 
 // loadFromDisk checks if a file of the given name is available on disk, and
 // saves its contents to a queue if the file is present.
-func (q *queueType) loadFromDisk(filename string) error {
+func (q *QueueType) loadFromDisk(filename string) error {
 	if _, err := os.Stat(filename); err == nil {
 		log.Println(def.ColG, "Backup file found, processing...", def.ColN)
 
