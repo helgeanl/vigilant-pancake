@@ -3,7 +3,6 @@ package network
 import (
 	def "definitions"
 	"encoding/json"
-	"fmt"
 	"log"
 	"time"
 )
@@ -19,14 +18,14 @@ func Init(outgoingMsg, incomingMsg chan def.Message) {
 	var udpReceive = make(chan udpMessage, 10)
 	err := udpInit(localListenPort, broadcastListenPort, messageSize, udpSend, udpReceive)
 	if err != nil {
-		fmt.Print("UdpInit() error: %v \n", err)
+		log.Println(def.ColR, "UdpInit() error: ", err, def.ColN)
 	}
 
 	go aliveSpammer(outgoingMsg)
 	go forwardOutgoing(outgoingMsg, udpSend)
 	go forwardIncoming(incomingMsg, udpReceive)
 
-	log.Println(def.ColG, "Network initialized - IP: ", def.LocalIP,def.ColN)
+	log.Println(def.ColG, "Network initialized - IP: ", def.LocalIP, def.ColN)
 }
 
 // aliveSpammer periodically sends messages on the network to notify all
@@ -48,9 +47,8 @@ func forwardOutgoing(outgoingMsg <-chan def.Message, udpSend chan<- udpMessage) 
 
 		jsonMsg, err := json.Marshal(msg)
 		if err != nil {
-			log.Printf("%sjson.Marshal error: %v\n%s", def.ColR, err, def.ColN)
+			log.Println(def.ColR, "json.Marshal error: ", def.ColG, err, def.ColN)
 		}
-
 		udpSend <- udpMessage{raddr: "broadcast", data: jsonMsg, length: len(jsonMsg)}
 	}
 }
@@ -61,7 +59,7 @@ func forwardIncoming(incomingMsg chan<- def.Message, udpReceive <-chan udpMessag
 		var message def.Message
 
 		if err := json.Unmarshal(udpMessage.data[:udpMessage.length], &message); err != nil {
-			fmt.Printf("json.Unmarshal error: %s\n", err)
+			log.Println(def.ColR, "json.Unmarshal error: ", def.ColG, err, def.ColN)
 		}
 
 		message.Addr = udpMessage.raddr

@@ -32,20 +32,12 @@ func Init(outgoingMsg chan def.Message) {
 }
 
 func AddRequest(floor int, btn int, addr string) {
-
-	//if !queue.hasRequest(floor, btn) {
-
 	queue.setRequest(floor, btn, RequestStatus{true, addr, nil})
-
 	go queue.startTimer(floor, btn)
 	LightUpdate <- def.LightUpdate{floor, btn, true}
 	if addr == def.LocalIP {
-		log.Println(def.ColW, "Request is local", def.ColN)
 		NewRequest <- true
-	} else {
-		log.Println(def.ColW, "Request is not local", def.ColN)
 	}
-	//}
 }
 
 func RemoveRequest(floor, btn int) {
@@ -69,7 +61,7 @@ func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 	for floor := 0; floor < def.NumFloors; floor++ {
 		for btn := 0; btn < def.NumButtons; btn++ {
-			if queue.Matrix[floor][btn].Addr == addr { /////////////////////////////////Maybe we need to stop the timer??
+			if queue.Matrix[floor][btn].Addr == addr {
 				ReassignRequest(floor, btn, outgoingMsgCh)
 			}
 		}
@@ -77,13 +69,13 @@ func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 }
 
 func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
-	RemoveRequest(floor, btn) ////////////////////////////////////////
+	RemoveRequest(floor, btn)
 	log.Println(def.ColB, "Reassigning request", def.ColN)
 	outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 }
 
 // Set status of request, sync request lights, take backup
-func (q *QueueType) setRequest(floor, btn int, request RequestStatus) { ////////////////////////////////////////////////////////////////////////////////////////////////////////
+func (q *QueueType) setRequest(floor, btn int, request RequestStatus) {
 	q.Matrix[floor][btn] = request
 	takeBackup <- true
 	printQueue()
@@ -91,20 +83,17 @@ func (q *QueueType) setRequest(floor, btn int, request RequestStatus) { ////////
 
 // Start timer for request in queue
 func (q *QueueType) startTimer(floor, btn int) {
-	log.Println(def.ColW, "Start request timer", def.ColN)
 	q.Matrix[floor][btn].Timer = time.NewTimer(def.RequestTimeoutDuration)
 	<-q.Matrix[floor][btn].Timer.C
 	// Wait until timeout
 	if q.Matrix[floor][btn].Status {
 		RequestTimeoutChan <- def.BtnPress{floor, btn}
-		log.Println(def.ColW, "Request timer is done!", def.ColN)
 	}
 }
 
 func (q *QueueType) stopTimer(floor, btn int) {
 	if q.Matrix[floor][btn].Timer != nil {
 		q.Matrix[floor][btn].Timer.Stop()
-		log.Println(def.ColR, "Timer on Floor: ", floor, " Button: ", btn, "stopped.")
 	}
 }
 

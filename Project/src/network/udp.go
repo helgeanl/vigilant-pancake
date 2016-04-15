@@ -3,10 +3,12 @@ package network
 import (
 	def "definitions"
 	"fmt"
+	"log"
 	"net"
 	"strconv"
 )
 
+var udpConnection bool
 var baddr *net.UDPAddr //Broadcast address
 
 type udpMessage struct {
@@ -41,22 +43,17 @@ func udpInit(localListenPort, broadcastListenPort, message_size int, send_ch, re
 		localListenConn.Close()
 		return err
 	}
+	udpConnection = true
+	go udpReceiveServer(localListenConn, broadcastListenConn, message_size, receive_ch)
+	go udpTransmitServer(localListenConn, broadcastListenConn, send_ch)
 
-	go udp_receive_server(localListenConn, broadcastListenConn, message_size, receive_ch)
-	go udp_transmit_server(localListenConn, broadcastListenConn, send_ch)
-	go udp_connection_closer(localListenConn, broadcastListenConn)
-
-	//	fmt.Printf("Generating local address: \t Network(): %s \t String(): %s \n", laddr.Network(), laddr.String())
-	//	fmt.Printf("Generating broadcast address: \t Network(): %s \t String(): %s \n", baddr.Network(), baddr.String())
 	return err
 }
 
-func udp_transmit_server(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {
+func udpTransmitServer(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("ERROR in udp_transmit_server: %s \n Closing connection.", r)
-			lconn.Close()
-			bconn.Close()
+			fmt.Println("ERROR in udp_transmit_server: ", r, " Closing connection.")
 		}
 	}()
 
@@ -64,81 +61,60 @@ func udp_transmit_server(lconn, bconn *net.UDPConn, send_ch <-chan udpMessage) {
 	var n int
 
 	for {
-		//		fmt.Printf("udp_transmit_server: waiting on new value on Global_Send_ch \n")
 		msg := <-send_ch
-		//		fmt.Printf("Writing %s \n", msg.Data)
 		if msg.raddr == "broadcast" {
 			n, err = lconn.WriteToUDP(msg.data, baddr)
 		} else {
 			raddr, err := net.ResolveUDPAddr("udp", msg.raddr)
 			if err != nil {
-				fmt.Printf("Error: udp_transmit_server: could not resolve raddr\n")
-				def.Restart.Run()
-				panic(err)
 			}
 			n, err = lconn.WriteToUDP(msg.data, raddr)
 		}
 		if err != nil || n < 0 {
 			fmt.Printf("Error: udp_transmit_server: writing\n")
-			def.Restart.Run()
-			panic(err)
 		}
-		//		fmt.Printf("udp_transmit_server: Sent %s to %s \n", msg.Data, msg.Raddr)
 	}
 }
 
-func udp_receive_server(lconn, bconn *net.UDPConn, message_size int, receive_ch chan<- udpMessage) {
+func udpReceiveServer(lconn, bconn *net.UDPConn, messageSize int, receiveCh chan<- udpMessage) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("ERROR in udp_receive_server: %s \n Closing connection.", r)
-			lconn.Close()
-			bconn.Close()
+			log.Println("ERROR in udp_receive_server: ", r, "Closing connection.")
+			log.Println("Trying to reconennect")
 		}
 	}()
 
-	bconn_rcv_ch := make(chan udpMessage)
-	lconn_rcv_ch := make(chan udpMessage)
+	bconnRcvCh := make(chan udpMessage)
+	lconnRcvCh := make(chan udpMessage)
 
-	go udp_connection_reader(lconn, message_size, lconn_rcv_ch)
-	go udp_connection_reader(bconn, message_size, bconn_rcv_ch)
+	go udpConnectionReader(lconn, messageSize, lconnRcvCh)
+	go udpConnectionReader(bconn, messageSize, bconnRcvCh)
 
 	for {
 		select {
-
-		case buf := <-bconn_rcv_ch:
-			receive_ch <- buf
-
-		case buf := <-lconn_rcv_ch:
-			receive_ch <- buf
+		case buf := <-bconnRcvCh:
+			receiveCh <- buf
+		case buf := <-lconnRcvCh:
+			receiveCh <- buf
 		}
 	}
 }
 
-func udp_connection_reader(conn *net.UDPConn, message_size int, rcv_ch chan<- udpMessage) {
+func udpConnectionReader(conn *net.UDPConn, messageSize int, rcvCh chan<- udpMessage) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("ERROR in udp_connection_reader: %s \n Closing connection.", r)
-			conn.Close()
+			log.Println("ERROR in udp_connection_reader: ", r, "Closing connection.")
+			log.Println("Trying to reconennect")
 		}
 	}()
 
 	for {
-		buf := make([]byte, message_size)
-		//		fmt.Printf("udp_connection_reader: Waiting on data from UDPConn\n")
+		buf := make([]byte, messageSize)
 		n, raddr, err := conn.ReadFromUDP(buf)
-		//		fmt.Printf("udp_connection_reader: Received %s from %s \n", string(buf), raddr.String())
 		if err != nil || n < 0 {
-			fmt.Printf("Error: udp_connection_reader: reading\n")
-			def.Restart.Run()
-			panic(err)
+			log.Println("Error: udp_connection_readerDialUDP: reading")
+			log.Println("Trying to reconennect")
 		}
-		rcv_ch <- udpMessage{raddr: raddr.String(), data: buf, length: n}
+		rcvCh <- udpMessage{raddr: raddr.String(), data: buf, length: n}
 	}
-}
-
-func udp_connection_closer(lconn, bconn *net.UDPConn) {
-	/////// !!!!!!!!!
-	<-def.CloseConnectionChan
-	lconn.Close()
-	bconn.Close()
 }

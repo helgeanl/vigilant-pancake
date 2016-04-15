@@ -25,6 +25,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case btnPress := <-hwCh.BtnPressed:
 			log.Println(def.ColW, "Event: Button pressed", def.ColN)
 			if !q.HasRequest(btnPress.Floor, btnPress.Button) {
+				// Add local requests if requested from cab or udp connection is lost
 				if btnPress.Button == def.BtnCab {
 					q.AddRequest(btnPress.Floor, btnPress.Button, def.LocalIP)
 				} else {
@@ -36,7 +37,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 			go handleMessage(incomingMsg, msgCh.Outgoing)
 
 		case btnLightUpdate := <-q.LightUpdate: //<-hwCh.BtnLightChan:
-			log.Println(def.ColB, "Event: Update light", def.ColN)
+			log.Println(def.ColW, "Event: Update light", def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
 
 		case requestTimeout := <-q.RequestTimeoutChan:
@@ -91,7 +92,6 @@ func eventBtnPressed(ch chan<- def.BtnPress) {
 					btnPressed.Button = btn
 					if lastBtnPressed != btnPressed {
 						ch <- btnPressed
-						log.Println(def.ColR, "Button pressed: ", btnPressed, def.ColN)
 					}
 					lastBtnPressed = btnPressed
 				}
@@ -110,7 +110,6 @@ func eventCabAtFloor(ch chan<- int) {
 			FloorReached = hw.GetFloor()
 			if prevFloor != FloorReached {
 				ch <- FloorReached
-				log.Println(def.ColB, "New floor", def.ColN)
 				prevFloor = FloorReached
 			}
 		}
@@ -156,5 +155,7 @@ func handleDeadLift(con def.UdpConnection, outgoingMsg chan<- def.Message) {
 
 func connectionTimer(connection *def.UdpConnection, outgoingMsg chan<- def.Message) {
 	<-connection.Timer.C
-	handleDeadLift(*connection, outgoingMsg)
+	if (*connection).Addr != def.LocalIP {
+		handleDeadLift(*connection, outgoingMsg)
+	}
 }

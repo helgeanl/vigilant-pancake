@@ -1,37 +1,35 @@
 package main
 
 import (
+	"assigner"
 	def "definitions"
 	"fsm"
 	hw "hardware"
+	"log"
 	"network"
 	q "queue"
-	"assigner"
-	"log"
 	"time"
 )
 
 func main() {
 	//Structs
 	eventCh := def.EventChan{
-		NewRequest:     make(chan bool,10),
 		FloorReached:   make(chan int),
 		DoorTimeout:    make(chan bool),
-		DeadElevator:   make(chan int,10),// Really needed??
-		RequestTimeout: make(chan def.BtnPress,10),
-
+		DeadElevator:   make(chan int, 10), // Really needed??
+		RequestTimeout: make(chan def.BtnPress, 10),
 	}
 	hwCh := def.HardwareChan{
-		MotorDir:       make(chan int,10),
+		MotorDir:       make(chan int, 10),
 		FloorLamp:      make(chan int, 10),
-		DoorLamp:       make(chan bool,10),
-		BtnPressed:     make(chan def.BtnPress,10),
-		BtnLightChan:   make(chan def.LightUpdate,10),
-		DoorTimerReset: make(chan bool,10),
+		DoorLamp:       make(chan bool, 10),
+		BtnPressed:     make(chan def.BtnPress, 10),
+		BtnLightChan:   make(chan def.LightUpdate, 10),
+		DoorTimerReset: make(chan bool, 10),
 	}
 	msgCh := def.MessageChan{
-		Outgoing: make(chan def.Message,10),
-		Incoming: make(chan def.Message,10),
+		Outgoing: make(chan def.Message, 10),
+		Incoming: make(chan def.Message, 10),
 	}
 
 	//initialization
@@ -50,6 +48,6 @@ func main() {
 	go EventHandler(eventCh, msgCh, hwCh)
 	go assigner.CollectCosts(q.CostReply, assigner.NumOnlineCh)
 	for { //Or a channel that holds until it gets kill signal
-		time.Sleep(time.Hour)// FIX THIS
+		time.Sleep(time.Hour) // FIX THIS
 	}
 }

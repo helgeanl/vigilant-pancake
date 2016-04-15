@@ -24,9 +24,6 @@ func ChooseDirection(floor, dir int) int {
 			return def.DirStop
 		}
 	default:
-		def.CloseConnectionChan <- true
-		def.Restart.Run()
-		log.Printf("%sChooseDirection(): called with invalid direction %d, returning stop%s\n", def.ColR, dir, def.ColN)
 		return 0
 	}
 }
@@ -43,8 +40,6 @@ func ShouldStop(floor, dir int) bool {
 			!queue.hasRequestsAbove(floor)
 	case def.DirStop:
 	default:
-		def.CloseConnectionChan <- true
-		def.Restart.Run()
 		log.Fatalln(def.ColR, "This direction doesn't exist", def.ColN)
 	}
 	return false

@@ -6,7 +6,7 @@ import (
 )
 
 var LocalIP string
-var CloseConnectionChan = make(chan bool)
+
 var Restart = exec.Command("gnome-terminal", "-x", "sh", "-c", "main")
 
 // Global system constants
@@ -71,7 +71,6 @@ type HardwareChan struct {
 	DoorTimerReset chan bool
 }
 type EventChan struct {
-	NewRequest     chan bool //?????????????????????????????????????????????
 	FloorReached   chan int
 	DoorTimeout    chan bool
 	DeadElevator   chan int

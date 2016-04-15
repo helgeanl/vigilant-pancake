@@ -69,12 +69,7 @@ func OnNewRequest(OutgoingMsg chan<- def.Message, hwCh def.HardwareChan) {
 			hwCh.MotorDir <- Elevator.Dir
 			Elevator.Behaviour = moving
 		}
-	default: // Error handling
-		def.CloseConnectionChan <- true
-		def.Restart.Run()
-		log.Fatalf(def.ColR, "This state doesn't exist", def.ColN)
 	}
-	// set all lights
 }
 
 func OnFloorArrival(hwCh def.HardwareChan, OutgoingMsg chan<- def.Message, newFloor int) {
@@ -87,14 +82,8 @@ func OnFloorArrival(hwCh def.HardwareChan, OutgoingMsg chan<- def.Message, newFl
 			hwCh.DoorLamp <- true
 			hwCh.DoorTimerReset <- true
 			queue.RemoveLocalRequestsAt(Elevator.Floor, OutgoingMsg)
-			//setAllLights(Elevator);
 			Elevator.Behaviour = doorOpen
 		}
-	case doorOpen:
-		// do nothing
-	case idle:
-		// Don´t care
-	default: // Error handling
 	}
 }
 
@@ -109,10 +98,5 @@ func OnDoorTimeout(hwCh def.HardwareChan) {
 		} else {
 			Elevator.Behaviour = moving
 		}
-	case moving:
-		// Don´t care
-	case idle:
-		// Don´t care
-	default: // Error handling
 	}
 }
