@@ -20,14 +20,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 	for {
 		select {
 		case btnPress := <-hwCh.BtnPressed:
-			if !q.HasRequest(btnPress.Floor, btnPress.Button) {
-				// Add local requests if requested from cab
-				if btnPress.Button == def.BtnCab {
-					q.AddRequest(btnPress.Floor, btnPress.Button, def.LocalIP)
-				} else {
-					msgCh.Outgoing <- def.Message{Category: def.NewRequest, Floor: btnPress.Floor, Button: btnPress.Button, Cost: 0}
-				}
-			}
+			handleBtnPress(btnPress, msgCh.Outgoing)
 		case incomingMsg := <-msgCh.Incoming:
 			go handleMessage(incomingMsg, msgCh.Outgoing)
 		case btnLightUpdate := <-q.LightUpdate:
@@ -90,6 +83,16 @@ func eventCabAtFloor(ch chan<- int) {
 	}
 }
 
+func handleBtnPress(btnPress def.BtnPress, outgoingMsg chan<- def.Message) {
+	if !q.HasRequest(btnPress.Floor, btnPress.Button) {
+		if btnPress.Button == def.BtnCab {
+			q.AddRequest(btnPress.Floor, btnPress.Button, def.LocalIP)
+		} else {
+			outgoingMsg <- def.Message{Category: def.NewRequest, Floor: btnPress.Floor, Button: btnPress.Button, Cost: 0}
+		}
+	}
+}
+
 func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 	switch incomingMsg.Category {
 	case def.Alive:
@@ -113,9 +116,6 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 	case def.Cost:
 		log.Println(def.ColC, "Cost reply", def.ColN)
 		q.CostReply <- incomingMsg
-	default:
-		log.Println(def.ColR, "Unknown message incomming", def.ColN)
-		//Do nothing, invalid msg
 	}
 }
 

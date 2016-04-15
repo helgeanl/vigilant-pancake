@@ -33,38 +33,7 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int) {
 	for {
 		select {
 		case message := <-costReply:
-			newRequest := request{floor: message.Floor, button: message.Button}
-			newReply := reply{cost: message.Cost, elevator: message.Addr}
-			log.Println(def.ColR, "New Cost incomming from: ", message.Addr, " for cost: ", message.Cost, def.ColN)
-
-			// Compare requests on content, without the timer
-			for existingRequest := range requestMap {
-				if equal(existingRequest, newRequest) {
-					newRequest = existingRequest
-				}
-			}
-
-			// Check if request is in queue
-			if replyList, exist := requestMap[newRequest]; exist {
-				// Check if newReply already is registered.
-				found := false
-				for _, reply := range replyList {
-					if reply == newReply {
-						found = true
-					}
-				}
-				// Add to list if not found
-				if !found {
-					requestMap[newRequest] = append(requestMap[newRequest], newReply)
-					newRequest.timer.Reset(def.CostReplyTimeoutDuration)
-				}
-			} else {
-				// If order not in queue at all, init order list with it
-				newRequest.timer = time.NewTimer(def.CostReplyTimeoutDuration)
-				requestMap[newRequest] = []reply{newReply}
-				go costTimer(&newRequest, timeout)
-			}
-			chooseBestElevator(requestMap, numOnline, false)
+			handleCostReply(requestMap, message, numOnline, timeout)
 		case numOnlineUpdate := <-numOnlineCh:
 			numOnline = numOnlineUpdate
 		case <-timeout:
@@ -72,6 +41,40 @@ func CollectCosts(costReply chan def.Message, numOnlineCh chan int) {
 			chooseBestElevator(requestMap, numOnline, true)
 		}
 	}
+}
+
+func handleCostReply(requestMap map[request][]reply, message def.Message, numOnline int, timeout chan *request) {
+	newRequest := request{floor: message.Floor, button: message.Button}
+	newReply := reply{cost: message.Cost, elevator: message.Addr}
+	log.Println(def.ColR, "New Cost incomming from: ", message.Addr, " for cost: ", message.Cost, def.ColN)
+
+	// Compare requests on content, without the timer
+	for existingRequest := range requestMap {
+		if equal(existingRequest, newRequest) {
+			newRequest = existingRequest
+		}
+	}
+	// Check if request is in queue
+	if replyList, exist := requestMap[newRequest]; exist {
+		// Check if newReply already is registered.
+		found := false
+		for _, reply := range replyList {
+			if reply == newReply {
+				found = true
+			}
+		}
+		// Add to list if not found
+		if !found {
+			requestMap[newRequest] = append(requestMap[newRequest], newReply)
+			newRequest.timer.Reset(def.CostReplyTimeoutDuration)
+		}
+	} else {
+		// If order not in queue at all, init order list with it
+		newRequest.timer = time.NewTimer(def.CostReplyTimeoutDuration)
+		requestMap[newRequest] = []reply{newReply}
+		go costTimer(&newRequest, timeout)
+	}
+	chooseBestElevator(requestMap, numOnline, false)
 }
 
 // chooseBestElevator goes through a map of requests and finds the best elevator in each replyList

@@ -56,20 +56,16 @@ type MessageChan struct {
 	Incoming chan Message
 }
 type HardwareChan struct {
-	// Hardware interaction
-	MotorDir     chan int
-	FloorLamp    chan int
-	DoorLamp     chan bool
-	BtnPressed   chan BtnPress
-	BtnLightChan chan LightUpdate
-	// Door timer
+	MotorDir       chan int
+	FloorLamp      chan int
+	DoorLamp       chan bool
+	BtnPressed     chan BtnPress
 	DoorTimerReset chan bool
 }
 type EventChan struct {
-	FloorReached   chan int
-	DoorTimeout    chan bool
-	DeadElevator   chan int
-	RequestTimeout chan BtnPress
+	FloorReached chan int
+	DoorTimeout  chan bool
+	DeadElevator chan int
 }
 
 // Network message category constants
