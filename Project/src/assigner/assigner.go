@@ -1,8 +1,3 @@
-// Package liftAssigner gathers the cost values of the lifts on the network,
-// and assigns the best candidate to each order.
-
-// Recive costs from elevators and compare
-
 package assigner
 
 import (

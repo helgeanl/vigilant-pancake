@@ -30,7 +30,6 @@ type BtnPress struct {
 	Button int
 }
 
-// Message serves as a ...
 type Message struct {
 	Category int
 	Floor    int
@@ -51,10 +50,10 @@ type LightUpdate struct {
 }
 
 type MessageChan struct {
-	// Network interaction
 	Outgoing chan Message
 	Incoming chan Message
 }
+
 type HardwareChan struct {
 	MotorDir       chan int
 	FloorLamp      chan int

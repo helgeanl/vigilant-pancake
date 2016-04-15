@@ -42,8 +42,9 @@ func RemoveRequest(floor, btn int) {
 func RemoveLocalRequestsAt(floor int, outgoingMsgCh chan<- def.Message) {
 	for btn := 0; btn < def.NumButtons; btn++ {
 		if queue.Matrix[floor][btn].Addr == def.LocalIP {
-			RemoveRequest(floor, btn)
-			if btn != def.BtnCab {
+			if btn == def.BtnCab {
+				RemoveRequest(floor, btn)
+			} else {
 				outgoingMsgCh <- def.Message{Category: def.CompleteRequest, Floor: floor, Button: btn}
 			}
 		}
@@ -56,7 +57,7 @@ func ReassignRequest(floor, btn int, outgoingMsg chan<- def.Message) {
 	outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
 }
 
-// Go through queue, and resend requests belonging to dead elevator
+// ReassignAllRequestsFrom goes through queue, and resend requests belonging to dead elevator
 func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 	for floor := 0; floor < def.NumFloors; floor++ {
 		for btn := 0; btn < def.NumButtons; btn++ {

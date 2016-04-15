@@ -1,9 +1,6 @@
 package queue
 
-import (
-	def "definitions"
-	"log"
-)
+import def "definitions"
 
 //CalcCost calculates the total amount of work it takes to reach the
 //given floor.
@@ -12,7 +9,6 @@ func CalcCost(currDir, currFloor, prevFloor, targetFloor, targetBtn int) int {
 	dir := currDir
 	//Is the target above or below
 	targetDir := targetFloor - prevFloor
-	log.Println(def.ColR, "Direction to requested floor is: ", targetDir, def.ColN)
 	if currFloor == -1 {
 		//Elevator is between floors, +1 cost
 		totCost++
@@ -46,6 +42,5 @@ func CalcCost(currDir, currFloor, prevFloor, targetFloor, targetBtn int) int {
 			totCost++
 		}
 	}
-
 	return totCost
 }

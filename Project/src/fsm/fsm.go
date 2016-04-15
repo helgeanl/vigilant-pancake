@@ -1,7 +1,3 @@
-// FMS for Elevator
-// *** some comment
-// events: timeout, floorArrived, newRequest
-// state: idle, moving, doorOpen
 package fsm
 
 import (
@@ -23,23 +19,6 @@ var Elevator struct {
 	Behaviour int
 }
 
-type Channels struct {
-	// Events
-	NewRequest   chan bool
-	FloorReached chan int
-	doorTimeout  chan bool
-	// Hardware interaction
-	MotorDir  chan int
-	FloorLamp chan int
-	DoorLamp  chan bool
-	// Door timer
-	doorTimerReset chan bool
-	// Network interaction
-	OutgoingMsg chan def.Message
-}
-
-//TAKE IN NESSECARY CHANNELS
-//
 func Init(eventCh def.EventChan, hwCh def.HardwareChan, msgCh def.MessageChan, startFloor int) {
 	Elevator.Behaviour = idle
 	Elevator.Dir = def.DirStop
