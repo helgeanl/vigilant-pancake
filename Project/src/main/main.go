@@ -42,7 +42,7 @@ func main() {
 
 	fsm.Init(eventCh, hwCh, msgCh, startFloor)
 	network.Init(msgCh.Outgoing, msgCh.Incoming)
-	q.Init(msgCh.Outgoing)
+	q.RunBackup(msgCh.Outgoing)
 
 	//Threads
 	go EventHandler(eventCh, msgCh, hwCh)

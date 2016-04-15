@@ -2,9 +2,7 @@ package queue
 
 import (
 	def "definitions"
-	"fmt"
 	"log"
-	"strconv"
 	"time"
 )
 
@@ -25,23 +23,18 @@ var CostReply = make(chan def.Message, 10)
 var LightUpdate = make(chan def.LightUpdate, 10)
 var takeBackup = make(chan bool, 10)
 
-func Init(outgoingMsg chan def.Message) {
-	runBackup(outgoingMsg)
-	log.Println(def.ColG, "Queue initialized.", def.ColN)
-
-}
-
 func AddRequest(floor int, btn int, addr string) {
-	queue.setRequest(floor, btn, RequestStatus{true, addr, nil})
-	go queue.startTimer(floor, btn)
-	LightUpdate <- def.LightUpdate{floor, btn, true}
+	queue.setRequest(floor, btn, RequestStatus{Status: true, Addr: addr, Timer: nil})
+	LightUpdate <- def.LightUpdate{Floor: floor, Button: btn, UpdateTo: true}
 	if addr == def.LocalIP {
 		NewRequest <- true
+	} else {
+		go queue.startTimer(floor, btn)
 	}
 }
 
 func RemoveRequest(floor, btn int) {
-	LightUpdate <- def.LightUpdate{floor, btn, false}
+	LightUpdate <- def.LightUpdate{Floor: floor, Button: btn, UpdateTo: false}
 	queue.stopTimer(floor, btn)
 	queue.setRequest(floor, btn, RequestStatus{Status: false, Addr: "", Timer: nil})
 }
@@ -95,32 +88,4 @@ func (q *QueueType) stopTimer(floor, btn int) {
 	if q.Matrix[floor][btn].Timer != nil {
 		q.Matrix[floor][btn].Timer.Stop()
 	}
-}
-
-func printQueue() {
-	fmt.Println(def.ColB)
-	fmt.Println("********************************")
-	fmt.Println("*       Up      Down     Cab   *")
-	for f := def.NumFloors - 1; f >= 0; f-- {
-		s := "* " + strconv.Itoa(f+1) + "  "
-
-		if queue.hasRequest(f, def.BtnHallUp) {
-			s += "( ." + queue.Matrix[f][def.BtnHallUp].Addr[12:15] + " ) "
-		} else {
-			s += "(      ) "
-		}
-		if queue.hasRequest(f, def.BtnHallDown) {
-			s += "( ." + queue.Matrix[f][def.BtnHallDown].Addr[12:15] + " ) "
-		} else {
-			s += "(      ) "
-		}
-		if queue.hasRequest(f, def.BtnCab) {
-			s += "(  x  ) *"
-		} else {
-			s += "(     ) *"
-		}
-		fmt.Println(s)
-	}
-	fmt.Println("********************************")
-	fmt.Println(def.ColN)
 }

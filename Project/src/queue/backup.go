@@ -3,15 +3,17 @@ package queue
 import (
 	def "definitions"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
+	"strconv"
 	"time"
 )
 
-// runBackup loads backup on init, and saves queue whenever
+// RunBackup loads backup on startUp, and saves queue whenever
 // there is anything on the takeBackup channel
-func runBackup(outgoingMsg chan<- def.Message) {
+func RunBackup(outgoingMsg chan<- def.Message) {
 
 	const filename = "elevator_backup.dat"
 	var backup QueueType
@@ -77,4 +79,23 @@ func (q *QueueType) loadFromDisk(filename string) error {
 		}
 	}
 	return nil
+}
+
+func printQueue() {
+	fmt.Println(def.ColB, "\n*****************************")
+	fmt.Println("*       Up     Down    Cab   ")
+	for f := def.NumFloors - 1; f >= 0; f-- {
+		s := "* " + strconv.Itoa(f+1) + "  "
+		for b := 0; b < def.NumButtons; b++ {
+			if queue.hasRequest(f, b) && b != def.BtnCab {
+				s += "( " + queue.Matrix[f][b].Addr[12:15] + " ) "
+			} else if queue.hasRequest(f, b) {
+				s += "(  x  ) "
+			} else {
+				s += "(     ) "
+			}
+		}
+		fmt.Println(s)
+	}
+	fmt.Println("*****************************\n", def.ColN)
 }
