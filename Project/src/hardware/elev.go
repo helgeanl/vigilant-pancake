@@ -11,23 +11,28 @@ import (
 	"log"
 )
 
+/*
+#cgo LDFLAGS: -lcomedi -lm
+#include "channels.h"
+*/
+import "C"
+
 var lampChannelMatrix = [def.NumFloors][def.NumButtons]int{
-	{LIGHT_UP1, LIGHT_DOWN1, LIGHT_COMMAND1},
-	{LIGHT_UP2, LIGHT_DOWN2, LIGHT_COMMAND2},
-	{LIGHT_UP3, LIGHT_DOWN3, LIGHT_COMMAND3},
-	{LIGHT_UP4, LIGHT_DOWN4, LIGHT_COMMAND4},
+	{C.LIGHT_UP1, C.LIGHT_DOWN1, C.LIGHT_COMMAND1},
+	{C.LIGHT_UP2, C.LIGHT_DOWN2, C.LIGHT_COMMAND2},
+	{C.LIGHT_UP3, C.LIGHT_DOWN3, C.LIGHT_COMMAND3},
+	{C.LIGHT_UP4, C.LIGHT_DOWN4, C.LIGHT_COMMAND4},
 }
 var btnChannelMatrix = [def.NumFloors][def.NumButtons]int{
-	{BUTTON_UP1, BUTTON_DOWN1, BUTTON_COMMAND1},
-	{BUTTON_UP2, BUTTON_DOWN2, BUTTON_COMMAND2},
-	{BUTTON_UP3, BUTTON_DOWN3, BUTTON_COMMAND3},
-	{BUTTON_UP4, BUTTON_DOWN4, BUTTON_COMMAND4},
+	{C.BUTTON_UP1, C.BUTTON_DOWN1, C.BUTTON_COMMAND1},
+	{C.BUTTON_UP2, C.BUTTON_DOWN2, C.BUTTON_COMMAND2},
+	{C.BUTTON_UP3, C.BUTTON_DOWN3, C.BUTTON_COMMAND3},
+	{C.BUTTON_UP4, C.BUTTON_DOWN4, C.BUTTON_COMMAND4},
 }
 
 // Init initialises the lift hardware and moves the lift to a defined state.
 // (Descending until it reaches a floor.)
 func Init() int {
-	// Init hardware
 	if !ioInit() {
 		return -1
 	}
@@ -58,32 +63,32 @@ func Init() int {
 
 func SetMotorDir(dirn int) {
 	if dirn == 0 {
-		ioWriteAnalog(MOTOR, 0)
+		ioWriteAnalog(C.MOTOR, 0)
 	} else if dirn > 0 {
-		ioClearBit(MOTORDIR)
-		ioWriteAnalog(MOTOR, 2800)
+		ioClearBit(C.MOTORDIR)
+		ioWriteAnalog(C.MOTOR, 2800)
 	} else if dirn < 0 {
-		ioSetBit(MOTORDIR)
-		ioWriteAnalog(MOTOR, 2800)
+		ioSetBit(C.MOTORDIR)
+		ioWriteAnalog(C.MOTOR, 2800)
 	}
 }
 
 func SetDoorLamp(value bool) {
 	if value {
-		ioSetBit(LIGHT_DOOR_OPEN)
+		ioSetBit(C.LIGHT_DOOR_OPEN)
 	} else {
-		ioClearBit(LIGHT_DOOR_OPEN)
+		ioClearBit(C.LIGHT_DOOR_OPEN)
 	}
 }
 
 func GetFloor() int {
-	if ioReadBit(SENSOR_FLOOR1) {
+	if ioReadBit(C.SENSOR_FLOOR1) {
 		return 0
-	} else if ioReadBit(SENSOR_FLOOR2) {
+	} else if ioReadBit(C.SENSOR_FLOOR2) {
 		return 1
-	} else if ioReadBit(SENSOR_FLOOR3) {
+	} else if ioReadBit(C.SENSOR_FLOOR3) {
 		return 2
-	} else if ioReadBit(SENSOR_FLOOR4) {
+	} else if ioReadBit(C.SENSOR_FLOOR4) {
 		return 3
 	} else {
 		return -1
@@ -98,14 +103,14 @@ func SetFloorLamp(floor int) {
 	}
 	// Binary encoding. One light must always be on.
 	if floor&0x02 > 0 {
-		ioSetBit(LIGHT_FLOOR_IND1)
+		ioSetBit(C.LIGHT_FLOOR_IND1)
 	} else {
-		ioClearBit(LIGHT_FLOOR_IND1)
+		ioClearBit(C.LIGHT_FLOOR_IND1)
 	}
 	if floor&0x01 > 0 {
-		ioSetBit(LIGHT_FLOOR_IND2)
+		ioSetBit(C.LIGHT_FLOOR_IND2)
 	} else {
-		ioClearBit(LIGHT_FLOOR_IND2)
+		ioClearBit(C.LIGHT_FLOOR_IND2)
 	}
 }
 
