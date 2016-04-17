@@ -24,6 +24,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case incomingMsg := <-msgCh.Incoming:
 			go handleMessage(incomingMsg, msgCh.Outgoing)
 		case btnLightUpdate := <-q.LightUpdate:
+			log.Println(def.ColW, "Light update", def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
 		case requestTimeout := <-q.RequestTimeoutChan:
 			q.ReassignRequest(requestTimeout.Floor, requestTimeout.Button, msgCh.Outgoing)

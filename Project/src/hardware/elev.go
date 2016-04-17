@@ -40,6 +40,8 @@ func Init() int {
 		}
 		SetBtnLamp(def.LightUpdate{Floor: f, Button: def.BtnCab, UpdateTo: false})
 	}
+	// Turn off stoplamp
+	ioClearBit(C.LIGHT_STOP)
 
 	// Move to defined state
 	SetMotorDir(def.DirDown)
