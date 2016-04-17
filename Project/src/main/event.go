@@ -46,46 +46,25 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 }
 
 func eventBtnPressed(ch chan<- def.BtnPress) {
-	//lastBtnPressed := def.BtnPress{Floor: -1, Button: -1}
-	//btnPressed := def.BtnPress{Floor: -2, Button: -2}
-
 	var buttonState [def.NumFloors][def.NumButtons]bool
-
 	for {
-		for f := 0; f < def.NumFloors; f++ {
-			for b := 0; b < def.NumButtons; b++ {
-				if (f == 0 && b == def.BtnHallDown) || (f == def.NumFloors-1 && b == def.BtnHallUp) {
+		for floor := 0; floor < def.NumFloors; floor++ {
+			for btn := 0; btn < def.NumButtons; btn++ {
+				if (floor == 0 && btn == def.BtnHallDown) || (floor == def.NumFloors-1 && btn == def.BtnHallUp) {
 					continue
 				}
-				if hw.ReadBtn(f, b) {
-					if !buttonState[f][b] {
-						ch <- def.BtnPress{Floor: f, Button: b}
+				if hw.ReadBtn(floor, btn) {
+					if !buttonState[floor][btn] {
+						ch <- def.BtnPress{Floor: floor, Button: btn}
 					}
-					buttonState[f][b] = true
+					buttonState[floor][btn] = true
 				} else {
-					buttonState[f][b] = false
+					buttonState[floor][btn] = false
 				}
 			}
 		}
 		time.Sleep(10*time.Millisecond)
 	}
-	// for {
-	// 	for floor := 0; floor < def.NumFloors; floor++ {
-	// 		for btn := 0; btn < def.NumButtons; btn++ {
-	// 			if floor == 0 && btn == def.BtnHallDown || floor == def.NumFloors-1 && btn == def.BtnHallUp {
-	// 				continue
-	// 			} else if hw.ReadBtn(floor, btn) {
-	// 				btnPressed.Floor = floor
-	// 				btnPressed.Button = btn
-	// 				if lastBtnPressed != btnPressed{
-	// 					ch <- btnPressed
-	// 				}
-	// 				lastBtnPressed = btnPressed
-	// 			}
-	// 		}
-	// 	}
-	// 	time.Sleep(100 * time.Millisecond)
-	// }
 }
 
 func eventCabAtFloor(ch chan<- int) {

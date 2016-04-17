@@ -6,7 +6,6 @@ import (
 	"queue"
 )
 
-// Enumeration of Elevator behaviour
 const (
 	idle int = iota
 	moving

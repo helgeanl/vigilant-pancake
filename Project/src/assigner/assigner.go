@@ -34,7 +34,7 @@ func CollectCosts(costReply <-chan def.Message, numOnlineCh <-chan int) {
 		}
 	}
 }
-
+//handleCostReply stores in a map mapping request to costReply
 func handleCostReply(requestMap map[request][]reply, message def.Message, numOnline int, timeout chan *request) {
 	newRequest := request{floor: message.Floor, button: message.Button}
 	newReply := reply{cost: message.Cost, elevator: message.Addr}

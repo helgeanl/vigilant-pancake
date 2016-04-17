@@ -6,8 +6,8 @@ import def "definitions"
 func CalcCost(currDir, currFloor, prevFloor, targetFloor, targetBtn int) int {
 	totCost := 0
 	dir := currDir
-	//Is the target above or below
 	targetDir := targetFloor - prevFloor
+	
 	if currFloor == -1 {
 		totCost++
 	} else if dir != def.DirStop {
