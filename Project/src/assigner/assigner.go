@@ -42,13 +42,12 @@ func handleCostReply(requestMap map[request][]reply, message def.Message, numOnl
 	newReply := reply{cost: message.Cost, elevator: message.Addr}
 	log.Println(def.ColR, "New Cost incomming from: ", message.Addr, " for cost: ", message.Cost, def.ColN)
 
-	// Compare requests on content, without the timer
+	// Compare newRequests with existingRequest without the timer
 	for existingRequest := range requestMap {
 		if equal(existingRequest, newRequest) {
 			newRequest = existingRequest
 		}
 	}
-	// Check if request is in queue
 	if replyList, exist := requestMap[newRequest]; exist {
 		// Check if newReply already is registered.
 		found := false
@@ -63,7 +62,7 @@ func handleCostReply(requestMap map[request][]reply, message def.Message, numOnl
 			newRequest.timer.Reset(def.CostReplyTimeoutDuration)
 		}
 	} else {
-		// If order not in queue at all, init order list with it
+		// If newRequest not in requestMap, make new replyList
 		newRequest.timer = time.NewTimer(def.CostReplyTimeoutDuration)
 		requestMap[newRequest] = []reply{newReply}
 		go costTimer(&newRequest, timeout)
@@ -83,6 +82,7 @@ func chooseBestElevator(requestMap map[request][]reply, numOnline int, isTimeout
 					lowestCost = reply.cost
 					bestElevator = reply.elevator
 				} else if reply.cost == lowestCost {
+					// On equal cost, the elevator with lowest IP get the request
 					if reply.elevator < bestElevator {
 						bestElevator = reply.elevator
 					}
