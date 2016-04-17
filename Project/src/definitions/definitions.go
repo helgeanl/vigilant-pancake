@@ -25,6 +25,14 @@ const (
 	DirUp
 )
 
+// Network message category constants
+const (
+	Alive int = iota + 1
+	NewRequest
+	CompleteRequest
+	Cost
+)
+
 type BtnPress struct {
 	Floor  int
 	Button int
@@ -67,13 +75,6 @@ type EventChan struct {
 	DeadElevator chan int
 }
 
-// Network message category constants
-const (
-	Alive int = iota + 1
-	NewRequest
-	CompleteRequest
-	Cost
-)
 
 // Colors for printing to console
 const Col0 = "\x1b[30;1m" // Dark grey

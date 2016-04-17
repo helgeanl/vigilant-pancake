@@ -12,7 +12,7 @@ import (
 
 var onlineElevatorMap = make(map[string]def.UdpConnection)
 
-func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan) {
+func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan,numOnlineCh chan<- int) {
 
 	go eventBtnPressed(hwCh.BtnPressed)
 	go eventCabAtFloor(eventCh.FloorReached)
@@ -22,7 +22,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case btnPress := <-hwCh.BtnPressed:
 			handleBtnPress(btnPress, msgCh.Outgoing)
 		case incomingMsg := <-msgCh.Incoming:
-			go handleMessage(incomingMsg, msgCh.Outgoing)
+			go handleMessage(incomingMsg, msgCh.Outgoing,numOnlineCh)
 		case btnLightUpdate := <-q.LightUpdate:
 			log.Println(def.ColW, "Light update", def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
@@ -85,16 +85,14 @@ func eventCabAtFloor(ch chan<- int) {
 }
 
 func handleBtnPress(btnPress def.BtnPress, outgoingMsg chan<- def.Message) {
-	if !q.HasRequest(btnPress.Floor, btnPress.Button) {
-		if btnPress.Button == def.BtnCab {
-			q.AddRequest(btnPress.Floor, btnPress.Button, def.LocalIP)
-		} else {
-			outgoingMsg <- def.Message{Category: def.NewRequest, Floor: btnPress.Floor, Button: btnPress.Button, Cost: 0}
-		}
+	if btnPress.Button == def.BtnCab {
+		q.AddRequest(btnPress.Floor, btnPress.Button, def.LocalIP)
+	} else {
+		outgoingMsg <- def.Message{Category: def.NewRequest, Floor: btnPress.Floor, Button: btnPress.Button, Cost: 0}
 	}
 }
 
-func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
+func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message,numOnlineCh chan<- int) {
 	switch incomingMsg.Category {
 	case def.Alive:
 		IP := incomingMsg.Addr
@@ -103,8 +101,8 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 		} else {
 			newConnection := def.UdpConnection{Addr: IP, Timer: time.NewTimer(def.ElevTimeoutDuration)}
 			onlineElevatorMap[IP] = newConnection
-			assigner.NumOnlineCh <- len(onlineElevatorMap)
-			go connectionTimer(&newConnection, outgoingMsg)
+			numOnlineCh <- len(onlineElevatorMap)
+			go connectionTimer(&newConnection, outgoingMsg,numOnlineCh)
 			log.Println(def.ColG, "New elevator: ", IP, " | Number online: ", len(onlineElevatorMap), def.ColN)
 		}
 	case def.NewRequest:
@@ -120,16 +118,16 @@ func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message) {
 	}
 }
 
-func handleDeadLift(con def.UdpConnection, outgoingMsg chan<- def.Message) {
+func handleDeadElevator(con def.UdpConnection, outgoingMsg chan<- def.Message,numOnlineCh chan<- int) {
 	log.Println(def.ColR, "Connection to ", def.ColG, con.Addr, def.ColR, " is lost| Number online: ", len(onlineElevatorMap), def.ColN)
 	delete(onlineElevatorMap, con.Addr)
-	assigner.NumOnlineCh <- len(onlineElevatorMap)
+	numOnlineCh <- len(onlineElevatorMap)
 	q.ReassignAllRequestsFrom(con.Addr, outgoingMsg)
 }
 
-func connectionTimer(connection *def.UdpConnection, outgoingMsg chan<- def.Message) {
+func connectionTimer(connection *def.UdpConnection, outgoingMsg chan<- def.Message,numOnlineCh chan<- int) {
 	<-connection.Timer.C
 	if (*connection).Addr != def.LocalIP {
-		handleDeadLift(*connection, outgoingMsg)
+		handleDeadElevator(*connection, outgoingMsg,numOnlineCh)
 	}
 }

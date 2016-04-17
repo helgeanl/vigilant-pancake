@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-// RunBackup loads backup on startUp, and saves queue whenever
+// RunBackup loads backup on startup, and saves queue whenever
 // there is anything on the takeBackup channel
 func RunBackup(outgoingMsg chan<- def.Message) {
 
@@ -29,8 +29,9 @@ func RunBackup(outgoingMsg chan<- def.Message) {
 			if backup.hasRequest(floor, btn) {
 				if btn == def.BtnCab {
 					AddRequest(floor, btn, def.LocalIP)
-				} else if time.Now().After(fileStat.ModTime().Add(def.RequestTimeoutDuration)) {
-					outgoingMsg <- def.Message{Category: def.NewRequest, Floor: floor, Button: btn}
+				// Check if time since last backup is less than RequestTimeoutDuration
+				}else if !time.Now().After(fileStat.ModTime().Add(def.RequestTimeoutDuration)){
+					AddRequest(floor, btn, def.LocalIP)
 				}
 			}
 		}

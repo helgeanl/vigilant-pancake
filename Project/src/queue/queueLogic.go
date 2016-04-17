@@ -34,10 +34,6 @@ func ShouldStop(floor, dir int) bool {
 	return false
 }
 
-func HasRequest(floor, btn int) bool {
-	return queue.hasRequest(floor, btn)
-}
-
 func (q *QueueType) hasRequest(floor, btn int) bool {
 	return q.Matrix[floor][btn].Status
 }

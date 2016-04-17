@@ -24,17 +24,17 @@ var LightUpdate = make(chan def.LightUpdate, 10)
 var takeBackup = make(chan bool, 10)
 
 func AddRequest(floor int, btn int, addr string) {
-	queue.setRequest(floor, btn, RequestStatus{Status: true, Addr: addr, Timer: nil})
-	LightUpdate <- def.LightUpdate{Floor: floor, Button: btn, UpdateTo: true}
-	if addr == def.LocalIP {
-		NewRequest <- true
-	} else {
-		go queue.startTimer(floor, btn)
+	if !queue.hasRequest(floor,btn){
+		queue.setRequest(floor, btn, RequestStatus{Status: true, Addr: addr, Timer: nil})
+		if addr == def.LocalIP {
+			NewRequest <- true
+		} else {
+			go queue.startTimer(floor, btn)
+		}
 	}
 }
 
 func RemoveRequest(floor, btn int) {
-	LightUpdate <- def.LightUpdate{Floor: floor, Button: btn, UpdateTo: false}
 	queue.stopTimer(floor, btn)
 	queue.setRequest(floor, btn, RequestStatus{Status: false, Addr: "", Timer: nil})
 }
@@ -68,14 +68,13 @@ func ReassignAllRequestsFrom(addr string, outgoingMsgCh chan<- def.Message) {
 	}
 }
 
-// Set status of request, sync request lights, take backup
 func (q *QueueType) setRequest(floor, btn int, request RequestStatus) {
 	q.Matrix[floor][btn] = request
+	LightUpdate <- def.LightUpdate{Floor: floor, Button: btn, UpdateTo: request.Status}
 	takeBackup <- true
 	printQueue()
 }
 
-// Start timer for request in queue
 func (q *QueueType) startTimer(floor, btn int) {
 	q.Matrix[floor][btn].Timer = time.NewTimer(def.RequestTimeoutDuration)
 	<-q.Matrix[floor][btn].Timer.C

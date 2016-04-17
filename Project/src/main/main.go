@@ -29,6 +29,7 @@ func main() {
 		Outgoing: make(chan def.Message, 10),
 		Incoming: make(chan def.Message, 10),
 	}
+	numOnlineCh := make(chan int)
 
 	//Initialization
 	startFloor := hw.Init()
@@ -37,7 +38,7 @@ func main() {
 	q.RunBackup(msgCh.Outgoing)
 
 	go EventHandler(eventCh, msgCh, hwCh)
-	go assigner.CollectCosts(q.CostReply, assigner.NumOnlineCh)
+	go assigner.CollectCosts(q.CostReply, numOnlineCh)
 	go safeKill()
 
 	hold := make(chan bool)
