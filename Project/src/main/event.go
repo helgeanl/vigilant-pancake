@@ -1,7 +1,6 @@
 package main
 
 import (
-	"assigner"
 	def "definitions"
 	"fsm"
 	hw "hardware"
