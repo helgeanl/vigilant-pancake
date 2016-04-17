@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Init(outgoingMsg <-chan def.Message, incomingMsg chan<- def.Message ) {
+func Init(outgoingMsg chan def.Message, incomingMsg chan def.Message ) {
 	// Ports randomly chosen to reduce likelihood of port collision.
 	const localListenPort = 37115
 	const broadcastListenPort = 37116
@@ -30,7 +30,7 @@ func Init(outgoingMsg <-chan def.Message, incomingMsg chan<- def.Message ) {
 
 // aliveSpammer periodically sends messages on the network to notify all
 // lifts that this lift is still online ("alive").
-func aliveSpammer(outgoingMsg chan<- def.Message) {
+func aliveSpammer(outgoingMsg chan def.Message) {
 	alive := def.Message{Category: def.Alive, Floor: -1, Button: -1, Cost: -1}
 	for {
 		outgoingMsg <- alive

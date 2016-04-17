@@ -22,7 +22,7 @@ var NewRequest = make(chan bool, 10)
 var LightUpdate = make(chan def.LightUpdate, 10)
 var takeBackup = make(chan bool, 10)
 
-func AddRequest(floor int, btn int, addr string, NewRequest) {
+func AddRequest(floor int, btn int, addr string) {
 	if !queue.hasRequest(floor,btn){
 		queue.setRequest(floor, btn, RequestStatus{Status: true, Addr: addr, Timer: nil})
 		if addr == def.LocalIP {

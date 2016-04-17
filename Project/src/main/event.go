@@ -58,7 +58,7 @@ func eventBtnPressed(ch chan<- def.BtnPress) {
 				if (f == 0 && b == def.BtnHallDown) || (f == def.NumFloors-1 && b == def.BtnHallUp) {
 					continue
 				}
-				if hw.ReadButton(f, b) {
+				if hw.ReadBtn(f, b) {
 					if !buttonState[f][b] {
 						ch <- def.BtnPress{Floor: f, Button: b}
 					}
@@ -74,7 +74,7 @@ func eventBtnPressed(ch chan<- def.BtnPress) {
 	// 	for floor := 0; floor < def.NumFloors; floor++ {
 	// 		for btn := 0; btn < def.NumButtons; btn++ {
 	// 			if floor == 0 && btn == def.BtnHallDown || floor == def.NumFloors-1 && btn == def.BtnHallUp {
-	// 				//invalid
+	// 				continue
 	// 			} else if hw.ReadBtn(floor, btn) {
 	// 				btnPressed.Floor = floor
 	// 				btnPressed.Button = btn
