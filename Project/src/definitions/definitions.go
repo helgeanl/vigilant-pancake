@@ -58,8 +58,10 @@ type LightUpdate struct {
 }
 
 type MessageChan struct {
-	Outgoing chan Message
-	Incoming chan Message
+	Outgoing 	chan Message
+	Incoming 	chan Message
+	CostReply 	chan Message
+	NumOnline 	chan int
 }
 
 type HardwareChan struct {

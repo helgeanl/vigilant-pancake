@@ -18,7 +18,7 @@ type request struct {
 }
 
 // CollectCosts recive all cost from online elevators
-func CollectCosts(costReply chan def.Message, numOnlineCh <-chan int) {
+func CollectCosts(costReply <-chan def.Message, numOnlineCh <-chan int) {
 	requestMap := make(map[request][]reply)
 	var timeout = make(chan *request)
 	var numOnline = 1

@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func Init(outgoingMsg, incomingMsg chan def.Message) {
+func Init(outgoingMsg <-chan def.Message, incomingMsg chan<- def.Message ) {
 	// Ports randomly chosen to reduce likelihood of port collision.
 	const localListenPort = 37115
 	const broadcastListenPort = 37116

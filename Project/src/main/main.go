@@ -14,9 +14,9 @@ import (
 
 func main() {
 	eventCh := def.EventChan{
-		FloorReached: make(chan int),
-		DoorTimeout:  make(chan bool),
-		DeadElevator: make(chan int, 10),
+		FloorReached: 	make(chan int),
+		DoorTimeout:  	make(chan bool),
+		DeadElevator: 	make(chan int, 10),
 	}
 	hwCh := def.HardwareChan{
 		MotorDir:       make(chan int, 10),
@@ -26,25 +26,27 @@ func main() {
 		DoorTimerReset: make(chan bool, 10),
 	}
 	msgCh := def.MessageChan{
-		Outgoing: make(chan def.Message, 10),
-		Incoming: make(chan def.Message, 10),
+		Outgoing: 		make(chan def.Message, 10),
+		Incoming: 		make(chan def.Message, 10),
+		CostReply: 		make(chan def.Message, 10),
+		NumOnline: 		make(chan int),
 	}
-	numOnlineCh := make(chan int)
 
 	//Initialization
 	startFloor := hw.Init()
-	fsm.Init(eventCh, hwCh, msgCh, startFloor)
+	fsm.Init(eventCh, hwCh, startFloor)
 	network.Init(msgCh.Outgoing, msgCh.Incoming)
 	q.RunBackup(msgCh.Outgoing)
 
 	go EventHandler(eventCh, msgCh, hwCh)
-	go assigner.CollectCosts(q.CostReply, numOnlineCh)
+	go assigner.CollectCosts(msgCh.CostReply, msgCh.NumOnline)
 	go safeKill()
 
 	hold := make(chan bool)
 	<-hold
 }
 
+// Turn off motor if program is terminated by user
 func safeKill() {
 	var c = make(chan os.Signal)
 	signal.Notify(c, os.Interrupt)

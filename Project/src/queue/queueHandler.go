@@ -19,11 +19,10 @@ type QueueType struct {
 var queue QueueType
 var RequestTimeoutChan = make(chan def.BtnPress, 10)
 var NewRequest = make(chan bool, 10)
-var CostReply = make(chan def.Message, 10)
 var LightUpdate = make(chan def.LightUpdate, 10)
 var takeBackup = make(chan bool, 10)
 
-func AddRequest(floor int, btn int, addr string) {
+func AddRequest(floor int, btn int, addr string, NewRequest) {
 	if !queue.hasRequest(floor,btn){
 		queue.setRequest(floor, btn, RequestStatus{Status: true, Addr: addr, Timer: nil})
 		if addr == def.LocalIP {

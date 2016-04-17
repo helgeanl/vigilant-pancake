@@ -19,7 +19,7 @@ var Elevator struct {
 	Behaviour int
 }
 
-func Init(eventCh def.EventChan, hwCh def.HardwareChan, msgCh def.MessageChan, startFloor int) {
+func Init(eventCh def.EventChan, hwCh def.HardwareChan, startFloor int) {
 	Elevator.Behaviour = idle
 	Elevator.Dir = def.DirStop
 	Elevator.Floor = startFloor

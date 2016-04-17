@@ -12,7 +12,7 @@ import (
 
 var onlineElevatorMap = make(map[string]def.UdpConnection)
 
-func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan,numOnlineCh chan<- int) {
+func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.HardwareChan) {
 
 	go eventBtnPressed(hwCh.BtnPressed)
 	go eventCabAtFloor(eventCh.FloorReached)
@@ -22,7 +22,7 @@ func EventHandler(eventCh def.EventChan, msgCh def.MessageChan, hwCh def.Hardwar
 		case btnPress := <-hwCh.BtnPressed:
 			handleBtnPress(btnPress, msgCh.Outgoing)
 		case incomingMsg := <-msgCh.Incoming:
-			go handleMessage(incomingMsg, msgCh.Outgoing,numOnlineCh)
+			go handleMessage(incomingMsg, msgCh)
 		case btnLightUpdate := <-q.LightUpdate:
 			log.Println(def.ColW, "Light update", def.ColN)
 			hw.SetBtnLamp(btnLightUpdate)
@@ -92,29 +92,29 @@ func handleBtnPress(btnPress def.BtnPress, outgoingMsg chan<- def.Message) {
 	}
 }
 
-func handleMessage(incomingMsg def.Message, outgoingMsg chan<- def.Message,numOnlineCh chan<- int) {
+func handleMessage(incomingMsg def.Message, msgCh def.MessageChan) {
 	switch incomingMsg.Category {
 	case def.Alive:
-		IP := incomingMsg.Addr
-		if connection, exist := onlineElevatorMap[IP]; exist {
+		addr := incomingMsg.Addr
+		if connection, exist := onlineElevatorMap[addr]; exist {
 			connection.Timer.Reset(def.ElevTimeoutDuration)
 		} else {
-			newConnection := def.UdpConnection{Addr: IP, Timer: time.NewTimer(def.ElevTimeoutDuration)}
-			onlineElevatorMap[IP] = newConnection
-			numOnlineCh <- len(onlineElevatorMap)
-			go connectionTimer(&newConnection, outgoingMsg,numOnlineCh)
-			log.Println(def.ColG, "New elevator: ", IP, " | Number online: ", len(onlineElevatorMap), def.ColN)
+			newConnection := def.UdpConnection{Addr: addr, Timer: time.NewTimer(def.ElevTimeoutDuration)}
+			onlineElevatorMap[addr] = newConnection
+			msgCh.NumOnline <- len(onlineElevatorMap)
+			go connectionTimer(&newConnection, msgCh.Outgoing, msgCh.NumOnline)
+			log.Println(def.ColG, "New elevator: ", addr, " | Number online: ", len(onlineElevatorMap), def.ColN)
 		}
 	case def.NewRequest:
 		log.Println(def.ColC, "New request incomming", def.ColN)
 		cost := q.CalcCost(fsm.Elevator.Dir, hw.GetFloor(), fsm.Elevator.Floor, incomingMsg.Floor, incomingMsg.Button)
-		outgoingMsg <- def.Message{Category: def.Cost, Floor: incomingMsg.Floor, Button: incomingMsg.Button, Cost: cost}
+		msgCh.Outgoing <- def.Message{Category: def.Cost, Floor: incomingMsg.Floor, Button: incomingMsg.Button, Cost: cost}
 	case def.CompleteRequest:
 		log.Println(def.ColG, "Request is completed", def.ColN)
 		q.RemoveRequest(incomingMsg.Floor, incomingMsg.Button)
 	case def.Cost:
 		log.Println(def.ColC, "Cost reply", def.ColN)
-		q.CostReply <- incomingMsg
+		msgCh.CostReply <- incomingMsg
 	}
 }
 
